@@ -1,0 +1,25 @@
+<div class="span-18 last">
+    {% for form in formset.forms %}
+            {{form.errors}}
+            <div class="span-18 last" id="id_choice_table">
+                <div id="{{ form.prefix }}-row">
+                    <div class="span-2">{{ form.constraint }}&nbsp;</div>
+                    <div class="span-5">{{ form.filters }}</div>
+                    <div class="span-4">{{ form.operator }}</div>
+                    <div class="span-5 last">
+                        <div class="span-5">
+                            {{ form.term }}
+                        </div>
+                        <div class="span-5">
+                            {{ form.label }}
+                            {{ form.term2 }}
+                        </div>
+                    </div>
+                    <div class="span-1 last" id="{{ form.prefix }}-row"></div>
+                </div>
+            </div>
+        {% endfor %}
+        {{formset.management_form}}
+
+</div>
+

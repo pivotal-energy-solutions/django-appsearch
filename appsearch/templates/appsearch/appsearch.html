@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+
+{% block page_title %}
+{% if title %}{{ title }}{% else %}Generic Search{% endif %}
+{% endblock%}
+
+{% block style_sheet %}
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/jquery.dataTables.css" />
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/TableTools.css" />
+    <style type="text/css">
+        [name="searchform-0-constraint"] {
+            display: none;
+        }
+        .add-row {
+            margin-top: 3px;
+            margin-bottom: 3px;
+            padding-left:9px;
+            padding-right:9px;
+            padding-bottom:6px;
+            background:url({{ STATIC_URL }}images/add.png) no-repeat;
+        }
+        .delete-row {
+            margin-top: 3px;
+            margin-bottom: 3px;
+            padding-left:9px;
+            padding-right:9px;
+            padding-bottom:6px;
+            background:url({{ STATIC_URL }}images/delete.png) no-repeat;
+        }
+        div.DTTT_container {
+            float: left;
+            margin-top: -50px;
+            margin-bottom: 10px;
+        }
+        
+        div.DTTT_container {
+            float: left;
+            margin-top: -5px;
+            margin-bottom: 0px;
+        }
+    </style>
+{% endblock %}
+
+{% block jquery %}
+    {# Site's jQuery is 1.6.x, but the events on this page need 1.7+ #}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.8.3.min.js"></script>
+{% endblock %}
+{% block javascript_head %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.formset.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.dataTables{% if not debug %}.min{% endif %}.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/TableTools{% if not debug %}.min{% endif %}.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.dataTables.defaults.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/ZeroClipboard.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.16.custom.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.searchabledropdown-1.0.7.min.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            // Validation
+            $("#myform").validate({
+            	rules: {
+            		models : {required: true},
+        			term : {required: true},
+        			csrfmiddlewaretoken:{required:true}
+            	}
+            });
+            
+            // Model <select> trigger
+            $("select#id_models").change(function(){
+                $.getJSON("{% url appsearch:filter %}",{
+                    id: $(this).val(),
+                    ajax: 'true'
+                }, function(j) {
+                    var options = '';
+                    for (var i = 0; i < j.length; i++) {
+                        options += '<option value="' + j[i][0]+ '">' + j[i][1] + '</option>';
+                    }
+                    $("select#id_filters").html(options);
+                });
+            
+                $.get('{% url appsearch:constraint %}',{
+                    id: $(this).val()
+                }, function(data){
+                    $('#constraint_div').html(data);
+                    $('#constraint_div #id_choice_table').formset({
+                        prefix: '{{ constraint_formset.prefix }}',
+                        addText: '',
+                        deleteText: '',
+                        added: function(row){
+                            console.log(row);
+                        }
+                    });
+                    
+                }); 
+            });
+        
+        
+        
+            // Set up initial term2 visibility
+            // TODO: Should these be referring to classes instead?  This only shows/hides the first
+            // rows's secondary input.  All subsequent items don't respond to this.
+            // if ($('#id_term2').val().length > 0 ) {
+            //     $('#ss_term2').show();
+            // } else {
+            //     $('#ss_term2').hide();
+            // }
+
+            // Put datepickers on term inputs that are linked to date fields
+            $('select#id_filters').change(function(){
+                var filter = $(this).find("option:selected").val();
+                if (filter.toLowerCase().indexOf("date") >= 0) {
+                    $("#id_term").datepicker({ dateFormat: 'yy-mm-dd' });
+                    $("#id_term2").datepicker({ dateFormat: 'yy-mm-dd' });
+                } else {
+                    $("#id_term").datepicker("destroy");
+                    $("#id_term2").datepicker("destroy");
+                }
+            })
+
+            // Operator changer
+            // $("#myform").on('change', ".operator select", function(){
+            $(".operator select").change(function(){
+                console.log(this);
+            });
+            $("select#id_operator").change(function(){
+                if ($(this).val() == '__range') {
+                    $('#ss_term2').show(400);
+                } else {
+                    $('#ss_term2').hide(200);
+                }
+                return false;
+            });
+            
+            // Table button configuration
+            TableTools.DEFAULTS.aButtons = [ "copy", "csv", "xls" ];
+            $('#data_table').dataTable({
+                // "sDom": 'T<"clear">lfrtip',
+                'sDom': '<"top" lf>rt<"bottom"<i><pT>>',
+                'oTableTools': {
+                    "sSwfPath": "{{ STATIC_URL }}swf/copy_cvs_xls_pdf.swf",
+                    "aButtons": ["copy", "csv", "xls", {
+                        "sExtends":"pdf",
+                        "sPdfOrientation": "landscape",
+                        "sPdfMessage": "Your custom message would go here."
+                      }, "print"]
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="span-18 last">
+        {{ form.errors }}
+        <h2>Structured Search</h2>
+        <form id="myform" action="" method="post">
+            {% csrf_token %}
+            <div class="span-18 last">Search For:<br /> {{ form.models }}</div>
+            {# <div class="span-18 last"> #}
+            {#     <div class="span-2">&nbsp;</div> #}
+            {#     <div class="span-5">Filter By:<br />{{ form.filters }}</div> #}
+            {#     <div class="span-4 operator">Operator:<br />{{ form.operator }}</div> #}
+            {#     <div class="span-5 last"> #}
+            {#         <div class="span-5"> #}
+            {#             Term:<br />{{ form.term }} #}
+            {#         </div> #}
+            {#         <div class="span-5" id="ss_term2"> #}
+            {#             End Term:<br /> {{ form.term2 }} #}
+            {#         </div> #}
+            {#     </div> #}
+            {#     <div class="span-1">&nbsp;</div> #}
+            {# </div> #}
+            <div id="constraint_div">
+                {% for contraint_form in constraint_formset %}
+                <div class="span-18 last">
+                    <div class="span-2">Constraint<br /> {{ contraint_form.constraint }}&nbsp;</div>
+                    <div class="span-5">Filter By:<br /> {{ contraint_form.filters }}</div>
+                    <div class="span-4 operator">Operator:<br /> {{ contraint_form.operator }}</div>
+                    <div class="span-5 last">
+                        <div class="span-5">
+                            Term:<br /> {{ contraint_form.term }}
+                        </div>
+                        <div class="span-5" id="ss_term3">
+                            End Term:<br /> {{ contraint_form.term2 }}
+                        </div>
+                    </div>
+                    <div class="span-1">&nbsp;</div>
+                </div>
+                {% endfor %}
+                {{ constraint_formset.management_form }}
+            </div>
+
+
+            <div class="span-18 last">
+                <div class="span-16">&nbsp;</div>
+                <div class="span-1 last">&nbsp;
+                    <button type="submit">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    
+    {% if natural_search_string %}
+    <div class="span-18 last">&nbsp;</div>
+    <hr />
+    <div class="span-18 last">
+        <h2>{{ data_list|length }} {{ natural_search_string }}</h2>
+    </div>
+    {% endif %}
+
+    {% if data_list %}
+        <div class="span-18 last">
+            <table id="data_table">
+                <thead>
+                    <tr>
+                        {% for field in field_list %}
+                            <th>{{ field.1 }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                {% for data in data_list %}
+                <tr>
+                    {% for field_data in data %}
+                        <td>{{ field_data|safe }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% endif %}
+{% endblock %}
