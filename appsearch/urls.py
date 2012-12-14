@@ -1,12 +1,12 @@
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls.defaults import patterns, url, include
 
 import appsearch
-from appsearch.views import ModelListing, AjaxFillFields, AjaxConstraint
+from appsearch.views import ConstraintsAjaxView
 
 appsearch.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^$', ModelListing.as_view(), name='listing'),
-    url(r'filters/$', AjaxFillFields.as_view(), name='filter'),
-    url(r'constraint/$', AjaxConstraint.as_view(), name='constraint'),
+    (r'^', include(patterns('',
+        url(r'constraint/$', ConstraintsAjaxView.as_view(), name='constraints'),
+    ), namespace='appsearch')),
 )
