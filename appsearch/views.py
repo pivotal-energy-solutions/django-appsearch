@@ -93,7 +93,16 @@ class ConstraintOperatorsAjaxView(BaseAjaxConfigurationResolutionView):
     """
     
     def get(self, request, *args, **kwargs):
-        choices = self.configuration.get_operator_choices(kwargs.get('field'))
+        field = request.GET.get('field')
+        
+        try:
+            choices = self.configuration.get_operator_choices(field)
+        except AttributeError:
+            choices = None
+        
+        if not choices:
+            return HttpResponseBadRequest("Bad field")
+        
         data = {'choices': choices}
         
         return HttpResponse(json.dumps(data, indent=4), content_type='text/json')
