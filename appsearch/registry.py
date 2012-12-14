@@ -1,9 +1,41 @@
+# -*- coding: utf-8 -*-
+
 from operator import itemgetter
 from collections import OrderedDict
 
 from django.forms.forms import pretty_name
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Model
+from django.db import models
+from django.db.models.fields import FieldDoesNotExist
+from django.db.models.sql.constants import LOOKUP_SEP
+
+# Base fields to detect built-in operator types.  Fields that subclass these are implicitly included
+# in the type check.
+TEXT_FIELDS = (models.CharField, models.TextField, models.EmailField, models.FilePathField,
+        models.IPAddressField, models.GenericIPAddressField)
+DATE_FIELDS = (models.DateField, models.DateTimeField, models.TimeField)
+NUMERIC_FIELDS = (models.IntegerField, models.AutoField, models.FloatField)
+BOOLEAN_FIELDS = (models.BooleanField, models.NullBooleanField)
+
+# Maps the core field types to the default available search operators.
+# The ORM query representation (e.g., "icontains") is not sent to the frontend.
+# Notable, the "!exact" entry will cause the query to use an .exclude() operation instead of the
+# normal .filter() one.
+OPERATOR_MAP = {
+    'text': (
+        ('gt', "> greater than"),
+        ('lt', "< less than"),
+        ('exact', "= equal"),
+        ('!exact', "≠ not equal"),
+        ('icontains', "contains"),
+        ('range', "range"),
+        ('isnotnull', "exists"),
+        ('isnull', "doesn't exist"),
+    ),
+    'date': (),
+    'number': (),
+    'boolean': (),
+}
 
 class ModelSearch(object):
     """
@@ -203,15 +235,48 @@ class ModelSearch(object):
         return pretty_name(self.model._meta.verbose_name)
     
     def get_operator_choices(self, field):
-        """ Returns the list of django ORM query types that work for each search field. """
+        """
+        Walks the ORM description of ``field`` and decides the type of the field's class.  Returns
+        a list of 2-tuples for operator selections suitable for use as a form's ``choices``
+        attribute.
         
-        pass
+        """
+        
+        attribute_list = field.split(LOOKUP_SEP)
+        
+        def _get_field(model_class, name):
+            related_descriptor = getattr(model_class, name)
+            try:
+                model_class = related_descriptor.related.model
+            except AttributeError:
+                try:
+                    model_class = related_descriptor.field.rel.to
+                except AttributeError:
+                    model_class = related_descriptor
+            return model_class
+        
+        model = reduce(_get_field, [self.model] + attribute_list[:-1])
+        
+        try:
+            field, _, _, _ = model._meta.get_field_by_name(attribute_list[-1])
+        except FieldDoesNotExist:
+            operators = []
+        else:
+            if isinstance(field, TEXT_FIELDS):
+                choices = OPERATOR_MAP['text']
+            elif isinstance(field, DATE_FIELDS):
+                choices = OPERATOR_MAP['date']
+            elif isinstance(field, NUMERIC_FIELDS):
+                choices = OPERATOR_MAP['number']
+            elif isinstance(field, BOOLEAN_FIELDS):
+                choices = OPERATOR_MAP['boolean']
+            else:
+                raise ValueError("Unhandled field type %s" % field.__class__.__name__)
+            
+            operators = map(lambda c: (c[1], c[1]), choices)
+        
+        return operators
     
-    # def get_searchable_fields(self):
-    #     """ Returns the list of fields the model presents as searchable. """
-    #     
-    #     return self._fields.values()
-    # 
     def get_searchable_field_choices(self):
         """ Returns an iterable of 2-tuples suitable for use as a form's ``choices`` attribute. """
         
@@ -249,7 +314,7 @@ class SearchRegistry(object):
             yield k
     
     def __getitem__(self, k):
-        if isinstance(k, Model):
+        if isinstance(k, models.Model):
             k = k.__name__.lower()
         return self._registry[k]
     
