@@ -202,7 +202,7 @@ class ModelSearch(object):
             return self.verbose_name
         return pretty_name(self.model._meta.verbose_name)
     
-    def get_orm_operators(self):
+    def get_operator_choices(self, field):
         """ Returns the list of django ORM query types that work for each search field. """
         
         pass

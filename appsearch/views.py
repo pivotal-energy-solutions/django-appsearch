@@ -73,7 +73,7 @@ class BaseAjaxConfigurationResolutionView(View):
         return self.request.user.has_perm(permission)
     
     
-class ConstraintsAjaxView(BaseAjaxConfigurationResolutionView):
+class ConstraintFieldsAjaxView(BaseAjaxConfigurationResolutionView):
     """
     Looks up a model class based on the regex parameter "model" (or from the GET data), which is a
     valid ``ContentType`` pk.
@@ -82,6 +82,19 @@ class ConstraintsAjaxView(BaseAjaxConfigurationResolutionView):
     
     def get(self, request, *args, **kwargs):
         data = {'choices': self.configuration.get_searchable_field_choices()}
+        
+        return HttpResponse(json.dumps(data, indent=4), content_type='text/json')
+    
+class ConstraintOperatorsAjaxView(BaseAjaxConfigurationResolutionView):
+    """
+    Looks up a model class based on the regex parameter "model" (or from the GET data), which is a
+    valid ``ContentType`` pk.
+    
+    """
+    
+    def get(self, request, *args, **kwargs):
+        choices = self.configuration.get_operator_choices(kwargs.get('field'))
+        data = {'choices': choices}
         
         return HttpResponse(json.dumps(data, indent=4), content_type='text/json')
     

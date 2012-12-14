@@ -7,6 +7,7 @@ appsearch.autodiscover()
 
 urlpatterns = patterns('',
     (r'^', include(patterns('',
-        url(r'constraint/$', ConstraintsAjaxView.as_view(), name='constraints'),
+        url(r'constraint/$', ConstraintFieldsAjaxView.as_view(), name='constraint-fields'),
+        url(r'operators/$', ConstraintOperatorsAjaxView.as_view(), name='constraint-operators'),
     ), namespace='appsearch')),
 )
