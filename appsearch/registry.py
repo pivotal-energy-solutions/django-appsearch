@@ -23,19 +23,31 @@ BOOLEAN_FIELDS = (models.BooleanField, models.NullBooleanField)
 # normal .filter() one.
 OPERATOR_MAP = {
     'text': (
-        ('gt', "> greater than"),
-        ('lt', "< less than"),
         ('exact', "= equal"),
         ('!exact', "≠ not equal"),
         ('icontains', "contains"),
+        ('isnotnull', "exists"),
+        ('isnull', "doesn't exist"),
+    ),
+    'date': (
         ('range', "range"),
         ('isnotnull', "exists"),
         ('isnull', "doesn't exist"),
     ),
-    'date': (),
-    'number': (),
-    'boolean': (),
+    'number': (
+        ('gt', "> greater than"),
+        ('lt', "< less than"),
+        ('range', "range"),
+        ('isnotnull', "exists"),
+        ('isnull', "doesn't exist"),
+    ),
+    'boolean': (
+        ('exact', "= equal"),
+        ('isnotnull', "exists"),
+        ('isnull', "doesn't exist"),
+    ),
 }
+OPERATOR_REVERSE_MAP = {section: OPERATOR_MAP[section][::-1] for section in OPERATOR_MAP}
 
 class ModelSearch(object):
     """
@@ -272,6 +284,10 @@ class ModelSearch(object):
                 choices = OPERATOR_MAP['boolean']
             else:
                 raise ValueError("Unhandled field type %s" % field.__class__.__name__)
+            
+            # Remove the 'isnull' and 'isnotnull' operators if the field can't be null anyway
+            if not field.null:
+                choices = filter(lambda c: c[0] not in ('isnull', 'isnotnull'), choices)
             
             operators = map(lambda c: (c[1], c[1]), choices)
         
