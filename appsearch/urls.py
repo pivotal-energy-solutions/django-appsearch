@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import patterns, url, include
 
 import appsearch
-from appsearch.views import ConstraintsAjaxView
+from appsearch.views import ConstraintFieldsAjaxView, ConstraintOperatorsAjaxView
 
 appsearch.autodiscover()
 
