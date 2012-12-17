@@ -13,7 +13,7 @@ from django.db.models.sql.constants import LOOKUP_SEP
 # in the type check.
 TEXT_FIELDS = (models.CharField, models.TextField, models.EmailField, models.FilePathField,
         models.IPAddressField, models.GenericIPAddressField)
-DATE_FIELDS = (models.DateField, models.DateTimeField, models.TimeField)
+DATE_FIELDS = (models.DateField, models.TimeField)
 NUMERIC_FIELDS = (models.IntegerField, models.AutoField, models.FloatField)
 BOOLEAN_FIELDS = (models.BooleanField, models.NullBooleanField)
 
