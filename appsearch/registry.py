@@ -175,7 +175,7 @@ class ModelSearch(object):
         # Search fields
         extended_info = self._get_field_info([], self.model, None, self.search_fields)
         self._fields.update(extended_info)
-            
+
     def _get_field_info(self, orm_path_bits, model, related_name, field_list, include_model_in_verbose_name=True):
         """
         Recurses the fields listed on the model to provide a complete index of their ORM paths and
@@ -201,17 +201,17 @@ class ModelSearch(object):
             
         base_orm_path = orm_path_bits
         sub_fields = []
-            
+
         for field_name in field_list:
             # print "Handling field %r" % (field_name,)
             if isinstance(field_name, dict):
                 # Nested dict.  Recurse the function with the new related context
                 extended_name, sub_field_list = field_name.items()[0]
-                orm_path_bits = base_orm_path
+                nested_orm_path_bits = base_orm_path[:]
                 if related_name:
-                    orm_path_bits.append(related_name)
-                sub_fields.extend(self._get_field_info(orm_path_bits, related_model, extended_name,\
-                        sub_field_list))
+                    nested_orm_path_bits.append(related_name)
+                sub_fields.extend(self._get_field_info(nested_orm_path_bits, related_model, \
+                        extended_name, sub_field_list))
             else:
                 # Raw field name or 2-tuple
                 
