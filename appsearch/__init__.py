@@ -1,6 +1,7 @@
 # This code is heavily based on contrib.admin's autodiscover mechanism.
 
 import logging
+import sys
 
 log = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ def autodiscover():
         try:
             before_import_registry = copy.copy(search._registry)
             import_module('%s.search' % app)
-        except Exception as e:
+        except:
             # Reset the model registry to the state before the last import as
             # this import will have to reoccur on the next request and this
             # could raise NotRegistered and AlreadyRegistered exceptions
@@ -34,6 +35,5 @@ def autodiscover():
             # doesn't have an admin module, we can ignore the error
             # attempting to import it, otherwise we want it to bubble up.
             if module_has_submodule(mod, 'search'):
-                
-                log.warn("App %s.search failed to import.", app, exc_info=e)
-                raise e
+                exc_type, e, traceback = sys.exc_info()
+                raise exc_type, e.message, traceback
