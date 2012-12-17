@@ -227,13 +227,18 @@ class ModelSearch(object):
                     else:
                         verbose_name_bits = [field.verbose_name]
                     verbose_name = ' '.join(map(pretty_name, verbose_name_bits))
-                    
+                
+                if not isinstance(field_name, (tuple, list)):
+                    field_name = (field_name,)
+                
+                orm_path_bits = base_orm_path[:]
                 if related_name:
-                    orm_path_bits = base_orm_path + [related_name, field_name]
-                else:
-                    orm_path_bits = base_orm_path + [field_name]
-                sub_fields.append(['__'.join(orm_path_bits), verbose_name])
-                # print orm_path_bits, field.name, related_model, verbose_name
+                    orm_path_bits.append(related_name)
+                
+                orm_info = tuple('__'.join(orm_path_bits + [component])
+                        for component in field_name)
+                sub_fields.append([orm_info, verbose_name])
+                # print orm_info, field.name, related_model, verbose_name
                 
             # print sub_fields
             
