@@ -289,7 +289,7 @@ class ModelSearch(object):
             if not field.null:
                 choices = filter(lambda c: c[0] not in ('isnull', 'isnotnull'), choices)
             
-            operators = map(lambda c: (c[1], c[1]), choices)
+            operators = map(itemgetter(1), choices)
         
         return operators
     
