@@ -30,6 +30,10 @@ OPERATOR_MAP = {
         ('isnull', "doesn't exist"),
     ),
     'date': (
+        ('exact', "= equal"),
+        ('!exact', "≠ not equal"),
+        ('gt', "> greater than"),
+        ('lt', "< less than"),
         ('range', "range"),
         ('isnotnull', "exists"),
         ('isnull', "doesn't exist"),
