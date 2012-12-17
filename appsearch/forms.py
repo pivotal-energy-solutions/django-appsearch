@@ -64,7 +64,7 @@ class ConstraintForm(forms.Form):
     field = forms.ChoiceField(label="Filter by", choices=[])
     
     # Dynamically populated list of valid operators for the chosen ``field``
-    operator = forms.ChoiceField(label="Constraint type", choices=OPERATOR_CHOICES)
+    operator = forms.ChoiceField(label="Constraint type", choices=[])
     
     term = forms.CharField(label="Search term")
     end_term = forms.CharField(label="End term")
