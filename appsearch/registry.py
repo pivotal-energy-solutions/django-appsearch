@@ -207,11 +207,11 @@ class ModelSearch(object):
             if isinstance(field_name, dict):
                 # Nested dict.  Recurse the function with the new related context
                 extended_name, sub_field_list = field_name.items()[0]
-                nested_orm_path_bits = base_orm_path[:]
+                orm_path_bits = base_orm_path[:]
                 if related_name:
-                    nested_orm_path_bits.append(related_name)
-                sub_fields.extend(self._get_field_info(nested_orm_path_bits, related_model, \
-                        extended_name, sub_field_list))
+                    orm_path_bits.append(related_name)
+                sub_fields.extend(self._get_field_info(orm_path_bits, related_model, extended_name,
+                        sub_field_list))
             else:
                 # Raw field name or 2-tuple
                 
