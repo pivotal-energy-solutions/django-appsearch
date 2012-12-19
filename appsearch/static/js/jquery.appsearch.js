@@ -101,7 +101,7 @@
                 // Re-initialize the formset after stripping out the add/remove links
                 form.find('.add-row,.delete-row').remove(); // formset.js
                 form.find('.constraint-form').formset(options.formsetOptions); // formset.js
-            });
+            })(e, constraintForm);
         });
     
         // Make the form available for chained calls
@@ -119,7 +119,6 @@
         
         return choices;
     };
-    
     $.fn.appsearch._getOperators = function(form, modelValue, fieldValue){
         var choices = null;
         $.ajax(form.data('options').constraintOperatorDataURL, {
