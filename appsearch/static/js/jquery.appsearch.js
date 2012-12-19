@@ -18,6 +18,10 @@
                 })
             } else {
                 form.trigger('update-field-list.appsearch');
+                
+                // Re-initialize the formset after stripping out the add/remove links
+                form.find('.add-row,.delete-row').remove(); // formset.js
+                form.find('.constraint-form').formset(options.formsetOptions); // formset.js
             }
         });
         form.find('.constraint-field select').on('change.appsearch', function(){
@@ -90,17 +94,8 @@
                     operatorSelect.append(_option_template.clone().val(choices[i]).text(choices[i]));
                 }
                 
-                // Propagate change through the operator <select>
+                // Propagate change through the operator <select>, updating the term fields
                 operatorSelect.change();
-                    
-                form.trigger('constraint-form-changed', [constraintForm]);
-            })(e, constraintForm);
-        });
-        form.on('constraint-form-changed', function(e, constraintForm){
-            (options.constraintFormChanged || function(e, constraintForm){
-                // Re-initialize the formset after stripping out the add/remove links
-                form.find('.add-row,.delete-row').remove(); // formset.js
-                form.find('.constraint-form').formset(options.formsetOptions); // formset.js
             })(e, constraintForm);
         });
     
