@@ -322,11 +322,6 @@ class ModelSearch(object):
         """ Returns the hash of field ORM paths derived from the initial configuration. """
         
         hashes = map(itemgetter(0), self.get_searchable_field_choices())
-        import pprint
-        pprint.pprint(hashes)
-        print
-        print hashes.index(hash)
-        pprint.pprint(self._fields.keys())
         
         try:
             return self._fields.keys()[hashes.index(hash)]
