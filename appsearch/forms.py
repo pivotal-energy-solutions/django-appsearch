@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import ValidationError
 from django.forms.formsets import BaseFormSet
 from django.db.models.fields import BLANK_CHOICE_DASH
 
@@ -32,21 +33,21 @@ class ModelSelectionForm(forms.Form):
 class SearchForm(object):
     pass
 
-class ConstraintForm(forms.Form):
-    """ form adds up constraints along with initial form """   
-    
-    constraint   =   forms.ChoiceField(label="Add Constraint",choices=[('&', 'AND'),('|','OR')])
-    filters      =   forms.ChoiceField(label="Filter By",choices=[])
-    operator     =   forms.ChoiceField(label="Constraint Type", choices=OPERATOR_CHOICES)
-    term         =   forms.CharField(label="Search Term")
-    term2        =   forms.CharField(label="End Term")
-
-    def __init__(self,filters=None, *args, **kwargs):
-        super(ConstraintForm, self).__init__(*args, **kwargs)
-        self.fields['operator'].initial = 5
-        if filters:
-            self.fields['filters'].choices = filters
-
+# class ConstraintForm(forms.Form):
+#     """ form adds up constraints along with initial form """   
+#     
+#     constraint   =   forms.ChoiceField(label="Add Constraint",choices=[('&', 'AND'),('|','OR')])
+#     filters      =   forms.ChoiceField(label="Filter By",choices=[])
+#     operator     =   forms.ChoiceField(label="Constraint Type", choices=OPERATOR_CHOICES)
+#     term         =   forms.CharField(label="Search Term")
+#     term2        =   forms.CharField(label="End Term")
+# 
+#     def __init__(self,filters=None, *args, **kwargs):
+#         super(ConstraintForm, self).__init__(*args, **kwargs)
+#         self.fields['operator'].initial = 5
+#         if filters:
+#             self.fields['filters'].choices = filters
+# 
 
 class ConstraintForm(forms.Form):
     """
@@ -78,9 +79,18 @@ class ConstraintForm(forms.Form):
         
         super(ConstraintForm, self).__init__(*args, **kwargs)
         
+        self.configuration = configuration
         if configuration:
             self.field.choices = configuration.get_searchable_field_choices()
             # self.operator.choices = map(map(itemgetter, configuration.get_orm_operators()), OPERATOR_CHOICES)
+    def clean_field(self):
+        data = self.cleaned_data['field']
+        try:
+            data = self.configuration.reverse_field_hash(data)
+        except ValueError:
+            raise ValidationError("Invalid field")
+        
+        return data
 
 class ConstraintFormset(BaseFormSet):
     """ Removes the first ``ConstraintForm``'s ``type`` field. """

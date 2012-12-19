@@ -2,6 +2,7 @@
 
 from operator import itemgetter
 from collections import OrderedDict
+from sha import sha
 
 from django.forms.forms import pretty_name
 from django.contrib.contenttypes.models import ContentType
@@ -255,7 +256,7 @@ class ModelSearch(object):
             return self.verbose_name
         return pretty_name(self.model._meta.verbose_name)
     
-    def get_operator_choices(self, field):
+    def get_operator_choices(self, field=None, hash=None):
         """
         Walks the ORM description of ``field`` and decides the type of the field's class.  Returns
         a list of 2-tuples for operator selections suitable for use as a form's ``choices``
@@ -263,7 +264,10 @@ class ModelSearch(object):
         
         """
         
-        attribute_list = field.split(LOOKUP_SEP)
+        if hash is not None:
+            field = self.reverse_field_hash(hash)
+        
+        attribute_list = field[0].split(LOOKUP_SEP)
         
         def _get_field(model_class, name):
             related_descriptor = getattr(model_class, name)
@@ -303,9 +307,31 @@ class ModelSearch(object):
         return operators
     
     def get_searchable_field_choices(self):
-        """ Returns an iterable of 2-tuples suitable for use as a form's ``choices`` attribute. """
+        """
+        Returns an iterable of 2-tuples suitable for use as a form's ``choices`` attribute.
         
-        return self._fields.items()
+        The ORM path is obscured for use as the <option> tag values.
+        
+        """
+        
+        # Perform a sha hash on the ORM path to get something unique and obscured for the frontend
+        encode_value = lambda pair: (sha(','.join(pair[0])).hexdigest(), pair[1])
+        return map(encode_value, self._fields.items())
+    
+    def reverse_field_hash(self, hash):
+        """ Returns the hash of field ORM paths derived from the initial configuration. """
+        
+        hashes = map(itemgetter(0), self.get_searchable_field_choices())
+        import pprint
+        pprint.pprint(hashes)
+        print
+        print hashes.index(hash)
+        pprint.pprint(self._fields.keys())
+        
+        try:
+            return self._fields.keys()[hashes.index(hash)]
+        except IndexError:
+            raise ValueError("Unknown field hash")
 
 class SearchRegistry(object):
     """
