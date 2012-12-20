@@ -10,6 +10,7 @@ from appsearch.registry import search
 
 class SearchMixin(object):
     context_object_name = 'search'
+    form_template_name = 'appsearch/default_form.html'
     
     def get_context_object_name(self):
         return self.context_object_name
@@ -17,8 +18,23 @@ class SearchMixin(object):
     def get_context_data(self, **kwargs):
         context = super(SearchMixin, self).get_context_data(**kwargs)
         object_name = self.get_context_object_name()
-        context[object_name] = Searcher(self.request.GET)
+        context[object_name] = self.get_searcher()
         return context
+    
+    def get_searcher(self):
+        return Searcher(self.request.path, self.request.GET, **self.get_searcher_kwargs())
+    
+    def get_searcher_kwargs(self):
+        return {
+            'form_template': self.get_form_template_name(),
+            'context_object_name': self.get_context_object_name()
+        }
+    
+    def get_context_object_name(self):
+        return self.context_object_name
+    
+    def get_form_template_name(self):
+        return self.form_template_name
 
 class BaseSearchView(SearchMixin, TemplateView):
     pass
