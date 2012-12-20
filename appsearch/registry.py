@@ -199,9 +199,14 @@ class ModelSearch(object):
         #     self._fields[field_name] = verbose_name
         
         
-        # Search fields
+        # Get flattened sequence of 3-tuples: ([orm_path,...], verbose_name, Field)
         extended_info = self._get_field_info([], self.model, None, self.search_fields)
-        self._fields.update(extended_info)
+        
+        # Store each element's [:2] as the field choices
+        self._fields.update(map(itemgetter(slice(0, 2)), extended_info))
+        
+        # Store each element's [::2] (that is, [0] and [2]) as a mapping to the field object
+        self.field_types = dict(map(itemgetter(slice(0, None, 2)), extended_info))
 
     def _get_field_info(self, orm_path_bits, model, related_name, field_list, include_model_in_verbose_name=True):
         """
@@ -242,6 +247,7 @@ class ModelSearch(object):
             else:
                 # Raw field name or 2-tuple
                 
+                field = None
                 # Check for a 2-tuple of ("Friendly name", "field_name")
                 if isinstance(field_name, (tuple, list)):
                     verbose_name, field_name = field_name
@@ -257,6 +263,8 @@ class ModelSearch(object):
                 
                 if not isinstance(field_name, (tuple, list)):
                     field_name = (field_name,)
+                if field is None:
+                    field = resolve_field_from_orm_path(related_model, field_name[0])
                 
                 orm_path_bits = base_orm_path[:]
                 if related_name:
@@ -264,7 +272,7 @@ class ModelSearch(object):
                 
                 orm_info = tuple('__'.join(orm_path_bits + [component])
                         for component in field_name)
-                sub_fields.append([orm_info, verbose_name])
+                sub_fields.append([orm_info, verbose_name, field])
                 # print orm_info, field.name, related_model, verbose_name
                 
             # print sub_fields
