@@ -301,36 +301,9 @@ class ModelSearch(object):
         if hash is not None:
             field = self.reverse_field_hash(hash)
         
-        attribute_list = field[0].split(LOOKUP_SEP)
-        
-        def _get_field(model_class, name):
-            related_descriptor = getattr(model_class, name)
-            try:
-                model_class = related_descriptor.related.model
-            except AttributeError:
-                try:
-                    model_class = related_descriptor.field.rel.to
-                except AttributeError:
-                    model_class = related_descriptor
-            return model_class
-        
-        model = reduce(_get_field, [self.model] + attribute_list[:-1])
-        
-        try:
-            field, _, _, _ = model._meta.get_field_by_name(attribute_list[-1])
-        except FieldDoesNotExist:
-            operators = []
-        else:
-            if isinstance(field, TEXT_FIELDS):
-                choices = OPERATOR_MAP['text']
-            elif isinstance(field, DATE_FIELDS):
-                choices = OPERATOR_MAP['date']
-            elif isinstance(field, NUMERIC_FIELDS):
-                choices = OPERATOR_MAP['number']
-            elif isinstance(field, BOOLEAN_FIELDS):
-                choices = OPERATOR_MAP['boolean']
-            else:
-                raise ValueError("Unhandled field type %s" % field.__class__.__name__)
+        field_type = self.field_types[field]
+        classification = self.get_field_classification(field_type)
+        choices = OPERATOR_MAP[classification]
             
             # Remove the 'isnull' and 'isnotnull' operators if the field can't be null anyway
             if not field.null:
