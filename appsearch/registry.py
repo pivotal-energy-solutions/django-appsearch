@@ -305,11 +305,12 @@ class ModelSearch(object):
         classification = self.get_field_classification(field_type)
         choices = OPERATOR_MAP[classification]
             
-            # Remove the 'isnull' and 'isnotnull' operators if the field can't be null anyway
-            if not field.null:
-                choices = filter(lambda c: c[0] not in ('isnull', 'isnotnull'), choices)
-            
-            operators = map(itemgetter(1), choices)
+        # Remove the 'isnull' and 'isnotnull' operators if this field instance can't be null anyway
+        if not field_type.null:
+            choices = filter(lambda c: c[0] not in ('isnull', 'isnotnull'), choices)
+        
+        # Convert operators to flat sequence of items
+        operators = map(itemgetter(1), choices)
         
         return operators
     
