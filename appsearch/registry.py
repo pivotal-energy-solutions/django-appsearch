@@ -340,6 +340,18 @@ class ModelSearch(object):
         
         return operators
     
+    def get_field_classification(self, field):
+        if isinstance(field, TEXT_FIELDS):
+            return 'text'
+        elif isinstance(field, DATE_FIELDS):
+            return 'date'
+        elif isinstance(field, NUMERIC_FIELDS):
+            return 'number'
+        elif isinstance(field, BOOLEAN_FIELDS):
+            return 'boolean'
+        else:
+            raise ValueError("Unhandled field type %s" % field.__class__.__name__)
+    
     def get_searchable_field_choices(self):
         """
         Returns an iterable of 2-tuples suitable for use as a form's ``choices`` attribute.
