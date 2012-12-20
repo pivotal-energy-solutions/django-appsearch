@@ -22,10 +22,11 @@ class SearchMixin(object):
         return context
     
     def get_searcher(self):
-        return Searcher(self.request.path, self.request.GET, **self.get_searcher_kwargs())
+        return Searcher(self.request, **self.get_searcher_kwargs())
     
     def get_searcher_kwargs(self):
         return {
+            'request': self.request,
             'form_template': self.get_form_template_name(),
             'context_object_name': self.get_context_object_name()
         }
