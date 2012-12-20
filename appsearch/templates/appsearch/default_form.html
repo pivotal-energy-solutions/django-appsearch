@@ -1,0 +1,98 @@
+{% load url from future %}
+
+<script type="text/javascript">
+    $(function(){
+        $('#appsearch-form').appsearch({
+            'constraintFieldDataURL': '{{ search.field_data_url }}',
+            'constraintOperatorDataURL': '{{ search.operator_data_url }}',
+            'modelSelect': $('#appsearch-form #model-select-wrapper select'),
+                
+            // Passed directly to formset.js
+            'formsetOptions': {
+                prefix: '{{ search.constraint_formset.prefix }}',
+                addText: '',
+                deleteText: ''
+            }
+        });
+    });
+</script>
+
+<form id="appsearch-form" action="{{ search.url }}" method="get">
+    {% csrf_token %}
+    {{ search.constraint_formset.management_form }}
+            
+    <div class="span-18 last" id="model-select-wrapper">
+        {{ search.model_selection_form.model.label_tag }}:<br />
+        {{ search.model_selection_form.model }}
+    </div>
+    <div class="constraints-wrapper">
+        {% for form in search.constraint_formset %}
+        <div class="span-18 last constraint-form">
+            <div class="span-2 constraint-type">
+                {# This has a span so that the elements can be hidden via jquery #}
+                <span>{{ form.type.label_tag }}:<br />{{ form.type }}</span>
+                &nbsp;
+            </div>
+            <div class="span-5 constraint-field">
+                {{ form.field.label_tag }}:<br />{{ form.field }}
+            </div>
+            <div class="span-4 constraint-operator">
+                {{ form.operator.label_tag}}:<br />{{ form.operator }}
+            </div>
+            <div class="span-5 last constraint-terms">
+                <div class="span-5 term begin-term">
+                    {{ form.term.label_tag }}:<br />{{ form.term }}
+                    <div class="span-5 description">Description</div>
+                </div>
+                <div class="span-5 term end-term"
+                        {% if not form.end_term.field.initial and not form.errors %}
+                        style="display: none;"
+                        {% endif %}>
+                    {{ form.end_term.label_tag }}:<br />{{ form.end_term }}
+                </div>
+                &nbsp;
+            </div>
+                    
+            {# Space for dynamic formset.js 'remove' link #}
+            <div class="span-1">&nbsp;</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="span-18 last">
+        <div class="span-16">&nbsp;</div>
+        <div class="span-1 last">&nbsp;
+            <button type="submit">Submit</button>
+        </div>
+    </div>
+</form>
+    
+{% if search.string %}
+    <div class="span-18 last">&nbsp;</div>
+    <hr />
+    <div class="span-18 last">
+        <h2>{{ search.results.count }} {{ search.string }}</h2>
+    </div>
+    {% if search.results %}
+        <div class="span-18 last">
+            <table id="data_table">
+                <thead>
+                    <tr>
+                        {% for field in search.results.fields %}
+                            <th>{{ field.verbose_name|default:field }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in search.results.list %}
+                        <tr>
+                            {% for item in result %}
+                                <td>{{ item|safe }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+{% endif %}
