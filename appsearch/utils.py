@@ -1,6 +1,7 @@
 from django.forms.formsets import formset_factory
 from django.core.urlresolvers import reverse
 from django.utils.encoding import StrAndUnicode
+from django.template import RequestContext
 from django.template.loader import render_to_string
 
 from appsearch.registry import search, SearchRegistry
@@ -21,20 +22,21 @@ class Searcher(StrAndUnicode):
     string = None
     results = None
     
-    def __init__(self, url, querydict, registry=search, **kwargs):
+    def __init__(self, request, url=None, querydict=None, registry=search, **kwargs):
         self.kwargs = kwargs
+        self._request = request
+        self.url = url or request.path
         
-        self._set_up_forms(querydict, registry)
-        
-        self.url = url
+        self._set_up_forms(querydict or request.GET, registry)
         self._determine_urls(kwargs)
         
         self.form_template = kwargs.get('form_template', 'appsearch/default_form.html')
     
     def __unicode__(self):
-        return render_to_string(self.form_template, {
-            self.kwargs.get('context_object_name', 'search'): self,
-        })
+        context_object_name = self.kwargs.get('context_object_name', 'search')
+        return render_to_string(self.form_template, RequestContext(self._request, {
+            context_object_name: self,
+        }))
     
     def _set_up_forms(self, querydict, registry):
         self.model_selection_form = ModelSelectionForm(registry, querydict)
