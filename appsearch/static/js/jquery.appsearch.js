@@ -26,13 +26,25 @@
         });
         form.find('.constraint-field select').on('change.appsearch', function(){
             // Field has changed; trigger operator list update for the target constraint
-            var constraintForm = $(this).closest('.constraint-form');
+            var select = $(this);
+            var option = select.find(':selected');
+            var constraintForm = select.closest('.constraint-form');
             form.trigger('update-operator-list', [constraintForm]);
+            
+            // Set the description text
+            var fieldType = option.attr('data-type');
+            var fieldText = option.text();
+            var fieldValue = option.val();
+            var descriptionBox = constraintForm.find('.description');
+            form.trigger('set-field-description', [descriptionBox, fieldType, fieldText, fieldValue, constraintForm]);
         });
         form.find('.constraint-operator select').on('change.appsearch', function(){
             var select = $(this);
+            var option = select.find(':selected');
             var value = select.val();
-            var termInputs = select.closest('.constraint-form').find('.term');
+            
+            var constraintForm = select.closest('.constraint-form')
+            var termInputs = constraintForm.find('.term');
             
             if (options.termlessOperators.indexOf(value) != -1) {
                 // termless operator; hide inputs
@@ -73,9 +85,12 @@
                 var fieldSelect = constraintForm.find('.constraint-field select');
                 fieldSelect.empty();
                 for (var i = 0; i < choices.length; i++) {
-                    var pair = choices[i];
-                    fieldSelect.append(_option_template.clone().val(pair[0]).text(pair[1]));
+                    var info = choices[i];
+                    var option = _option_template.clone().val(info[0]).text(info[1]);
+                    option.attr('data-type', info[2]);
+                    fieldSelect.append(option);
                 }
+                fieldSelect.change();
                 
                 // Ask for the operator list to update according to the form's field
                 form.trigger('update-operator-list', [constraintForm]);
@@ -98,7 +113,26 @@
                 operatorSelect.change();
             })(e, constraintForm);
         });
-    
+        form.on('set-field-description.appsearch', function(e, descriptionBox, type, text, value, constraintForm){
+            (options.setFieldDescription || function(){
+                var description;
+                if (type == "text") {
+                    description = "Text";
+                } else if (type == "date") {
+                    description = "Date format: MM-DD-YYYY";
+                } else if (type == "number") {
+                    description = "Number";
+                } else if (type == "boolean") {
+                    description = "true or false"
+                    // TODO: Change term input to <select> somewhere...
+                } else {
+                    console.warn("Unknown field type:", type);
+                }
+                
+                descriptionBox.text(description);
+            })(e, descriptionBox, type, text, value, constraintForm);
+        });
+        
         // Make the form available for chained calls
         return this;
     };
@@ -135,6 +169,7 @@
         'updateFieldList': null,
         'updateOperatorList': null,
         'constraintFormChanged': null,
+        'setFieldDescription': null,
         
         'getFields': null,
         'getOperators': null,
