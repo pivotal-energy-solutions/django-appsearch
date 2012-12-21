@@ -283,6 +283,8 @@ class ModelSearch(object):
         
         if hash is not None:
             field = self.reverse_field_hash(hash)
+        elif field is None:
+            return []
         
         field_type = self.field_types[field]
         classification = self.get_field_classification(field_type)
