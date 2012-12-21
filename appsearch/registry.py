@@ -182,23 +182,6 @@ class ModelSearch(object):
         
         self._fields = OrderedDict()
         
-        # Display fields
-        
-        # display_info = self._get_field_info([], self.model, None, self.display_fields, \
-        #         include_model_in_verbose_name=False)
-        # self._fields.update(display_info)
-        
-        # for field_info in self.display_fields:
-        #     if not isinstance(field_info, (tuple, list)):
-        #         field_name = field_info
-        #         field, _, _, _ = self.model._meta.get_field_by_name(field_name)
-        #         
-        #         field_info = (field.verbose_name, field_name)
-        #     
-        #     verbose_name, field_name = field_info
-        #     self._fields[field_name] = verbose_name
-        
-        
         # Get flattened sequence of 3-tuples: ([orm_path,...], verbose_name, Field)
         extended_info = self._get_field_info([], self.model, None, self.search_fields)
         
