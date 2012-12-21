@@ -314,7 +314,7 @@ class ModelSearch(object):
         else:
             raise ValueError("Unhandled field type %s" % field.__class__.__name__)
     
-    def get_searchable_field_choices(self):
+    def get_searchable_field_choices(self, include_types=False):
         """
         Returns an iterable of 2-tuples suitable for use as a form's ``choices`` attribute.
         
@@ -322,9 +322,14 @@ class ModelSearch(object):
         
         """
         
+        choices = self._fields.items()
+        if include_types:
+            choices = map(lambda c: c + (self.get_field_classification(c[0]),), choices)
+        print include_types, len(choices[0])
+        
         # Perform a sha hash on the ORM path to get something unique and obscured for the frontend
-        encode_value = lambda pair: (sha(','.join(pair[0])).hexdigest(), pair[1])
-        return map(encode_value, self._fields.items())
+        encode_value = lambda pair: (sha(','.join(pair[0])).hexdigest(),) + tuple(pair[1:])
+        return map(encode_value, choices)
     
     def reverse_field_hash(self, hash):
         """ Returns the hash of field ORM paths derived from the initial configuration. """
