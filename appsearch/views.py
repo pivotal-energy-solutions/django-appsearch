@@ -98,7 +98,7 @@ class ConstraintFieldsAjaxView(BaseAjaxConfigurationResolutionView):
     """
     
     def get(self, request, *args, **kwargs):
-        data = {'choices': self.configuration.get_searchable_field_choices()}
+        data = {'choices': self.configuration.get_searchable_field_choices(include_types=True)}
         
         return HttpResponse(json.dumps(data, indent=4), content_type='text/json')
     
