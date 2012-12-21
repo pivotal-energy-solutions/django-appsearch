@@ -300,6 +300,9 @@ class ModelSearch(object):
         return operators
     
     def get_field_classification(self, field):
+        if isinstance(field, tuple):
+            field = self.field_types[field]
+        
         if isinstance(field, TEXT_FIELDS):
             return 'text'
         elif isinstance(field, DATE_FIELDS):
