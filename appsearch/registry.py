@@ -186,7 +186,7 @@ class ModelSearch(object):
         extended_info = self._get_field_info([], self.model, None, self.search_fields)
         
         # Store each element's [:2] as the field choices
-        self._fields.update(map(itemgetter(slice(0, 2)), extended_info))
+        self._fields.update(map(itemgetter(slice(2)), extended_info))
         
         # Store each element's [::2] (that is, [0] and [2]) as a mapping to the field object
         self.field_types = dict(map(itemgetter(slice(0, None, 2)), extended_info))
