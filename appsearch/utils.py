@@ -149,7 +149,7 @@ class Searcher(StrAndUnicode):
             # virtual field name.
             query = None
             for field in field_list:
-                field_query = '{}__{}'.format(field, constraint_operator)
+                field_query = LOOKUP_SEP.join((field, constraint_operator))
                 
                 value = term
                 
