@@ -221,3 +221,18 @@ class Searcher(StrAndUnicode):
                 related_names.add(related_path)
         
         return queryset.select_related(*related_names)
+    
+    def process_results(self, queryset):
+        """
+        Converts the instances in ``object_list`` to a list of 1-tuples.  Provided as a hook for a
+        view subclass to override and provide appropriate behavior.
+        
+        Should return a sequence of n-tuples, where ``n`` is the number of columns to be shown in
+        the table.
+        
+        """
+        
+        if self._process_results_callback:
+            self._process_results_callback(self, self.model, self.model_config, queryset)
+        
+        return [self.model_config.get_object_data(obj) for obj in queryset]
