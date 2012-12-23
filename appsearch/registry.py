@@ -429,8 +429,8 @@ class SearchRegistry(object):
             yield k
     
     def __getitem__(self, k):
-        if isinstance(k, models.Model):
-            k = k.__name__.lower()
+        if not isinstance(k, basestring):
+            k = '.'.join((k._meta.app_label, k.__name__.lower()))
         return self._registry[k]
     
     def register(self, model, configuration):
