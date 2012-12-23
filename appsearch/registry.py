@@ -183,6 +183,7 @@ class ModelSearch(object):
         self._process_display_fields()
         self._process_searchable_fields()
         
+        # Determine the ContentType in advance.
         self._content_type = ContentType.objects.get_for_model(self.model)
     def _process_display_fields(self):
         """
