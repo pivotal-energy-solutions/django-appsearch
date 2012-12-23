@@ -85,6 +85,36 @@ class ConstraintForm(forms.Form):
         self.configuration = configuration
         if configuration:
             self.fields['field'].choices = configuration.get_searchable_field_choices()
+    
+    def _clean_fields(self):
+        """
+        Workaround for displaying stripped info in the ``operator`` select, and running validation
+        against reversed (name, value) choices.
+        
+        Because the frontend strips away the queryset language from the operator choices (leaving
+        behind doubled 2-tuples of UI text such as ("= equal", "= equal")), the default field-level
+        validation of the ``operator`` field will fail by default, since "iexact" is valid but
+        "= equal" is not.  To solve the problem, this method sets the choices appropriately in
+        reverse: ("= equal", "iexact").  When field validation inspects the value, everything will
+        check out.  During that time, the ``clean_operator()`` method will be called to further
+        process the ``operator`` value back to "iexact" (the reversed, faked UI text).
+        
+        Once all of the trickery is done, the choices are mapped once more to ("= equal", "= equal")
+        so that when the template is rendered with this form, the choices are as they were before.
+        
+        """
+        
+        field_field = self.fields['field']
+        field_hash = field_field.widget.value_from_datadict(self.data, {}, self.add_prefix('field'))
+        operators = self.configuration.get_operator_choices(hash=field_hash)
+        self.fields['operator'].choices = map(list, map(reversed, operators))
+        
+        # Allow default validation to occur, including the "clean_operator" method below.
+        super(ConstraintForm, self)._clean_fields()
+        
+        # Set the operators back to the flat choices of frontend-only values
+        self.fields['operator'].choices = map(lambda o: (o[1], o[1]), operators)
+    
     def clean_field(self):
         """ Convert field into ORM path tuple. """
         data = self.cleaned_data['field']
