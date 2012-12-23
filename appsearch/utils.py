@@ -1,4 +1,5 @@
 import operator
+import logging
 
 from django.db.models.query import Q
 from django.forms.formsets import formset_factory
@@ -10,6 +11,8 @@ from django.db.models.sql.constants import LOOKUP_SEP
 
 from appsearch.registry import search, SearchRegistry
 from appsearch.forms import ModelSelectionForm, ConstraintForm, ConstraintFormset
+
+log = logging.getLogger(__name__)
 
 class Searcher(StrAndUnicode):
     """ Template helper, wrapping all the necessary components to render an appsearch page. """
@@ -133,16 +136,11 @@ class Searcher(StrAndUnicode):
         query_list = []
         
         for i, constraint_form in enumerate(self.constraint_formset):
-            type = constraint_form.cleaned_data['type']
+            type_operator = constraint_form.cleaned_data['type']
             field_list = constraint_form.cleaned_data['field']
             constraint_operator = constraint_form.cleaned_data['operator']
             term = constraint_form.cleaned_data['term']
             end_term = constraint_form.cleaned_data['end_term']
-            
-            if type == 'and':
-                type_operator = operator.and_
-            elif type == 'or':
-                type_operator = operator.or_
             
             # Build this field's query.
             # Search fields bound together in a tuple are considered OR conditions for a single
@@ -156,11 +154,9 @@ class Searcher(StrAndUnicode):
                 if negative:
                     constraint_operator = constraint_operator[1:]
                 
-                # Adapt the terms for the operator
-                if operator == "range":
-                    value = [value, end_term]
-                # elif operator == "iexact":
-                #     value = 
+                if constraint_operator == "isnull":
+                    value = not negative
+                    negative = False
                 
                 # Bake the queryset language string
                 field_query = LOOKUP_SEP.join((field, constraint_operator))
@@ -168,6 +164,8 @@ class Searcher(StrAndUnicode):
                 q = Q(**{
                     field_query: value,
                 })
+                
+                log.debug("Querying %s [%d]: %s=%r", self.model.__name__, i, field_query, value)
                 
                 # Negate if necessary
                 if negative:
@@ -181,8 +179,7 @@ class Searcher(StrAndUnicode):
             query_list.append((type_operator, query))
         
         # The first query's "type" should be ignored for the sake of the reduce line below.
-        query_list[0] = query_list[0][1]
-        query = reduce(lambda q1, (op, q2): op(q1, q2), query_list)
+        query = reduce(lambda q1, (op, q2): op(q1, q2), query_list[1:], query_list[0][1])
         
         queryset = self.model.objects.filter(query)
         queryset = self.process_queryset(queryset)

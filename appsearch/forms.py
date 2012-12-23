@@ -1,8 +1,11 @@
+import operator
+
 from django import forms
 from django.forms import ValidationError
 from django.forms.formsets import BaseFormSet
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.contrib.contenttypes.models import ContentType
+import dateutil.parser
 
 from appsearch.registry import OPERATOR_MAP
 
@@ -115,15 +118,21 @@ class ConstraintForm(forms.Form):
         # Set the operators back to the flat choices of frontend-only values
         self.fields['operator'].choices = map(lambda o: (o[1], o[1]), operators)
     
+    def clean_type(self):
+        """ Convert type into an ``operator.and_`` or ``operator.or_`` reference. """
+        
+        type = self.cleaned_data['type']
+        
+        if type == "and":
+            type = operator.and_
+        elif type == "or":
+            type = operator.or_
+        
+        return type
+    
     def clean_field(self):
         """ Convert field into ORM path tuple. """
-        data = self.cleaned_data['field']
-        try:
-            data = self.configuration.reverse_field_hash(data)
-        except ValueError:
-            raise ValidationError("Invalid choice")
-        
-        return data
+        return self.configuration.reverse_field_hash(self.cleaned_data['field'])
     
     def clean_operator(self):
         """ Convert operator into ORM query type such as "icontains" """
@@ -139,6 +148,50 @@ class ConstraintForm(forms.Form):
         operator = dict(self.fields['operator'].choices)[operator]
         
         return operator
+    
+    def clean_term(self):
+        """ Normalizes the ``term`` field to what makes sense for the operator. """
+        
+        classification = self.configuration.get_field_classification(self.cleaned_data['field'])
+        term = self.cleaned_data['term']
+        
+        # Numbers and strings don't need processing, but the other types should be inspected.
+        if classification == "date":
+            term = dateutil.parser.parse(term)
+        elif classification == "boolean":
+            if term.lower() in ("true", "yes"):
+                term = True
+            elif term.lower() in ("false", "no"):
+                term = False
+            else:
+                raise ValidationError("Boolean value must be either true/false or yes/no")
+        
+        return term
+    
+    def clean_end_term(self):
+        """
+        Normalize the ``end_term`` field for range queries.
+        
+        The ``end_term`` will merge itself into ``term`` if appropriate, making the cleaned value
+        of ``term`` a list of the two values suitable for direct use in a queryset "range" lookup.
+        Consequently, ``end_term`` will always clean to the empty string.
+        
+        """
+        
+        classification = self.configuration.get_field_classification(self.cleaned_data['field'])
+        operator = self.cleaned_data['operator']
+        term = self.cleaned_data['end_term']
+        
+        if operator == "range":
+            if classification == "date":
+                term = dateutil.parser.parse(term)
+            else:
+                raise ValidationError("Unknown range type %r" % classification)
+            
+            begin_term = self.cleaned_data['term']
+            self.cleaned_data['term'] = [begin_term, term]
+        
+        return ""
 
 class ConstraintFormset(BaseFormSet):
     """ Removes the first ``ConstraintForm``'s ``type`` field. """
