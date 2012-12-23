@@ -305,17 +305,8 @@ class ModelSearch(object):
             # print sub_fields
             
         return sub_fields    
-    def get_model_name(self):
-        """
-        Gets the frontend-friendly name of the model represented by this configuration.
-        
-        By default, tries to return ``verbose_name``, then the ``model``'s verbose name.
-        
         """
         
-        if self.verbose_name:
-            return self.verbose_name
-        return pretty_name(self.model._meta.verbose_name)
     
     def get_operator_choices(self, field=None, hash=None):
         """
