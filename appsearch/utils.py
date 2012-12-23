@@ -85,7 +85,7 @@ class Searcher(StrAndUnicode):
         constraint_formset_class = formset_factory(ConstraintForm, formset=ConstraintFormset)
         
         if self.model_selection_form.is_valid():
-            model_configuration = self.model_selection_form.get_model_configuration()
+            model_configuration = self.model_selection_form.get_selected_configuration()
             self.constraint_formset = constraint_formset_class(model_configuration, querydict)
             if self.constraint_formset.is_valid():
                 self._forms_ready = True
