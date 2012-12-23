@@ -2,6 +2,9 @@ from django import forms
 from django.forms import ValidationError
 from django.forms.formsets import BaseFormSet
 from django.db.models.fields import BLANK_CHOICE_DASH
+from django.contrib.contenttypes.models import ContentType
+
+from appsearch.registry import OPERATOR_MAP
 
 OPERATOR_CHOICES = [
     ("__lt", "<"),
