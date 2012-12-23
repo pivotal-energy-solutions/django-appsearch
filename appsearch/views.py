@@ -14,8 +14,6 @@ class SearchMixin(object):
     search_form_template_name = "appsearch/search_form.html"
     results_list_template_name = "appsearch/results_list.html"
     
-    def get_context_object_name(self):
-        return self.context_object_name
     
     def get_context_data(self, **kwargs):
         context = super(SearchMixin, self).get_context_data(**kwargs)
