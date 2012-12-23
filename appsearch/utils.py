@@ -19,7 +19,7 @@ class Searcher(StrAndUnicode):
     field_data_url = None
     operator_data_url = None
     
-    string = None
+    natural_string = None
     results = None
     
     def __init__(self, request, url=None, querydict=None, registry=search, **kwargs):
