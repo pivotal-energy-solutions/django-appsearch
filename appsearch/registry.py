@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from operator import itemgetter
+from operator import itemgetter, attrgetter
 from collections import OrderedDict
 from sha import sha
 
@@ -185,6 +185,11 @@ class ModelSearch(object):
         
         # Determine the ContentType in advance.
         self._content_type = ContentType.objects.get_for_model(self.model)
+        
+        # Process the display fields
+        if not self.display_fields:
+            self.display_fields = list(map(attrgetter('name'), self.model._meta.local_fields))
+    
     def _process_display_fields(self):
         """
         Converts a potentially uneven collection of strings and tuples in ``display_fields`` to
