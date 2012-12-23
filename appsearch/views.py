@@ -17,8 +17,14 @@ class SearchMixin(object):
     
     def get_context_data(self, **kwargs):
         context = super(SearchMixin, self).get_context_data(**kwargs)
+        
         object_name = self.get_context_object_name()
-        context[object_name] = self.get_searcher()
+        searcher = self.get_searcher()
+        
+        if searcher.ready:
+            searcher._perform_search()
+        
+        context[object_name] = searcher
         return context
     
     def get_searcher(self):
