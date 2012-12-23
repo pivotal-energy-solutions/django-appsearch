@@ -8,6 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.db.models.sql.constants import LOOKUP_SEP
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.text import capfirst
 from django.forms.forms import pretty_name
 
@@ -373,6 +374,28 @@ class ModelSearch(object):
             return self._fields.keys()[hashes.index(hash)]
         except IndexError:
             raise ValueError("Unknown field hash")
+    
+    def get_display_fields(self):
+        """ Returns the list of labels for the display fields. """
+        return list(map(itemgetter(0), self._display_fields))
+    
+    def get_object_data(self, obj):
+        """
+        Returns a list of values retrieved from ``obj``, automatically fetched according to the
+        configured ``display_fields``.  Values that raise ``ObjectDoesNotExist`` or cause
+        ``AttributeError`` (such as a null ForeignKey in the middle of a chain lookup) are
+        suppressed and replaced with ``None``.
+        
+        """
+        
+        data = []
+        for _, field_name, _ in self._display_fields:
+            try:
+                value = reduce(getattr, [obj] + field_name.split(LOOKUP_SEP))
+            except (ObjectDoesNotExist, AttributeError):
+                value = None
+            data.append(value)
+        return data
 
 class SearchRegistry(object):
     """
