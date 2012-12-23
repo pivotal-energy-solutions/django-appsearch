@@ -86,13 +86,29 @@ class ConstraintForm(forms.Form):
         if configuration:
             self.fields['field'].choices = configuration.get_searchable_field_choices()
     def clean_field(self):
+        """ Convert field into ORM path tuple. """
         data = self.cleaned_data['field']
         try:
             data = self.configuration.reverse_field_hash(data)
         except ValueError:
-            raise ValidationError("Invalid field")
+            raise ValidationError("Invalid choice")
         
         return data
+    
+    def clean_operator(self):
+        """ Convert operator into ORM query type such as "icontains" """
+        
+        # The default cleaned_value will be the text from the UI, so the choices (which have been
+        # reversed for default validation to accept the text as a valid choice) are converted to a
+        # dictionary for accessing the intended ORM queryset language value.
+        
+        # Input: "= equal"
+        # Output: "iexact"
+        
+        operator = self.cleaned_data['operator']
+        operator = dict(self.fields['operator'].choices)[operator]
+        
+        return operator
 
 class ConstraintFormset(BaseFormSet):
     """ Removes the first ``ConstraintForm``'s ``type`` field. """
