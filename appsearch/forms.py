@@ -81,8 +81,7 @@ class ConstraintForm(forms.Form):
         
         self.configuration = configuration
         if configuration:
-            self.field.choices = configuration.get_searchable_field_choices()
-            # self.operator.choices = map(map(itemgetter, configuration.get_orm_operators()), OPERATOR_CHOICES)
+            self.fields['field'].choices = configuration.get_searchable_field_choices()
     def clean_field(self):
         data = self.cleaned_data['field']
         try:
