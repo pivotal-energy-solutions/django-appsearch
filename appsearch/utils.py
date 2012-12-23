@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from django.utils.encoding import StrAndUnicode
 from django.template import RequestContext
 from django.template.loader import render_to_string
+from django.db.models.sql.constants import LOOKUP_SEP
 
 from appsearch.registry import search, SearchRegistry
 from appsearch.forms import ModelSelectionForm, ConstraintForm, ConstraintFormset
@@ -196,3 +197,27 @@ class Searcher(StrAndUnicode):
         if self._display_fields_callback:
             return self._display_fields_callback(self, self.model, self.model_config)
         return self.model_config.get_display_fields()
+    
+    def process_queryset(self, queryset):
+        """
+        Hook for selecting necessary related fields on the given ``queryset``.
+        
+        Default behavior inspects the display fields for any related items and requests their
+        selection.
+        
+        """
+        
+        display_fields = self.get_display_fields()
+        related_names = set()
+        for field_info in display_fields:
+            if isinstance(field_info, (tuple, list)):
+                _, field_name = field_info
+            else:
+                field_name = field_info
+            
+            related_path = field_name.rsplit(LOOKUP_SEP, 1)[0]
+            
+            if LOOKUP_SEP in related_path:
+                related_names.add(related_path)
+        
+        return queryset.select_related(*related_names)
