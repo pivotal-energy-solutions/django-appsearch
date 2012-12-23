@@ -23,6 +23,19 @@ class ModelSelectionForm(forms.Form):
         
         self.fields['model'].choices = BLANK_CHOICE_DASH + \
                 [(c._content_type.id, c.verbose_name) for c in configurations]
+    
+    def clean_model(self):
+        model = self.cleaned_data['model']
+        try:
+            model = ContentType.objects.get(id=model).model_class()
+        except ContentType.DoesNotExist as e:
+            raise ValidationError("Invalid choice")
+        
+        if model not in self.registry:
+            raise ValidationError("Invalid choice")
+        
+        return model
+    
     def get_selected_model(self):
         """ Returns the select model's class. """
         
