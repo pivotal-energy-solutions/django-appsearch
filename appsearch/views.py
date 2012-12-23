@@ -35,7 +35,6 @@ class SearchMixin(object):
         """ Returns the dictionary of kwargs sent to the ``Searcher`` constructor. """
         
         return {
-            'request': self.request,
             'form_template_name': self.get_form_template_name(),
             'form_template_name': self.get_search_form_template_name(),
             'form_template_name': self.get_results_list_template_name(),
