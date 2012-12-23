@@ -129,7 +129,7 @@ class ConstraintOperatorsAjaxView(BaseAjaxConfigurationResolutionView):
         field = request.GET.get('field')
         
         try:
-            choices = self.configuration.get_operator_choices(hash=field)
+            choices = self.configuration.get_operator_choices(hash=field, flat=True)
         except AttributeError:
             choices = None
         
