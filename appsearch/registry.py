@@ -175,6 +175,8 @@ class ModelSearch(object):
                 self.verbose_name_plural = self.verbose_name + u"s"
             else:
                 self.verbose_name_plural = capfirst(self.model._meta.verbose_name_plural)
+        if not self.verbose_name:
+            self.verbose_name = capfirst(self.model._meta.verbose_name)
         self._process_searchable_fields()
         
         self._content_type = ContentType.objects.get_for_model(self.model)
