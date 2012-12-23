@@ -1,3 +1,6 @@
+import operator
+
+from django.db.models.query import Q
 from django.forms.formsets import formset_factory
 from django.core.urlresolvers import reverse
 from django.utils.encoding import StrAndUnicode
@@ -114,3 +117,77 @@ class Searcher(StrAndUnicode):
         
         self.field_data_url = field_url
         self.operator_data_url = operator_url
+    
+    def _perform_search(self):
+        """
+        Generates the query using the validated constraint formset.  Also compiles a natural
+        language string (``self.natural_string``) in the format of
+        "N [Model]s with [field] [operator] '[term]'".
+        
+        """
+        
+        self.natural_string = self.model_config.verbose_name_plural
+        
+        # 2-tuples of an operator and Q instance, sent through reduce() after it's built
+        query_list = []
+        
+        for i, constraint_form in enumerate(self.constraint_formset):
+            type = constraint_form.cleaned_data['type']
+            field_list = constraint_form.cleaned_data['field']
+            constraint_operator = constraint_form.cleaned_data['operator']
+            term = constraint_form.cleaned_data['term']
+            end_term = constraint_form.cleaned_data['end_term']
+            
+            if type == 'and':
+                type_operator = operator.and_
+            elif type == 'or':
+                type_operator = operator.or_
+            
+            # Build this field's query.
+            # Search fields bound together in a tuple are considered OR conditions for a single
+            # virtual field name.
+            query = None
+            for field in field_list:
+                field_query = '{}__{}'.format(field, constraint_operator)
+                
+                value = term
+                
+                # Prep an inverted lookup
+                negative = constraint_operator.startswith('!')
+                if negative:
+                    constraint_operator = constraint_operator[1:]
+                
+                # Adapt the terms for the operator
+                if operator == "range":
+                    value = [value, end_term]
+                # elif operator == "iexact":
+                #     value = 
+                
+                q = Q(**{
+                    field_query: value,
+                })
+                
+                # Negate if necessary
+                if negative:
+                    q = ~q
+                
+                if query is None:
+                    query = q
+                else:
+                    query |= q
+            
+            query_list.append((type_operator, query))
+        
+        # The first query's "type" should be ignored for the sake of the reduce line below.
+        query_list[0] = query_list[0][1]
+        query = reduce(lambda q1, (op, q2): op(q1, q2), query_list)
+        
+        queryset = self.model.objects.filter(query)
+        queryset = self.process_queryset(queryset)
+        data_rows = self.process_results(queryset)
+        
+        self.results = {
+            'count': len(queryset),
+            'list': data_rows,
+            'fields': self.get_display_fields(),
+        }
