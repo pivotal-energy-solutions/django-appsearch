@@ -33,21 +33,6 @@ class ModelSelectionForm(forms.Form):
 class SearchForm(object):
     pass
 
-# class ConstraintForm(forms.Form):
-#     """ form adds up constraints along with initial form """   
-#     
-#     constraint   =   forms.ChoiceField(label="Add Constraint",choices=[('&', 'AND'),('|','OR')])
-#     filters      =   forms.ChoiceField(label="Filter By",choices=[])
-#     operator     =   forms.ChoiceField(label="Constraint Type", choices=OPERATOR_CHOICES)
-#     term         =   forms.CharField(label="Search Term")
-#     term2        =   forms.CharField(label="End Term")
-# 
-#     def __init__(self,filters=None, *args, **kwargs):
-#         super(ConstraintForm, self).__init__(*args, **kwargs)
-#         self.fields['operator'].initial = 5
-#         if filters:
-#             self.fields['filters'].choices = filters
-# 
 
 class ConstraintForm(forms.Form):
     """
