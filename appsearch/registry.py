@@ -305,14 +305,13 @@ class ModelSearch(object):
             # print sub_fields
             
         return sub_fields    
+    def get_operator_choices(self, field=None, hash=None, flat=False):
         """
+        Returns the sequence of 2-tuples of ('querytype', "Friendly Operator Name") for the given
+        ``field`` Field instance, or given the ``hash`` representing that field.
         
-    
-    def get_operator_choices(self, field=None, hash=None):
-        """
-        Walks the ORM description of ``field`` and decides the type of the field's class.  Returns
-        a list of 2-tuples for operator selections suitable for use as a form's ``choices``
-        attribute.
+        if ``flat``, then only the text from each option is returned (read: not the "value"),
+        forming a sequence of strings such as ("= equal", "< less than", ...).
         
         """
         
@@ -329,10 +328,10 @@ class ModelSearch(object):
         if not field_type.null:
             choices = filter(lambda c: c[0] not in ('isnull', 'isnotnull'), choices)
         
-        # Convert operators to flat sequence of items
-        operators = map(itemgetter(1), choices)
+        if flat:
+            choices = map(itemgetter(1), choices)
         
-        return operators
+        return choices
     
     def get_field_classification(self, field):
         if isinstance(field, tuple):
