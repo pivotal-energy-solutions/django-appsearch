@@ -17,11 +17,8 @@
                     $(this).find('.delete-row').click();
                 })
             } else {
-                form.trigger('update-field-list.appsearch');
-                
-                // Re-initialize the formset after stripping out the add/remove links
-                form.find('.add-row,.delete-row').remove(); // formset.js
-                form.find('.constraint-form').formset(options.formsetOptions); // formset.js
+                form.trigger('update-field-list');
+                form.trigger('configure-formset');
             }
         });
         form.find('.constraint-field select').on('change.appsearch', function(){
@@ -61,6 +58,11 @@
             }
         });
         
+        form.on('configure-formset.appsearch', function(){
+            // Re-initialize the formset after stripping out the add/remove links
+            form.find('.add-row,.delete-row').remove(); // formset.js
+            form.find('.constraint-form').formset(options.formsetOptions); // formset.js
+        });
         form.on('update-field-list.appsearch', function(e){
             // Default handler that tries to call a user-supplied function or else the default one
             (options.updateFieldList || function(){
@@ -132,6 +134,9 @@
                 descriptionBox.text(description);
             })(e, descriptionBox, type, text, value, constraintForm);
         });
+        
+        // Make sure preloaded form data is immediately validated.
+        form.trigger('configure-formset');
         
         // Make the form available for chained calls
         return this;
