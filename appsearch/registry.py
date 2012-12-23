@@ -159,6 +159,7 @@ class ModelSearch(object):
     
     model = None
     verbose_name = None
+    verbose_name_plural = None
     
     display_fields = None
     search_fields = None
@@ -166,6 +167,14 @@ class ModelSearch(object):
     _fields = None
     
     def __init__(self):
+        if not self.verbose_name_plural:
+            # If the plural name is unset, but the single name is, pluralize the single name instead
+            # of reverting back to the model's Meta verbose_plural_name (which might just be a
+            # pluralization of its verbose_name, which is explicitly being overridden).
+            if self.verbose_name:
+                self.verbose_name_plural = self.verbose_name + u"s"
+            else:
+                self.verbose_name_plural = capfirst(self.model._meta.verbose_name_plural)
         self._process_searchable_fields()
         
         self._content_type = ContentType.objects.get_for_model(self.model)
