@@ -68,7 +68,7 @@ class ConstraintForm(forms.Form):
     operator = forms.ChoiceField(label="Constraint type", choices=[])
     
     term = forms.CharField(label="Search term")
-    end_term = forms.CharField(label="End term")
+    end_term = forms.CharField(label="End term", required=False)
     
     def __init__(self, configuration, *args, **kwargs):
         """
