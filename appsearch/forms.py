@@ -21,9 +21,7 @@ class ModelSelectionForm(forms.Form):
         super(ModelSelectionForm, self).__init__(*args, **kwargs)
         
         self.fields['model'].choices = BLANK_CHOICE_DASH + \
-                [(c._content_type.id, c.get_model_name()) for c in self.configurations]
-                # list(enumerate(map(lambda c: c.get_model_name(), self.configurations)))
-
+                [(c._content_type.id, c.verbose_name) for c in configurations]
     def get_selected_model(self):
         """ Returns the select model's class. """
         
