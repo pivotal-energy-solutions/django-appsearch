@@ -29,7 +29,7 @@ OPERATOR_MAP = {
         ('iexact', "= equal"),
         ('!iexact', u"≠ not equal"),
         ('icontains', "contains"),
-        ('isnotnull', "exists"),
+        ('!isnull', "exists"),
         ('isnull', "doesn't exist"),
     ),
     'date': (
@@ -45,12 +45,12 @@ OPERATOR_MAP = {
         ('gt', "> greater than"),
         ('lt', "< less than"),
         ('range', "range"),
-        ('isnotnull', "exists"),
+        ('!isnull', "exists"),
         ('isnull', "doesn't exist"),
     ),
     'boolean': (
         ('exact', "= equal"),
-        ('isnotnull', "exists"),
+        ('!isnull', "exists"),
         ('isnull', "doesn't exist"),
     ),
 }
@@ -327,7 +327,7 @@ class ModelSearch(object):
             
         # Remove the 'isnull' and 'isnotnull' operators if this field instance can't be null anyway
         if not field_type.null:
-            choices = filter(lambda c: c[0] not in ('isnull', 'isnotnull'), choices)
+            choices = filter(lambda c: c[0] not in ('isnull', '!isnull'), choices)
         
         if flat:
             choices = map(itemgetter(1), choices)
