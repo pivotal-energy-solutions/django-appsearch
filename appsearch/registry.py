@@ -52,7 +52,7 @@ OPERATOR_MAP = {
         ('isnull', "doesn't exist"),
     ),
 }
-OPERATOR_REVERSE_MAP = {section: OPERATOR_MAP[section][::-1] for section in OPERATOR_MAP}
+# OPERATOR_REVERSE_MAP = {section: OPERATOR_MAP[section][::-1] for section in OPERATOR_MAP}
 
 def resolve_field_from_orm_path(model, orm_path):
     """
