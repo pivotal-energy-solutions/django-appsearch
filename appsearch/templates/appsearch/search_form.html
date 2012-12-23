@@ -25,14 +25,22 @@
                 {% if form.operator.errors %}{{ form.operator.errors }}{% endif %}
                 {{ form.operator.label_tag}}:<br />{{ form.operator }}
             </div>
+            
+            {% with operator=form.operator.value %}
             <div class="span-5 last constraint-terms">
-                <div class="span-5 term begin-term{% if form.term.errors %} error{% endif %}">
+                <div class="span-5 term begin-term{% if form.term.errors %} error{% endif %}"
+                        {% if not form.term.errors %}
+                        {% if operator == "exists" or operator == "doesn't exist" %}
+                        style="display: none;"
+                        {% endif %}
+                        {% endif %}
+                        >
                     {% if form.term.errors %}{{ form.term.errors }}{% endif %}
                     {{ form.term.label_tag }}:<br />{{ form.term }}
                     <div class="span-5 description"></div>
                 </div>
                 <div class="span-5 term end-term{% if form.end_term.errors %} error{% endif %}"
-                        {% if not form.end_term.field.initial and not form.errors %}
+                        {% if operator != "range" and not form.end_term.errors %}
                         style="display: none;"
                         {% endif %}>
                     {% if form.end_term.errors %}{{ form.end_term.errors }}{% endif %}
@@ -40,6 +48,7 @@
                 </div>
                 &nbsp;
             </div>
+            {% endwith %}
                     
             {# Space for dynamic formset.js 'remove' link #}
             <div class="span-1">&nbsp;</div>
