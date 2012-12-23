@@ -36,11 +36,14 @@ class ModelSelectionForm(forms.Form):
         
         return model
     
+    def get_selected_configuration(self):
+        model_value = self.cleaned_data['model']
+        return self.registry[model_value]
+    
     def get_selected_model(self):
         """ Returns the select model's class. """
         
-        configuration = self.configurations[self.cleaned_data['model']]
-        return configuration.model
+        return self.get_selected_configuration().model
 
 class SearchForm(object):
     pass
