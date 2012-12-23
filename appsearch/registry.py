@@ -462,6 +462,9 @@ class SearchRegistry(object):
         """
         
         return self.sort_configurations(self._registry.values())
+    
+    def get_configuration(self, model):
+        return self._registry[model]
 
 
 search = SearchRegistry()
