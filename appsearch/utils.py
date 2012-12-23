@@ -40,6 +40,7 @@ class Searcher(StrAndUnicode):
         self.url = url or request.path
         self._determine_urls(kwargs)
         
+        self._forms_ready = False
         self._set_up_forms(querydict or request.GET, registry)
         
         # Fallback items
@@ -69,6 +70,16 @@ class Searcher(StrAndUnicode):
             self.context_object_name: self,
         }))
     
+    @property
+    def ready(self):
+        """ Indicates if a search has been executed by the constructed state. """
+        
+        if self._forms_ready:
+            self.model_config = self.model_selection_form.get_selected_configuration()
+            self.model = self.model_config.model
+        
+        return self._forms_ready
+        
     def _set_up_forms(self, querydict, registry):
         self.model_selection_form = ModelSelectionForm(registry, querydict)
         constraint_formset_class = formset_factory(ConstraintForm, formset=ConstraintFormset)
