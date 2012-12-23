@@ -24,8 +24,8 @@ BOOLEAN_FIELDS = (models.BooleanField, models.NullBooleanField)
 # normal .filter() one.
 OPERATOR_MAP = {
     'text': (
-        ('exact', "= equal"),
-        ('!exact', "≠ not equal"),
+        ('iexact', "= equal"),
+        ('!iexact', "≠ not equal"),
         ('icontains', "contains"),
         ('isnotnull', "exists"),
         ('isnull', "doesn't exist"),
