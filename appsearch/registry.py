@@ -29,6 +29,7 @@ OPERATOR_MAP = {
         ('iexact', "= equal"),
         ('!iexact', u"≠ not equal"),
         ('icontains', "contains"),
+        ('!icontains', "doesn't contain"),
         ('!isnull', "exists"),
         ('isnull', "doesn't exist"),
     ),
