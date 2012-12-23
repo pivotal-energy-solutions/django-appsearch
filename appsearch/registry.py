@@ -177,9 +177,35 @@ class ModelSearch(object):
                 self.verbose_name_plural = capfirst(self.model._meta.verbose_name_plural)
         if not self.verbose_name:
             self.verbose_name = capfirst(self.model._meta.verbose_name)
+        
+        # Read the configured fields
+        self._process_display_fields()
         self._process_searchable_fields()
         
         self._content_type = ContentType.objects.get_for_model(self.model)
+    def _process_display_fields(self):
+        """
+        Converts a potentially uneven collection of strings and tuples in ``display_fields`` to
+        a uniform list of 3-tuples in the form ("Verbose name", "field_name", field_instance)
+        
+        """
+        
+        self._display_fields = []
+        for field_info in self.display_fields:
+            if isinstance(field_info, (tuple, list)):
+                verbose_name, field_name = field_info
+            else:
+                field_name = field_info
+                verbose_name = None
+            
+            field = resolve_field_from_orm_path(self.model, field_name)
+            
+            if verbose_name is None:
+                verbose_name = field.verbose_name
+            
+            self._display_fields.append((capfirst(verbose_name), field_name, field))
+        return self._display_fields
+        
     
     def _process_searchable_fields(self):
         """
