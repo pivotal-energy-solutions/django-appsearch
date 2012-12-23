@@ -38,9 +38,9 @@ class Searcher(StrAndUnicode):
         self.kwargs = kwargs
         self._request = request
         self.url = url or request.path
+        self._determine_urls(kwargs)
         
         self._set_up_forms(querydict or request.GET, registry)
-        self._determine_urls(kwargs)
         
         # Fallback items
         self.context_object_name = kwargs.get('context_object_name', self.context_object_name)
