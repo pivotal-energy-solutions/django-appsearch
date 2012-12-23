@@ -4,11 +4,12 @@ from operator import itemgetter
 from collections import OrderedDict
 from sha import sha
 
-from django.forms.forms import pretty_name
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.db.models.sql.constants import LOOKUP_SEP
+from django.utils.text import capfirst
+from django.forms.forms import pretty_name
 
 # Base fields to detect built-in operator types.  Fields that subclass these are implicitly included
 # in the type check.
