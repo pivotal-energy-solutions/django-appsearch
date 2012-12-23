@@ -14,6 +14,9 @@ class SearchMixin(object):
     search_form_template_name = "appsearch/search_form.html"
     results_list_template_name = "appsearch/results_list.html"
     
+    # Callbacks, unprovided by default
+    get_display_fields = None
+    process_results = None
     
     def get_context_data(self, **kwargs):
         context = super(SearchMixin, self).get_context_data(**kwargs)
@@ -39,6 +42,10 @@ class SearchMixin(object):
             'form_template_name': self.get_search_form_template_name(),
             'form_template_name': self.get_results_list_template_name(),
             'context_object_name': self.get_context_object_name(),
+            
+            # Callbacks
+            'display_fields_callback': self.get_display_fields,
+            'process_results_callback': self.process_results,
         }
     
     def get_context_object_name(self):
