@@ -51,10 +51,22 @@ class Searcher(StrAndUnicode):
         self._display_fields_callback = kwargs.get('display_fields_callback')
         self._process_results_callback = kwargs.get('process_results_callback')
     
+    # Rendering methods
     def __unicode__(self):
-        context_object_name = self.kwargs.get('context_object_name', 'search')
-        return render_to_string(self.form_template, RequestContext(self._request, {
-            context_object_name: self,
+        return render_to_string(self.form_template_name, RequestContext(self._request, {
+            self.context_object_name: self,
+        }))
+    
+    def render_search_form(self):
+        """ Renders only the template at ``search_form_template_name`` """
+        return render_to_string(self.search_form_template_name, RequestContext(self._request, {
+            self.context_object_name: self,
+        }))
+    
+    def render_results_list(self):
+        """ Renders only the template at ``results_list_template_name`` """
+        return render_to_string(self.results_list_template_name, RequestContext(self._request, {
+            self.context_object_name: self,
         }))
     
     def _set_up_forms(self, querydict, registry):
