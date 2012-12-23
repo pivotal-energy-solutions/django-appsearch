@@ -88,8 +88,7 @@ class Searcher(StrAndUnicode):
             model_configuration = self.model_selection_form.get_model_configuration()
             self.constraint_formset = constraint_formset_class(model_configuration, querydict)
             if self.constraint_formset.is_valid():
-                # TODO: Execute search machinery
-                pass
+                self._forms_ready = True
         else:
             self.model_selection_form = ModelSelectionForm(registry)
             self.constraint_formset = constraint_formset_class(configuration=None)
