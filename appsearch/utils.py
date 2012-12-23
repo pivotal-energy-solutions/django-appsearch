@@ -149,8 +149,6 @@ class Searcher(StrAndUnicode):
             # virtual field name.
             query = None
             for field in field_list:
-                field_query = LOOKUP_SEP.join((field, constraint_operator))
-                
                 value = term
                 
                 # Prep an inverted lookup
@@ -163,6 +161,9 @@ class Searcher(StrAndUnicode):
                     value = [value, end_term]
                 # elif operator == "iexact":
                 #     value = 
+                
+                # Bake the queryset language string
+                field_query = LOOKUP_SEP.join((field, constraint_operator))
                 
                 q = Q(**{
                     field_query: value,
