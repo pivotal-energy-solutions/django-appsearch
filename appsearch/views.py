@@ -28,9 +28,12 @@ class SearchMixin(object):
         return context
     
     def get_searcher(self):
+        """ Builds and returns a ``Searcher`` instance for this search context. """
         return Searcher(self.request, **self.get_searcher_kwargs())
     
     def get_searcher_kwargs(self):
+        """ Returns the dictionary of kwargs sent to the ``Searcher`` constructor. """
+        
         return {
             'request': self.request,
             'form_template_name': self.get_form_template_name(),
