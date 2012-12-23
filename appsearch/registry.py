@@ -433,6 +433,13 @@ class SearchRegistry(object):
             k = '.'.join((k._meta.app_label, k.__name__.lower()))
         return self._registry[k]
     
+    def __contains__(self, k):
+        try:
+            config = self.__getitem__(k)
+            return True
+        except KeyError:
+            return False
+    
     def register(self, model, configuration):
         if not isinstance(configuration, dict): # TODO: Remove this
             id_string = '.'.join((model._meta.app_label, model.__name__)).lower()
