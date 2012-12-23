@@ -27,14 +27,14 @@ BOOLEAN_FIELDS = (models.BooleanField, models.NullBooleanField)
 OPERATOR_MAP = {
     'text': (
         ('iexact', "= equal"),
-        ('!iexact', "≠ not equal"),
+        ('!iexact', u"≠ not equal"),
         ('icontains', "contains"),
         ('isnotnull', "exists"),
         ('isnull', "doesn't exist"),
     ),
     'date': (
         ('exact', "= equal"),
-        ('!exact', "≠ not equal"),
+        ('!exact', u"≠ not equal"),
         ('gt', "> greater than"),
         ('lt', "< less than"),
         ('range', "range"),
