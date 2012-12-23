@@ -22,6 +22,18 @@ class Searcher(StrAndUnicode):
     natural_string = None
     results = None
     
+    # Processing callback hooks
+    _display_fields_callback = None
+    _process_results_callback = None
+    
+    ## Fallback items normally provided by the view
+    context_object_name = 'search'
+    
+    # Default templates
+    form_template_name = "appsearch/default_form.html"
+    search_form_template_name = "appsearch/search_form.html"
+    results_list_template_name = "appsearch/results_list.html"
+    
     def __init__(self, request, url=None, querydict=None, registry=search, **kwargs):
         self.kwargs = kwargs
         self._request = request
@@ -30,7 +42,14 @@ class Searcher(StrAndUnicode):
         self._set_up_forms(querydict or request.GET, registry)
         self._determine_urls(kwargs)
         
-        self.form_template = kwargs.get('form_template', 'appsearch/default_form.html')
+        # Fallback items
+        self.context_object_name = kwargs.get('context_object_name', self.context_object_name)
+        self.form_template_name = kwargs.get('form_template_name', self.form_template_name)
+        self.search_form_template_name = kwargs.get('search_form_template_name', self.search_form_template_name)
+        self.results_list_template_name = kwargs.get('results_list_template_name', self.results_list_template_name)
+        
+        self._display_fields_callback = kwargs.get('display_fields_callback')
+        self._process_results_callback = kwargs.get('process_results_callback')
     
     def __unicode__(self):
         context_object_name = self.kwargs.get('context_object_name', 'search')
