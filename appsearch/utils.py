@@ -191,3 +191,8 @@ class Searcher(StrAndUnicode):
             'list': data_rows,
             'fields': self.get_display_fields(),
         }
+    
+    def get_display_fields(self):
+        if self._display_fields_callback:
+            return self._display_fields_callback(self, self.model, self.model_config)
+        return self.model_config.get_display_fields()
