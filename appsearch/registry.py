@@ -169,7 +169,8 @@ class ModelSearch(object):
     
     _fields = None
     
-    def __init__(self):
+    def __init__(self, model):
+        self.model = model
         if not self.verbose_name_plural:
             # If the plural name is unset, but the single name is, pluralize the single name instead
             # of reverting back to the model's Meta verbose_plural_name (which might just be a
@@ -451,7 +452,8 @@ class SearchRegistry(object):
     def register(self, model, configuration):
         if not isinstance(configuration, dict): # TODO: Remove this
             id_string = '.'.join((model._meta.app_label, model.__name__)).lower()
-            self._registry[id_string] = configuration()
+            self._registry[id_string] = configuration(model)
+    
     def filter_configurations_by_permission(self, user, permission_code):
         configurations = self._registry.values()
         
