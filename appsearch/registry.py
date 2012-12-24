@@ -452,6 +452,21 @@ class SearchRegistry(object):
         if not isinstance(configuration, dict): # TODO: Remove this
             id_string = '.'.join((model._meta.app_label, model.__name__)).lower()
             self._registry[id_string] = configuration()
+    def filter_configurations_by_permission(self, user, permission_code):
+        configurations = self._registry.values()
+        
+        def check_permission(config):
+            permission = permission_code
+            if not permission:
+                permission = '{}.change_{}'
+            permission = permission.format(config.model._meta.app_label,
+                        config.model.__name__.lower())
+            return user.has_perm(permission)
+                
+        if user:
+            configurations = filter(check_permission, configurations)
+        
+        return configurations
     
     def sort_function(self, configurations):
         return sorted(configurations, key=lambda c: c.model._meta.verbose_name)
@@ -462,14 +477,16 @@ class SearchRegistry(object):
     def sort_configurations(self, configurations):
         return self.sort_function(configurations)
     
-    def get_configurations(self):
+    def get_configurations(self, user=None, permission=None):
         """
         Hook for returning the registry data in a particular order.  By default, the configurations
         are returned in alphabetical order according to their model names.
         
         """
         
-        return self.sort_configurations(self._registry.values())
+        configurations = self.filter_configurations_by_permission(user, permission)
+        
+        return self.sort_configurations(configurations)
     
     def get_configuration(self, model):
         return self._registry[model]

@@ -89,7 +89,7 @@ class Searcher(StrAndUnicode):
         return self._forms_ready
         
     def _set_up_forms(self, querydict, registry):
-        self.model_selection_form = ModelSelectionForm(registry, querydict)
+        self.model_selection_form = ModelSelectionForm(registry, self.request.user, querydict)
         constraint_formset_class = formset_factory(ConstraintForm, formset=ConstraintFormset)
         
         if self.model_selection_form.is_valid():
@@ -98,7 +98,7 @@ class Searcher(StrAndUnicode):
             if self.constraint_formset.is_valid():
                 self._forms_ready = True
         else:
-            self.model_selection_form = ModelSelectionForm(registry)
+            self.model_selection_form = ModelSelectionForm(registry, self.request.user)
             self.constraint_formset = constraint_formset_class(configuration=None)
     
     def _determine_urls(self, kwargs):
