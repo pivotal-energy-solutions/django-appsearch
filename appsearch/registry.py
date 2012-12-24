@@ -19,6 +19,7 @@ TEXT_FIELDS = (models.CharField, models.TextField, models.EmailField, models.Fil
 DATE_FIELDS = (models.DateField, models.TimeField)
 NUMERIC_FIELDS = (models.IntegerField, models.AutoField, models.FloatField, models.DecimalField)
 BOOLEAN_FIELDS = (models.BooleanField, models.NullBooleanField)
+RELATIONSHIP_FIELDS = (models.ForeignKey, models.ManyToManyField, models.OneToOneField)
 
 # Maps the core field types to the default available search operators.
 # The ORM query representation (e.g., "icontains") is not sent to the frontend.
@@ -51,6 +52,10 @@ OPERATOR_MAP = {
     ),
     'boolean': (
         ('exact', "= equal"),
+        ('!isnull', "exists"),
+        ('isnull', "doesn't exist"),
+    ),
+    'model': (
         ('!isnull', "exists"),
         ('isnull', "doesn't exist"),
     ),
@@ -296,6 +301,11 @@ class ModelSearch(object):
                 if field is None:
                     field = resolve_field_from_orm_path(related_model, field_name[0])
                 
+                try:
+                    field = field.field
+                except:
+                    pass
+                
                 orm_path_bits = base_orm_path[:]
                 if related_name:
                     orm_path_bits.append(related_name)
@@ -348,6 +358,8 @@ class ModelSearch(object):
             return 'number'
         elif isinstance(field, BOOLEAN_FIELDS):
             return 'boolean'
+        elif isinstance(field, RELATIONSHIP_FIELDS):
+            return 'model'
         else:
             raise ValueError("Unhandled field type %s" % field.__class__.__name__)
     
