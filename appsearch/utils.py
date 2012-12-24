@@ -44,7 +44,7 @@ class Searcher(StrAndUnicode):
     
     def __init__(self, request, url=None, querydict=None, registry=search, **kwargs):
         self.kwargs = kwargs
-        self._request = request
+        self.request = request
         self.url = url or request.path
         self._determine_urls(kwargs)
         
@@ -63,19 +63,19 @@ class Searcher(StrAndUnicode):
     
     # Rendering methods
     def __unicode__(self):
-        return render_to_string(self.form_template_name, RequestContext(self._request, {
+        return render_to_string(self.form_template_name, RequestContext(self.request, {
             self.context_object_name: self,
         }))
     
     def render_search_form(self):
         """ Renders only the template at ``search_form_template_name`` """
-        return render_to_string(self.search_form_template_name, RequestContext(self._request, {
+        return render_to_string(self.search_form_template_name, RequestContext(self.request, {
             self.context_object_name: self,
         }))
     
     def render_results_list(self):
         """ Renders only the template at ``results_list_template_name`` """
-        return render_to_string(self.results_list_template_name, RequestContext(self._request, {
+        return render_to_string(self.results_list_template_name, RequestContext(self.request, {
             self.context_object_name: self,
         }))
     
