@@ -153,6 +153,11 @@ class ConstraintForm(forms.Form):
                 term = False
             else:
                 raise ValidationError("Boolean value must be either true/false or yes/no.")
+        elif classification == "number":
+            try:
+                float(term)
+            except:
+                raise ValidationError("Value must be numeric.")
         
         if operator not in ('isnull', '!isnull') and not term:
             raise ValidationError("This field is required.")
