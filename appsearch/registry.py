@@ -399,6 +399,10 @@ class ModelSearch(object):
             if callable(value):
                 value = value()
             data.append(value)
+        
+        # Convert the first column's data into a link to the model instance
+        data[0] = """<a href="{}">{}</a>""".format(obj.get_absolute_url(), data[0])
+        
         return data
 
 class SearchRegistry(object):
