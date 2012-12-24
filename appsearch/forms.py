@@ -9,16 +9,6 @@ import dateutil.parser
 
 from appsearch.registry import OPERATOR_MAP
 
-OPERATOR_CHOICES = [
-    ("__lt", "<"),
-    ("__gt", ">"),
-    ("__iexact", "="),
-    ('__icontains', "contains"),
-    ('__range', "range" ),
-    ('__isnull', "exists" ),
-    ('__isnotnull', "doesn't exist" ),
-]
-
 class ModelSelectionForm(forms.Form):
     model = forms.ChoiceField(label="Search For")
     
@@ -50,10 +40,6 @@ class ModelSelectionForm(forms.Form):
         """ Returns the select model's class. """
         
         return self.get_selected_configuration().model
-
-class SearchForm(object):
-    pass
-
 
 class ConstraintForm(forms.Form):
     """
@@ -208,9 +194,3 @@ class ConstraintFormset(BaseFormSet):
         """ Sends the specified model configuration to the form. """
         return super(ConstraintFormset, self)._construct_form(i, configuration=self.configuration, \
                 **kwargs)
-    
-    # def add_fields(self, form, index):
-    #     """ Removes the first form's ``type`` field. """
-    #     super(ConstraintFormset, self).add_fields(form, index)
-    #     if index == 0:
-    #         del form.fields['type']
