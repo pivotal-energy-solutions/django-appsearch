@@ -31,6 +31,7 @@ class Searcher(StrAndUnicode):
     
     # Processing callback hooks
     _display_fields_callback = None
+    _build_queryset_callback = None
     _process_results_callback = None
     
     ## Fallback items normally provided by the view
@@ -57,6 +58,7 @@ class Searcher(StrAndUnicode):
         self.results_list_template_name = kwargs.get('results_list_template_name', self.results_list_template_name)
         
         self._display_fields_callback = kwargs.get('display_fields_callback')
+        self._build_queryset_callback = kwargs.get('process_queryset_callback')
         self._process_results_callback = kwargs.get('process_results_callback')
     
     # Rendering methods
@@ -181,8 +183,7 @@ class Searcher(StrAndUnicode):
         # The first query's "type" should be ignored for the sake of the reduce line below.
         query = reduce(lambda q1, (op, q2): op(q1, q2), query_list[1:], query_list[0][1])
         
-        queryset = self.model.objects.filter(query)
-        queryset = self.process_queryset(queryset)
+        queryset = self.build_queryset(query)
         data_rows = self.process_results(queryset)
         
         self.results = {
@@ -196,15 +197,6 @@ class Searcher(StrAndUnicode):
             return self._display_fields_callback(self, self.model, self.model_config)
         return self.model_config.get_display_fields()
     
-    def process_queryset(self, queryset):
-        """
-        Hook for selecting necessary related fields on the given ``queryset``.
-        
-        Default behavior inspects the display fields for any related items and requests their
-        selection.
-        
-        """
-        
         display_fields = self.get_display_fields()
         related_names = set()
         for field_info in display_fields:
@@ -220,17 +212,45 @@ class Searcher(StrAndUnicode):
         
         return queryset.select_related(*related_names)
     
+    def build_queryset(self, query, queryset=None):
+        """
+        Returns the queryset using ``query``.
+        
+        Default behavior inspects the display fields for any related items and requests their
+        selection and adds ``.distinct()``.
+        
+        If ``base_queryset`` is provided, it will be used as the starting point for applying the
+        ``query`` filter.  This is useful for subclasses that want to change the default manager
+        being accessed for the initial queryset.  Passing up a ``queryset`` via super() will
+        accomplish this, returning a fully built queryset with minimum hassle.
+        
+        If ``process_queryset`` callback was defined on the originating view, it will be called
+        after the queryset is built and will be sent the searcher instance, model, config, initial
+        ``Q`` query, and the derived queryset.  The callback should return the queryset in its final
+        state for execution.
+        
+        """
+        
+        related_names = self.get_select_related_fields()
+        
+        if queryset is None:
+            queryset = self.model.objects
+        
+        queryset = queryset.filter(query).select_related(*related_names).distinct()
+        
+        if self._build_queryset_callback:
+            queryset = self._build_queryset_callback(self, self.model, self.model_config, query, queryset)
+        
+        return queryset
+    
     def process_results(self, queryset):
         """
-        Converts the instances in ``object_list`` to a list of 1-tuples.  Provided as a hook for a
-        view subclass to override and provide appropriate behavior.
-        
         Should return a sequence of n-tuples, where ``n`` is the number of columns to be shown in
         the table.
         
         """
         
         if self._process_results_callback:
-            self._process_results_callback(self, self.model, self.model_config, queryset)
+            return self._process_results_callback(self, self.model, self.model_config, queryset)
         
         return [self.model_config.get_object_data(obj) for obj in queryset]
