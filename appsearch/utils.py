@@ -26,7 +26,6 @@ class Searcher(StrAndUnicode):
     field_data_url = None
     operator_data_url = None
     
-    natural_string = None
     results = None
     
     # Processing callback hooks
@@ -132,7 +131,7 @@ class Searcher(StrAndUnicode):
         
         """
         
-        self.natural_string = self.model_config.verbose_name_plural
+        natural_string = []
         
         # 2-tuples of an operator and Q instance, sent through reduce() after it's built
         query_list = []
@@ -143,6 +142,8 @@ class Searcher(StrAndUnicode):
             constraint_operator = constraint_form.cleaned_data['operator']
             term = constraint_form.cleaned_data['term']
             end_term = constraint_form.cleaned_data['end_term']
+            
+            verbose_name = self.model_config._fields[field_list]
             
             # Build this field's query.
             # Search fields bound together in a tuple are considered OR conditions for a single
@@ -177,8 +178,16 @@ class Searcher(StrAndUnicode):
                     query = q
                 else:
                     query |= q
-            
+                
             query_list.append((type_operator, query))
+            
+            # Do some natural processing
+            if isinstance(value, (tuple, list)):
+                value = '-'.join(map(unicode, value))
+            bits = [verbose_name, constraint_form['operator'].value(), value]
+            if i != 0:
+                bits.insert(0, constraint_form['type'].value())
+            natural_string.append(bits)
         
         # The first query's "type" should be ignored for the sake of the reduce line below.
         query = reduce(lambda q1, (op, q2): op(q1, q2), query_list[1:], query_list[0][1])
@@ -190,6 +199,7 @@ class Searcher(StrAndUnicode):
             'count': len(queryset),
             'list': data_rows,
             'fields': self.get_display_fields(),
+            'natural_string': "where " + ', '.join(map(' '.join, natural_string)),
         }
     
     def get_display_fields(self):
