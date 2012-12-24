@@ -178,6 +178,9 @@ class ConstraintForm(forms.Form):
         
         """
         
+        if 'field' not in self.cleaned_data or 'operator' not in self.cleaned_data:
+            return self.cleaned_data['end_term']
+        
         classification = self.configuration.get_field_classification(self.cleaned_data['field'])
         operator = self.cleaned_data['operator']
         term = self.cleaned_data['end_term']
