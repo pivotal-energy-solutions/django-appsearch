@@ -197,6 +197,8 @@ class Searcher(StrAndUnicode):
             return self._display_fields_callback(self, self.model, self.model_config)
         return self.model_config.get_display_fields()
     
+    def get_select_related_fields(self):
+        """ Returns a list of queryset language names to pass into ``.select_related()`` """
         display_fields = self.get_display_fields()
         related_names = set()
         for field_info in display_fields:
@@ -210,7 +212,7 @@ class Searcher(StrAndUnicode):
             if LOOKUP_SEP in related_path:
                 related_names.add(related_path)
         
-        return queryset.select_related(*related_names)
+        return related_names
     
     def build_queryset(self, query, queryset=None):
         """
