@@ -57,7 +57,7 @@ class Searcher(StrAndUnicode):
         self.results_list_template_name = kwargs.get('results_list_template_name', self.results_list_template_name)
         
         self._display_fields_callback = kwargs.get('display_fields_callback')
-        self._build_queryset_callback = kwargs.get('process_queryset_callback')
+        self._build_queryset_callback = kwargs.get('build_queryset_callback')
         self._process_results_callback = kwargs.get('process_results_callback')
     
     # Rendering methods
@@ -236,7 +236,7 @@ class Searcher(StrAndUnicode):
         being accessed for the initial queryset.  Passing up a ``queryset`` via super() will
         accomplish this, returning a fully built queryset with minimum hassle.
         
-        If ``process_queryset`` callback was defined on the originating view, it will be called
+        If ``build_queryset`` callback was defined on the originating view, it will be called
         after the queryset is built and will be sent the searcher instance, model, config, initial
         ``Q`` query, and the derived queryset.  The callback should return the queryset in its final
         state for execution.
