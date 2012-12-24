@@ -475,7 +475,7 @@ class SearchRegistry(object):
         return configurations
     
     def sort_function(self, configurations):
-        return sorted(configurations, key=lambda c: c.model._meta.verbose_name)
+        return sorted(configurations, key=attrgetter('verbose_name'))
     
     def set_sort_function(self, f):
         self.sort_function = f
