@@ -425,14 +425,6 @@ class SearchRegistry(object):
     def __init__(self):
         self._registry = {}
     
-    # def __getitem__(self, model):
-    #     """ Old API compatibility. """
-    #     return self._registry[model]
-    # 
-    # def keys(self):
-    #     """ Old API compatibility. """
-    #     return self._registry.keys()
-    
     def __iter__(self):
         for k in self._registry:
             yield k
