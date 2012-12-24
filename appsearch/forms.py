@@ -7,8 +7,6 @@ from django.db.models.fields import BLANK_CHOICE_DASH
 from django.contrib.contenttypes.models import ContentType
 import dateutil.parser
 
-from appsearch.registry import OPERATOR_MAP
-
 class ModelSelectionForm(forms.Form):
     model = forms.ChoiceField(label="Search For")
     
