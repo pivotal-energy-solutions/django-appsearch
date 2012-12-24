@@ -395,6 +395,9 @@ class ModelSearch(object):
                 value = reduce(getattr, [obj] + field_name.split(LOOKUP_SEP))
             except (ObjectDoesNotExist, AttributeError):
                 value = None
+            
+            if callable(value):
+                value = value()
             data.append(value)
         return data
 
