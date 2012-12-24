@@ -185,7 +185,7 @@ class ConstraintForm(forms.Form):
             if classification == "date":
                 term = dateutil.parser.parse(term)
             else:
-                raise ValidationError("Unknown range type %r" % classification)
+                raise ValidationError("Unknown range type %r." % classification)
             
             begin_term = self.cleaned_data['term']
             self.cleaned_data['term'] = [begin_term, term]
