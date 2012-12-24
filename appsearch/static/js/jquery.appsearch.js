@@ -32,7 +32,9 @@
             var fieldType = option.attr('data-type');
             var fieldText = option.text();
             var fieldValue = option.val();
+            var termInputs = constraintForm.find('.term input');
             var descriptionBox = constraintForm.find('.description');
+            form.trigger('field-updated', [termInputs, fieldType, fieldText, fieldValue, constraintForm]);
             form.trigger('set-field-description', [descriptionBox, fieldType, fieldText, fieldValue, constraintForm]);
         });
         form.find('.constraint-operator select').on('change.appsearch', function(){
