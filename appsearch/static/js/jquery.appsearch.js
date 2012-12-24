@@ -123,7 +123,7 @@
                 if (type == "text") {
                     description = "Text";
                 } else if (type == "date") {
-                    description = "Date format: MM-DD-YYYY";
+                    description = "Date";
                 } else if (type == "number") {
                     description = "Number";
                 } else if (type == "boolean") {
