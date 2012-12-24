@@ -17,7 +17,7 @@ from django.forms.forms import pretty_name
 TEXT_FIELDS = (models.CharField, models.TextField, models.EmailField, models.FilePathField,
         models.IPAddressField, models.GenericIPAddressField)
 DATE_FIELDS = (models.DateField, models.TimeField)
-NUMERIC_FIELDS = (models.IntegerField, models.AutoField, models.FloatField)
+NUMERIC_FIELDS = (models.IntegerField, models.AutoField, models.FloatField, models.DecimalField)
 BOOLEAN_FIELDS = (models.BooleanField, models.NullBooleanField)
 
 # Maps the core field types to the default available search operators.
