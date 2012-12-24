@@ -118,23 +118,8 @@
             })(e, constraintForm);
         });
         form.on('set-field-description.appsearch', function(e, descriptionBox, type, text, value, constraintForm){
-            (options.setFieldDescription || function(){
-                var description;
-                if (type == "text") {
-                    description = "Text";
-                } else if (type == "date") {
-                    description = "Date";
-                } else if (type == "number") {
-                    description = "Number";
-                } else if (type == "boolean") {
-                    description = "true or false"
-                    // TODO: Change term input to <select> somewhere...
-                } else {
-                    console.warn("Unknown field type:", type);
-                }
-                
-                descriptionBox.text(description);
-            })(e, descriptionBox, type, text, value, constraintForm);
+            var f = options.setFieldDescription || $.fn.appsearch._setFieldDescription;
+            f(descriptionBox, type, text, value, constraintForm);
         });
         
         // Make sure preloaded form data is immediately validated.
@@ -165,6 +150,23 @@
         });
         
         return choices;
+    };
+    $.fn.appsearch._setFieldDescription = function(descriptionBox, type, text, value, constraintForm) {
+        var description;
+        if (type == "text") {
+            description = "Text";
+        } else if (type == "date") {
+            description = "Date";
+        } else if (type == "number") {
+            description = "Number";
+        } else if (type == "boolean") {
+            description = "true or false"
+            // TODO: Change term input to <select> somewhere...
+        } else {
+            console.warn("Unknown field type:", type);
+        }
+                
+        descriptionBox.text(description);
     };
     
     $.fn.appsearch.defaults = {
