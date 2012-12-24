@@ -59,7 +59,7 @@ class ConstraintForm(forms.Form):
     # Dynamically populated list of valid operators for the chosen ``field``
     operator = forms.ChoiceField(label="Constraint type", choices=[])
     
-    term = forms.CharField(label="Search term")
+    term = forms.CharField(label="Search term", required=False)
     end_term = forms.CharField(label="End term", required=False)
     
     def __init__(self, configuration, *args, **kwargs):
@@ -138,8 +138,12 @@ class ConstraintForm(forms.Form):
     def clean_term(self):
         """ Normalizes the ``term`` field to what makes sense for the operator. """
         
+        if 'field' not in self.cleaned_data or 'operator' not in self.cleaned_data:
+            return self.cleaned_data['term']
+        
         classification = self.configuration.get_field_classification(self.cleaned_data['field'])
-        term = self.cleaned_data['term']
+        operator = self.cleaned_data['operator']
+        term = self.cleaned_data['term'].strip()
         
         # Numbers and strings don't need processing, but the other types should be inspected.
         if classification == "date":
@@ -150,7 +154,10 @@ class ConstraintForm(forms.Form):
             elif term.lower() in ("false", "no"):
                 term = False
             else:
-                raise ValidationError("Boolean value must be either true/false or yes/no")
+                raise ValidationError("Boolean value must be either true/false or yes/no.")
+        
+        if operator not in ('isnull', '!isnull') and not term:
+            raise ValidationError("This field is required.")
         
         return term
     
