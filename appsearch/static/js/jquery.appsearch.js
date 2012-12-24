@@ -180,7 +180,7 @@
         'getOperators': null,
         
         'termlessOperators': ["exists", "doesn't exist"],
-        'twoTermOperators': ["range"],
+        'twoTermOperators': ["between"],
         
         'formsetOptions': null,
     };
