@@ -9,6 +9,8 @@ from appsearch.utils import Searcher
 from appsearch.registry import search
 
 class SearchMixin(object):
+    searcher_class = Searcher
+    
     context_object_name = 'search'
     form_template_name = "appsearch/default_form.html"
     search_form_template_name = "appsearch/search_form.html"
@@ -31,9 +33,13 @@ class SearchMixin(object):
         context[object_name] = searcher
         return context
     
+    def get_searcher_class(self):
+        """ Returns the view's ``searcher_class`` attribute. """
+        return self.searcher_class
+    
     def get_searcher(self):
         """ Builds and returns a ``Searcher`` instance for this search context. """
-        return Searcher(self.request, **self.get_searcher_kwargs())
+        return self.get_searcher_class()(self.request, **self.get_searcher_kwargs())
     
     def get_searcher_kwargs(self):
         """ Returns the dictionary of kwargs sent to the ``Searcher`` constructor. """
