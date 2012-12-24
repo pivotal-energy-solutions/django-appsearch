@@ -1,6 +1,7 @@
 {% if search.ready %}
     <div class="span-18 last">
-        <h2>{{ search.results.count }} {{ search.natural_string }}</h2>
+        <h2>{{ search.results.count }} {{ search.model_config.verbose_name_plural }}</h2>
+        <p class="description">{{ search.results.natural_string }}</p>
     </div>
     {% if search.results %}
         <div class="span-18 last">
