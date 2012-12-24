@@ -16,6 +16,7 @@ class SearchMixin(object):
     
     # Callbacks, unprovided by default
     get_display_fields = None
+    build_queryset = None
     process_results = None
     
     def get_context_data(self, **kwargs):
@@ -45,6 +46,7 @@ class SearchMixin(object):
             
             # Callbacks
             'display_fields_callback': self.get_display_fields,
+            'build_queryset_callback': self.build_queryset,
             'process_results_callback': self.process_results,
         }
     
