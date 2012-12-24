@@ -183,7 +183,7 @@ class Searcher(StrAndUnicode):
             
             # Do some natural processing
             if isinstance(value, (tuple, list)):
-                value = '-'.join(map(unicode, value))
+                value = ' - '.join(map(unicode, value))
             bits = [verbose_name, constraint_form['operator'].value(), value]
             if i != 0: # Skip the leading "and" on the first constraint
                 bits.insert(0, constraint_form['type'].value())
