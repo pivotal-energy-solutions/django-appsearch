@@ -194,24 +194,24 @@ class Searcher(StrAndUnicode):
         # The first query's "type" should be ignored for the sake of the reduce line below.
         query = reduce(lambda q1, (op, q2): op(q1, q2), query_list[1:], query_list[0][1])
         
-        queryset = self.build_queryset(query)
+        queryset = self.build_queryset(self.model, query)
         data_rows = self.process_results(queryset)
         
         self.results = {
             'count': len(queryset),
             'list': data_rows,
-            'fields': self.get_display_fields(),
+            'fields': self._get_display_fields(),
             'natural_string': "where " + ', '.join(map(' '.join, natural_string)),
         }
     
-    def get_display_fields(self):
+    def _get_display_fields(self, model, config):
         if self._display_fields_callback:
-            return self._display_fields_callback(self, self.model, self.model_config)
-        return self.model_config.get_display_fields()
+            return self._display_fields_callback(self, model, config)
+        return config.get_display_fields()
     
-    def get_select_related_fields(self):
+    def get_select_related_fields(self, model, config):
         """ Returns a list of queryset language names to pass into ``.select_related()`` """
-        display_fields = self.get_display_fields()
+        display_fields = self._get_display_fields(model, config)
         related_names = set()
         for field_info in display_fields:
             if isinstance(field_info, (tuple, list)):
@@ -226,7 +226,7 @@ class Searcher(StrAndUnicode):
         
         return related_names
     
-    def build_queryset(self, query, queryset=None):
+    def build_queryset(self, model, query, queryset=None):
         """
         Returns the queryset using ``query``.
         
@@ -245,7 +245,7 @@ class Searcher(StrAndUnicode):
         
         """
         
-        related_names = self.get_select_related_fields()
+        related_names = self.get_select_related_fields(model, self.model_config)
         
         if queryset is None:
             queryset = self.model_config.get_queryset(self.request.user)
@@ -253,7 +253,8 @@ class Searcher(StrAndUnicode):
         queryset = queryset.filter(query).select_related(*related_names).distinct()
         
         if self._build_queryset_callback:
-            queryset = self._build_queryset_callback(self, self.model, self.model_config, query, queryset)
+            queryset = self._build_queryset_callback(self, model, self.model_config, query,
+                    queryset)
         
         return queryset
     
