@@ -10,9 +10,9 @@ import dateutil.parser
 class ModelSelectionForm(forms.Form):
     model = forms.ChoiceField(label="Search For")
     
-    def __init__(self, registry, user, *args, **kwargs):
+    def __init__(self, registry, user, *args, permission=None, **kwargs):
         self.registry = registry
-        configurations = registry.get_configurations(user=user)
+        configurations = registry.get_configurations(user=user, permission=permission)
         super(ModelSelectionForm, self).__init__(*args, **kwargs)
         
         self.fields['model'].choices = BLANK_CHOICE_DASH + \
