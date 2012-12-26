@@ -45,8 +45,8 @@ class SearchMixin(object):
         
         return {
             'form_template_name': self.get_form_template_name(),
-            'form_template_name': self.get_search_form_template_name(),
-            'form_template_name': self.get_results_list_template_name(),
+            'search_form_template_name': self.get_search_form_template_name(),
+            'results_list_template_name': self.get_results_list_template_name(),
             'context_object_name': self.get_context_object_name(),
             
             # Callbacks
