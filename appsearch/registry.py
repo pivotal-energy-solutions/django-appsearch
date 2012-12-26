@@ -172,6 +172,7 @@ class ModelSearch(object):
     display_fields = None
     search_fields = None
     
+    _display_fields = None
     _fields = None
     
     def __init__(self, model):
