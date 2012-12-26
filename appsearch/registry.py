@@ -394,6 +394,9 @@ class ModelSearch(object):
         """ Returns the list of labels for the display fields. """
         return list(map(itemgetter(0), self._display_fields))
     
+    def get_queryset(self):
+        return self.model.objects.all()
+    
     def get_object_data(self, obj):
         """
         Returns a list of values retrieved from ``obj``, automatically fetched according to the

@@ -248,7 +248,7 @@ class Searcher(StrAndUnicode):
         related_names = self.get_select_related_fields()
         
         if queryset is None:
-            queryset = self.model.objects
+            queryset = self.model_config.get_queryset(self.request.user)
         
         queryset = queryset.filter(query).select_related(*related_names).distinct()
         
