@@ -458,9 +458,8 @@ class SearchRegistry(object):
             return False
     
     def register(self, model, configuration):
-        if not isinstance(configuration, dict): # TODO: Remove this
-            id_string = '.'.join((model._meta.app_label, model.__name__)).lower()
-            self._registry[id_string] = configuration(model)
+        id_string = '.'.join((model._meta.app_label, model.__name__)).lower()
+        self._registry[id_string] = configuration(model)
     
     def filter_configurations_by_permission(self, user, permission_code):
         configurations = self._registry.values()
