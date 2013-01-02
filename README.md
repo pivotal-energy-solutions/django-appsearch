@@ -437,6 +437,36 @@ Machinery for building a `Searcher` instance and inserting it into the template 
 
 The name that the `Searcher` instance will be given in the template context.
 
+#### `model_selection_form_class`
+**Default**: `appsearch.forms.ModelSelectionForm`
+
+The form that is responsible for the initial model dropdown in the search UI.  The default form provides an automatic verification against the registry, provides a ContentType id obfuscation, and defines a couple of methods to retrieve a validated instance's selected model class and associated `ModelSearch` configuration.
+
+To provide a modified form, make sure it either subclasses `ModelSelectionForm` or provides the identical API methods `get_selected_model()` and `get_selected_model_configuration()`.
+
+#### `constraint_form_class`
+**Default**: `appsearch.forms.ConstraintForm`
+
+An instance of this form class represents a row in the constraint builder UI, composed of fields that describe the constraint: the core AND/OR, the field to inspect, the operator, and the term or terms that describe the constraint.
+
+By default, the `field` and `operator` fields have an empty choices list, since the choices depend on a valid selection in the model selection form.  The frontend Javascript queries the core appsearch AJAX views to look up the appropriate choices from the registry.  Consequently, the form's field-cleaning methods verify a valid selection.
+
+All of the constraint form's fields are cleaned and database-ready values are returned.  For example, the field `type`, which describes if the constraint is an AND or OR operation is cleaned to `operator.and_` or `operator.or_`, respectively.  Accordingly, the `operator` field is cleaned to the actual queryset language path(s), such as `"related__lookup__path"`.
+
+#### `constraint_formset_class`
+**Default**: `appsearch.forms.ConstraintFormset`
+
+The formset class used as the basis of `formset_factory()` creation.  The default form overrides an internal method to ensure that the model selection form's corresponding configuration is sent to the constructor of the constraint forms within.  It contains no other logic or overrides.
+
+#### `get_model_selection_form_class()`
+Returns `self.model_selection_form_class`
+
+#### `get_constraint_form_class()`
+Returns `self.constraint_form_class`
+
+#### `get_constraint_formset_class()`
+Returns `self.constraint_formset_class`
+
 #### `form_template_name`
 **Default**: `"appsearch/default_form.html"`
 
