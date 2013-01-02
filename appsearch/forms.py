@@ -11,9 +11,10 @@ class ModelSelectionForm(forms.Form):
     model = forms.ChoiceField(label="Search For")
     
     def __init__(self, registry, user, *args, permission=None, **kwargs):
+        super(ModelSelectionForm, self).__init__(*args, **kwargs)
+        
         self.registry = registry
         configurations = registry.get_configurations(user=user, permission=permission)
-        super(ModelSelectionForm, self).__init__(*args, **kwargs)
         
         self.fields['model'].choices = BLANK_CHOICE_DASH + \
                 [(c._content_type.id, c.verbose_name) for c in configurations]

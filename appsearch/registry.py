@@ -23,8 +23,7 @@ RELATIONSHIP_FIELDS = (models.ForeignKey, models.ManyToManyField, models.OneToOn
 
 # Maps the core field types to the default available search operators.
 # The ORM query representation (e.g., "icontains") is not sent to the frontend.
-# Notable, the "!exact" entry will cause the query to use an .exclude() operation instead of the
-# normal .filter() one.
+# Notably, entries starting with  "!" are negative filters
 OPERATOR_MAP = {
     'text': (
         ('iexact', "= equal"),
@@ -429,7 +428,6 @@ class SearchRegistry(object):
     """
     
     _registry = None
-    # sort_function = lambda self, configurations: sorted(configurations, key=itemgetter(0))
     
     @staticmethod
     def get_from_list(cls, configuration_list):
@@ -463,13 +461,12 @@ class SearchRegistry(object):
     
     def filter_configurations_by_permission(self, user, permission_code):
         configurations = self._registry.values()
+        if permission_code is None:
+            permission_code = 'change_{}'
         
         def check_permission(config):
-            permission = permission_code
-            if not permission:
-                permission = '{}.change_{}'
-            permission = permission.format(config.model._meta.app_label,
-                        config.model.__name__.lower())
+            permission = permission_code.format(config.model.__name__.lower())
+            permission = '{}.{}'.format(config.model._meta.app_label, permission)
             return user.has_perm(permission)
                 
         if user:
