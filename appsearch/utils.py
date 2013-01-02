@@ -22,8 +22,8 @@ class Searcher(StrAndUnicode):
     
     # Customizable classes
     model_selection_form_class = ModelSelectionForm
-    constraint_form_class = None
-    constraint_formset_class = None
+    constraint_form_class = ConstraintForm
+    constraint_formset_class = ConstraintFormset
     
     # Instance data
     model_selection_form = None
