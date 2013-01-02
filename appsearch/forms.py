@@ -203,5 +203,5 @@ class ConstraintFormset(BaseFormSet):
     
     def _construct_form(self, i, **kwargs):
         """ Sends the specified model configuration to the form. """
-        return super(ConstraintFormset, self)._construct_form(i, configuration=self.configuration, \
+        return super(ConstraintFormset, self)._construct_form(i, configuration=self.configuration,
                 **kwargs)
