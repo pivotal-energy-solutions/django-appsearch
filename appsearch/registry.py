@@ -428,6 +428,7 @@ class SearchRegistry(object):
     """
     
     _registry = None
+    permission = 'change_{}'
     
     @staticmethod
     def get_from_list(cls, configuration_list):
@@ -462,14 +463,14 @@ class SearchRegistry(object):
     def filter_configurations_by_permission(self, user, permission_code):
         configurations = self._registry.values()
         if permission_code is None:
-            permission_code = 'change_{}'
+            permission_code = self.permission
         
         def check_permission(config):
             permission = permission_code.format(config.model.__name__.lower())
             permission = '{}.{}'.format(config.model._meta.app_label, permission)
             return user.has_perm(permission)
                 
-        if user:
+        if user and permission_code:
             configurations = filter(check_permission, configurations)
         
         return configurations

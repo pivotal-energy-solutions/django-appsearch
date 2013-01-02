@@ -116,9 +116,19 @@ class BaseAjaxConfigurationResolutionView(View):
         return configuration, None
     
     def has_perm(self, model_class):
-        permission = '{}.change_{}'.format(model_class._meta.app_label, model_class.__name__.lower())
-        return self.request.user.has_perm(permission)
-    
+        """
+        Attempts a lookup of ``model_class`` in the registry.  By sending the ``user`` argument to
+        the lookup, the user's permissions will be compared to the registry's own ``permission``
+        attribute.
+        
+        The view cannot specify its own permission value here because the view doesn't build or
+        control the registry or the model selection form; if the permission check needs to be
+        modified, the template string at ``registry.permission`` should be updated.
+        
+        """
+        configuration = search.get_configuration(model_class, user=self.request.user)
+        
+        return configuration is not None
     
 class ConstraintFieldsAjaxView(BaseAjaxConfigurationResolutionView):
     """
