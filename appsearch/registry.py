@@ -494,8 +494,17 @@ class SearchRegistry(object):
         
         return self.sort_configurations(configurations)
     
-    def get_configuration(self, model):
-        return self._registry[model]
-
+    def get_configuration(self, model, user=None, permission=None):
+        try:
+            configuration = self._registry[model]
+        except KeyError:
+            configuration = None
+        else:
+            if user:
+                available_configurations = self.filter_configurations_by_permission(user, permission)
+                if configuration not in available_configurations:
+                    configuration = None
+        
+        return configuration
 
 search = SearchRegistry()
