@@ -114,8 +114,8 @@ class Searcher(StrAndUnicode):
         
         ConstraintFormsetClass = formset_factory(ConstraintFormClass, formset=ConstraintFormsetClass)
         
-        self.model_selection_form = ModelSelectionFormClass(registry, self.request.user, querydict,
-                permission=permission)
+        self.model_selection_form = ModelSelectionFormClass(registry, self.request.user, permission,
+                querydict)
         
         if self.model_selection_form.is_valid():
             model_configuration = self.model_selection_form.get_selected_configuration()
@@ -124,7 +124,7 @@ class Searcher(StrAndUnicode):
                 self._forms_ready = True
         else:
             self.model_selection_form = ModelSelectionFormClass(registry, self.request.user,
-                    permission=permission)
+                    permission)
             self.constraint_formset = ConstraintFormsetClass(configuration=None)
     
     def _determine_urls(self, kwargs):
