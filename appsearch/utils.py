@@ -226,7 +226,7 @@ class Searcher(StrAndUnicode):
         self.results = {
             'count': len(queryset),
             'list': data_rows,
-            'fields': self._get_display_fields(),
+            'fields': self._get_display_fields(self.model, self.model_config),
             'natural_string': "where " + ', '.join(map(' '.join, natural_string)),
         }
     
