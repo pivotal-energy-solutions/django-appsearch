@@ -392,6 +392,15 @@ class ModelSearch(object):
         """ Returns the list of labels for the display fields. """
         return list(map(itemgetter(0), self._display_fields))
 
+    def user_has_perm(self, user):
+        """
+        Returns ``True`` or ``False`` to indicate definitive user permission, or else ``None`` to
+        let the registry default permission decide.
+        
+        """
+        
+        return None
+    
     def get_queryset(self, user):
         return self.model.objects.all()
 
@@ -469,7 +478,7 @@ class SearchRegistry(object):
             permission = '{}.{}'.format(config.model._meta.app_label, permission)
             return user.has_perm(permission)
 
-        if user and permission_code:
+        if user:
             configurations = filter(check_permission, configurations)
 
         return configurations

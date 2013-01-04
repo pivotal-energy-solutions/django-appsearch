@@ -107,8 +107,12 @@ class BaseAjaxConfigurationResolutionView(View):
             model = '.'.join((content_type.app_label, content_type.model))
             model_class = content_type.model_class()
 
-        if model_class and self.has_perm(model_class) and model in search:
+        if model_class and model in search:
             configuration = search[model]
+            model_perm = configuration.user_has_perm(self.request.user)
+            if model_perm is False or \
+                    model_perm is None and self.has_perm(model_class) is False:
+                configuration = None
         else:
             configuration = None
 
