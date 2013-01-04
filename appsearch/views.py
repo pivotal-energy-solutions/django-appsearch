@@ -1,3 +1,4 @@
+# coding=utf-8
 import json
 
 from django.views.generic import View, TemplateView
@@ -6,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from appsearch.utils import Searcher
 from appsearch.registry import search
+
 
 class SearchMixin(object):
     searcher_class = Searcher
