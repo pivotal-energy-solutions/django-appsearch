@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import logging
 from operator import itemgetter, attrgetter
 from collections import OrderedDict
 from sha import sha
@@ -11,6 +12,8 @@ from django.db.models.sql.constants import LOOKUP_SEP
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.text import capfirst
 from django.forms.forms import pretty_name
+
+log = logging.getLogger(__name__)
 
 # Base fields to detect built-in operator types.  Fields that subclass these are implicitly included
 # in the type check.
@@ -495,11 +498,15 @@ class SearchRegistry(object):
         try:
             configuration = self[model]
         except KeyError:
+            log.warn("No registered configuration for model %r.", model)
             configuration = None
         else:
             if user:
                 available_configurations = self.filter_configurations_by_permission(user, permission)
                 if configuration not in available_configurations:
+                    log.warn("Configuration for model %r available, but user %r doesn't have "
+                            "permission (permission filter: %r).", model, user.username,
+                            permission or self.permission)
                     configuration = None
 
         return configuration
