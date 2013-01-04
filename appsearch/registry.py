@@ -497,7 +497,7 @@ class SearchRegistry(object):
     
     def get_configuration(self, model, user=None, permission=None):
         try:
-            configuration = self._registry[model]
+            configuration = self[model]
         except KeyError:
             configuration = None
         else:
