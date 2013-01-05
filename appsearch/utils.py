@@ -20,6 +20,12 @@ class Searcher(StrAndUnicode):
     # Methods and fields not meant to be accessed from the template should start with an underscore
     # to let the template variable name resolution block access.
 
+    # Customizable classes
+    model_selection_form_class = ModelSelectionForm
+    constraint_form_class = ConstraintForm
+    constraint_formset_class = ConstraintFormset
+
+    # Instance data
     model_selection_form = None
     constraint_formset = None
 
@@ -78,6 +84,19 @@ class Searcher(StrAndUnicode):
             self.context_object_name: self,
         }))
 
+
+    def get_model_selection_form_class(self):
+        """ Returns ``self.model_selection_form_class`` """
+        return self.model_selection_form_class
+
+    def get_constraint_form_class(self):
+        """ Returns ``self.constraint_form_class`` """
+        return self.constraint_form_class
+
+    def get_constraint_formset_class(self):
+        """ Returns ``self.constraint_formset_class`` """
+        return self.constraint_formset_class
+
     @property
     def ready(self):
         """ Indicates if a search has been executed by the constructed state. """
@@ -85,23 +104,28 @@ class Searcher(StrAndUnicode):
         if self._forms_ready:
             self.model_config = self.model_selection_form.get_selected_configuration()
             self.model = self.model_config.model
-
         return self._forms_ready
 
     def _set_up_forms(self, querydict, registry, permission=None):
-        self.model_selection_form = ModelSelectionForm(registry, self.request.user, querydict,
-                permission=permission)
-        constraint_formset_class = formset_factory(ConstraintForm, formset=ConstraintFormset)
+        ModelSelectionFormClass = self.get_model_selection_form_class()
+        ConstraintFormClass = self.get_constraint_form_class()
+        ConstraintFormsetClass = self.get_constraint_formset_class()
+
+        ConstraintFormsetClass = formset_factory(
+            ConstraintFormClass, formset=ConstraintFormsetClass)
+
+        self.model_selection_form = ModelSelectionFormClass(registry, self.request.user,
+                                                            permission, querydict)
 
         if self.model_selection_form.is_valid():
             model_configuration = self.model_selection_form.get_selected_configuration()
-            self.constraint_formset = constraint_formset_class(model_configuration, querydict)
+            self.constraint_formset = ConstraintFormsetClass(model_configuration, querydict)
             if self.constraint_formset.is_valid():
                 self._forms_ready = True
         else:
-            self.model_selection_form = ModelSelectionForm(registry, self.request.user,
-                    permission=permission)
-            self.constraint_formset = constraint_formset_class(configuration=None)
+            self.model_selection_form = ModelSelectionFormClass(registry, self.request.user,
+                    permission)
+            self.constraint_formset = ConstraintFormsetClass(configuration=None)
 
     def _determine_urls(self, kwargs):
         # If a URL is not customized, this namespace will be used to search out the default URL
@@ -110,6 +134,7 @@ class Searcher(StrAndUnicode):
         # Check custom data URLs
         field_url = kwargs.get('field_url')
         operator_url = kwargs.get('operator_url')
+
         if field_url is None:
             url_name = 'appsearch:constraint-fields'
             if url_namespace is not None:
@@ -201,7 +226,7 @@ class Searcher(StrAndUnicode):
         self.results = {
             'count': len(queryset),
             'list': data_rows,
-            'fields': self._get_display_fields(),
+            'fields': self._get_display_fields(self.model, self.model_config),
             'natural_string': "where " + ', '.join(map(' '.join, natural_string)),
         }
 

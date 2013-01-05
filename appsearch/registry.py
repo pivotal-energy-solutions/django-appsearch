@@ -23,8 +23,7 @@ RELATIONSHIP_FIELDS = (models.ForeignKey, models.ManyToManyField, models.OneToOn
 
 # Maps the core field types to the default available search operators.
 # The ORM query representation (e.g., "icontains") is not sent to the frontend.
-# Notable, the "!exact" entry will cause the query to use an .exclude() operation instead of the
-# normal .filter() one.
+# Notably, entries starting with  "!" are negative filters
 OPERATOR_MAP = {
     'text': (
         ('iexact', "= equal"),
@@ -40,7 +39,7 @@ OPERATOR_MAP = {
         ('gt', "> greater than"),
         ('lt', "< less than"),
         ('range', "between"),
-        ('isnotnull', "exists"),
+        ('!isnull', "exists"),
         ('isnull', "doesn't exist"),
     ),
     'number': (
@@ -61,6 +60,7 @@ OPERATOR_MAP = {
     ),
 }
 # OPERATOR_REVERSE_MAP = {section: OPERATOR_MAP[section][::-1] for section in OPERATOR_MAP}
+
 
 def resolve_field_from_orm_path(model, orm_path):
     """
@@ -222,7 +222,6 @@ class ModelSearch(object):
             self._display_fields.append((capfirst(verbose_name), field_name, field))
         return self._display_fields
 
-
     def _process_searchable_fields(self):
         """
         Crunches the information in ``display_fields`` and the intricate ``search_fields`` to
@@ -244,21 +243,17 @@ class ModelSearch(object):
         # Store each element's [::2] (that is, [0] and [2]) as a mapping to the field object
         self.field_types = dict(map(itemgetter(slice(0, None, 2)), extended_info))
 
-    def _get_field_info(self, orm_path_bits, model, related_name, field_list, include_model_in_verbose_name=True):
+    def _get_field_info(self, orm_path_bits, model, related_name, field_list,
+                        include_model_in_verbose_name=True):
         """
         Recurses the fields listed on the model to provide a complete index of their ORM paths and
         friendly names.
-
         """
-
-        # print
-        # print "Getting field info for %s.%s fields: %r" % (model.__class__.__name__, related_name, field_list)
 
         if related_name:
             field, related_model, direct, m2m = model._meta.get_field_by_name(related_name)
 
-            if related_model is None:# Field is local, follow the relationship to find the model
-                # print field, related_model, direct, m2m
+            if related_model is None:  # Field is local, follow the relationship to find the model
                 if direct:
                     related_model = field.rel.to
                 else:
@@ -418,7 +413,7 @@ class ModelSearch(object):
             data.append(value)
 
         # Convert the first column's data into a link to the model instance
-        data[0] = """<a href="{}">{}</a>""".format(obj.get_absolute_url(), data[0])
+        data[0] = u"""<a href="{}">{}</a>""".format(obj.get_absolute_url(), data[0])
 
         return data
 
@@ -429,7 +424,7 @@ class SearchRegistry(object):
     """
 
     _registry = None
-    # sort_function = lambda self, configurations: sorted(configurations, key=itemgetter(0))
+    permission = 'change_{}'
 
     @staticmethod
     def get_from_list(cls, configuration_list):
@@ -463,16 +458,15 @@ class SearchRegistry(object):
 
     def filter_configurations_by_permission(self, user, permission_code):
         configurations = self._registry.values()
+        if permission_code is None:
+            permission_code = self.permission
 
         def check_permission(config):
-            permission = permission_code
-            if not permission:
-                permission = '{}.change_{}'
-            permission = permission.format(config.model._meta.app_label,
-                        config.model.__name__.lower())
+            permission = permission_code.format(config.model.__name__.lower())
+            permission = '{}.{}'.format(config.model._meta.app_label, permission)
             return user.has_perm(permission)
 
-        if user:
+        if user and permission_code:
             configurations = filter(check_permission, configurations)
 
         return configurations
@@ -494,10 +488,20 @@ class SearchRegistry(object):
         """
 
         configurations = self.filter_configurations_by_permission(user, permission)
+
         return self.sort_configurations(configurations)
 
-    def get_configuration(self, model):
-        return self._registry[model]
+    def get_configuration(self, model, user=None, permission=None):
+        try:
+            configuration = self[model]
+        except KeyError:
+            configuration = None
+        else:
+            if user:
+                available_configurations = self.filter_configurations_by_permission(user, permission)
+                if configuration not in available_configurations:
+                    configuration = None
 
+        return configuration
 
 search = SearchRegistry()
