@@ -39,7 +39,7 @@ OPERATOR_MAP = {
         ('gt', "> greater than"),
         ('lt', "< less than"),
         ('range', "between"),
-        ('isnotnull', "exists"),
+        ('!isnull', "exists"),
         ('isnull', "doesn't exist"),
     ),
     'number': (
