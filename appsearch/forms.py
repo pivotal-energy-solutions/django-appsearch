@@ -181,11 +181,13 @@ class ConstraintForm(forms.Form):
 
         """
 
-        if 'field' not in self.cleaned_data or 'operator' not in self.cleaned_data:
+        if 'field' not in self.cleaned_data or 'operator' not in self.cleaned_data \
+                or 'term' not in self.cleaned_data:
             return self.cleaned_data['end_term']
 
         classification = self.configuration.get_field_classification(self.cleaned_data['field'])
         operator = self.cleaned_data['operator']
+        begin_term = self.cleaned_data['term']
         term = self.cleaned_data['end_term']
 
         if operator == "range":
@@ -194,7 +196,6 @@ class ConstraintForm(forms.Form):
             else:
                 raise ValidationError("Unknown range type %r." % classification)
 
-            begin_term = self.cleaned_data['term']
             self.cleaned_data['term'] = [begin_term, term]
 
         return ""
