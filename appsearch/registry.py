@@ -254,13 +254,23 @@ class ModelSearch(object):
         """
 
         if related_name:
-            field, related_model, direct, m2m = model._meta.get_field_by_name(related_name)
+            if isinstance(related_name, basestring):
+                field, related_model, direct, m2m = model._meta.get_field_by_name(related_name)
 
-            if related_model is None:  # Field is local, follow the relationship to find the model
-                if direct:
-                    related_model = field.rel.to
-                else:
-                    related_model = field.model
+                if related_model is None:  # Field is local, follow the relationship to find the model
+                    if direct:
+                        related_model = field.rel.to
+                    else:
+                        related_model = field.model
+            else:
+                # Syntax allowing a model class reference itself.
+                # Trace the relationship backwards from the related class's Meta to get the field
+                # name.
+                related_model = related_name
+                for related_object in related_model._meta.get_all_related_objects():
+                    if related_object.field.model is model:
+                        related_name = related_object.field.name
+                        break
         else:
             related_model = model
 
@@ -269,7 +279,6 @@ class ModelSearch(object):
         sub_fields = []
 
         for field_name in field_list:
-            # print "Handling field %r" % (field_name,)
             if isinstance(field_name, dict):
                 # Nested dict.  Recurse the function with the new related context
                 extended_name, sub_field_list = field_name.items()[0]
