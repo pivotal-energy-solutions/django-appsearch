@@ -3,13 +3,14 @@
 import logging
 from operator import itemgetter, attrgetter
 from collections import OrderedDict
+from itertools import chain
 from sha import sha
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.db.models.sql.constants import LOOKUP_SEP
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.utils.text import capfirst
 from django.forms.forms import pretty_name
 
@@ -257,7 +258,7 @@ class ModelSearch(object):
             if isinstance(related_name, basestring):
                 field, related_model, direct, m2m = model._meta.get_field_by_name(related_name)
 
-                if related_model is None:  # Field is local, follow the relationship to find the model
+                if related_model is None:  # Field is local, follow relationship to find the model
                     if direct:
                         related_model = field.rel.to
                     else:
@@ -267,10 +268,16 @@ class ModelSearch(object):
                 # Trace the relationship backwards from the related class's Meta to get the field
                 # name.
                 related_model = related_name
-                for related_object in related_model._meta.get_all_related_objects():
+
+                fk_objects = related_model._meta.get_all_related_objects()
+                m2m_objects = related_model._meta.get_all_related_many_to_many_objects()
+                for related_object in chain(fk_objects, m2m_objects):
                     if related_object.field.model is model:
                         related_name = related_object.field.name
                         break
+                else:
+                    raise ValueError("Relationship field from %r to %r not found." % (
+                            model.__name__, related_model.__name__))
         else:
             related_model = model
 
@@ -405,11 +412,11 @@ class ModelSearch(object):
         """
         Returns ``True`` or ``False`` to indicate definitive user permission, or else ``None`` to
         let the registry default permission decide.
-        
+
         """
-        
+
         return None
-    
+
     def get_queryset(self, user):
         return self.model.objects.all()
 
