@@ -117,6 +117,30 @@ Related fields can be recursively referenced:
         )},
     )
 
+Another way to specify a related field is to use the related model class itself as the dictionary key.  Using this method, the field name will automatically be retrieved by inspecting the relationships between the two models:
+
+    search_fields = (
+        # ...
+        {User: ( # validated to the string "owner", as in the previous example
+            'username', # displayed as "User username"
+            {'groups': (
+                'name', # displayed as "Group name"
+            )},
+        )}
+    )
+
+Eventually this syntax will be the supported method for accessing generic foreign keys, although such relationships are not yet implemented.
+
+**NOTE**: Generic models that are referenced by a [GenericRelation](https://docs.djangoproject.com/en/dev/ref/contrib/contenttypes/#reverse-generic-relations) field (e.g., a Car object with a GenericRelation field called "comments" to a generic Comment model) are considered valid and are digested by the appsearch framework:
+
+    search_fields = (
+        # ...
+        {'comments': ( # Car.comments as a GenericRelation field to Comment model
+            'title',
+            'content',
+        )},
+    )
+
 ##### `display_fields`
 
 By default, the results table shown by appsearch will include all local fields on the model.  To explicitly declare the field list, your configuration can include another attribute `display_fields`, which follows a similar format to `search_fields`:
