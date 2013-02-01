@@ -417,7 +417,13 @@ class ModelSearch(object):
 
         return None
 
-    def get_queryset(self, user):
+    def get_queryset(self, request, user):
+        """
+        Hook for subclasses to modify querysets.  By default, this method returns the default
+        manager's ``.all()`` method.  The request and user are also available for special
+        requirements.
+        
+        """
         return self.model.objects.all()
 
     def get_object_data(self, obj):
