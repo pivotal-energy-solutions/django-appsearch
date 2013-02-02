@@ -1,5 +1,4 @@
 # coding=utf-8
-import json
 
 from django.views.generic import View, TemplateView
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
@@ -71,103 +70,5 @@ class SearchMixin(object):
 
 class BaseSearchView(SearchMixin, TemplateView):
     pass
-
-
-class BaseAjaxConfigurationResolutionView(View):
-    def dispatch(self, request, *args, **kwargs):
-        self.request = request
-        self.args = args
-        self.kwargs = kwargs
-
-        model = kwargs.get('model', request.GET.get('model'))
-
-        config, response = self.resolve_configuration(request, model)
-
-        if config is None:
-            return response
-
-        self.configuration = config
-
-        return super(BaseAjaxConfigurationResolutionView, self).dispatch(request, model=model)
-
-    def resolve_configuration(self, request, model):
-        if not request.is_ajax() and request.GET.get('ajax') != 'true':
-            return None, HttpResponseBadRequest("Bad Request")
-
-        if model is None:
-            return None, HttpResponseBadRequest("No model is supplied")
-
-        try:
-            content_type = ContentType.objects.get(id=model)
-        except (ValueError, ContentType.DoesNotExist):
-            content_type = None
-            model = None
-            model_class = None
-        else:
-            model = '.'.join((content_type.app_label, content_type.model))
-            model_class = content_type.model_class()
-
-        if model_class and model in search:
-            configuration = search[model]
-            model_perm = configuration.user_has_perm(self.request.user)
-            if model_perm is False or \
-                    model_perm is None and self.has_perm(model_class) is False:
-                configuration = None
-        else:
-            configuration = None
-
-        if not configuration:
-            return None, HttpResponseForbidden()
-
-        return configuration, None
-
-    def has_perm(self, model_class):
-        """
-        Attempts a lookup of ``model_class`` in the registry.  By sending the ``user`` argument to
-        the lookup, the user's permissions will be compared to the registry's own ``permission``
-        attribute.
-
-        The view cannot specify its own permission value here because the view doesn't build or
-        control the registry or the model selection form; if the permission check needs to be
-        modified, the template string at ``registry.permission`` should be updated.
-
-        """
-        configuration = search.get_configuration(model_class, user=self.request.user)
-
-        return configuration is not None
-
-class ConstraintFieldsAjaxView(BaseAjaxConfigurationResolutionView):
-    """
-    Looks up a model class based on the regex parameter "model" (or from the GET data), which is a
-    valid ``ContentType`` pk.
-
-    """
-
-    def get(self, request, *args, **kwargs):
-        data = {'choices': self.configuration.get_searchable_field_choices(include_types=True)}
-
-        return HttpResponse(json.dumps(data, indent=4), content_type='text/json')
-
-class ConstraintOperatorsAjaxView(BaseAjaxConfigurationResolutionView):
-    """
-    Looks up a model class based on the regex parameter "model" (or from the GET data), which is a
-    valid ``ContentType`` pk.
-
-    """
-
-    def get(self, request, *args, **kwargs):
-        field = request.GET.get('field')
-
-        try:
-            choices = self.configuration.get_operator_choices(hash=field, flat=True)
-        except AttributeError:
-            choices = None
-
-        if not choices:
-            return HttpResponseBadRequest("Bad field")
-
-        data = {'choices': choices}
-
-        return HttpResponse(json.dumps(data, indent=4), content_type='text/json')
 
 

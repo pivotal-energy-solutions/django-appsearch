@@ -133,25 +133,21 @@
     };
     
     $.fn.appsearch._getFields = function(form, modelValue){
-        var choices = null;
-        $.ajax(form.data('options').constraintFieldDataURL, {
-            data: {'model': modelValue},
-            async: false,
-            success: function(response){ choices = response.choices; },
-            error: function(){ choices = []; }
-        });
-        
+        var choices = form.data('options').formChoices;
+        if (choices) {
+            choices = choices.fields[modelValue];
+        } else {
+            console.error("No 'formChoices' object specified in appsearch options.  Supply the formChoices object during setup or supply a 'getFields' function in the setup options.");
+        }
         return choices;
     };
     $.fn.appsearch._getOperators = function(form, modelValue, fieldValue){
-        var choices = null;
-        $.ajax(form.data('options').constraintOperatorDataURL, {
-            data: {'model': modelValue, 'field': fieldValue},
-            async: false,
-            success: function(response){ choices = response.choices; },
-            error: function(){ choices = []; }
-        });
-        
+        var choices = form.data('options').formChoices;
+        if (choices) {
+            choices = choices.operators[modelValue][fieldValue];
+        } else {
+            console.error("No 'formChoices' object specified in appsearch options.  Supply the formChoices object during setup or supply a 'getFields' function in the setup options.");
+        }
         return choices;
     };
     $.fn.appsearch._setFieldDescription = function(descriptionBox, type, text, value, constraintForm) {
@@ -173,9 +169,8 @@
     };
     
     $.fn.appsearch.defaults = {
-        'constraintFieldDataURL': null,
-        'constraintOperatorDataURL': null,
         'modelSelect': null,
+        'formChoices': null,
         
         'modelSelectedCallback': null,
         'updateFieldList': null,

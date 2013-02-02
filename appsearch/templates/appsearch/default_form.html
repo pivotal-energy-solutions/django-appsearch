@@ -1,9 +1,7 @@
 <script type="text/javascript">
     $(function(){
         $('#appsearch-form').appsearch({
-            'constraintFieldDataURL': '{{ search.field_data_url }}',
-            'constraintOperatorDataURL': '{{ search.operator_data_url }}',
-            'modelSelect': $('#appsearch-form #model-select-wrapper select'),
+            'formChoices': {{ search.render_all_constraint_choices }},
                 
             // Passed directly to formset.js
             'formsetOptions': {
@@ -17,7 +15,6 @@
 
 {{ search.render_search_form }}
     
-<div class="span-18 last">&nbsp;</div>
-<hr />
+<div>&nbsp;</div>
 
 {{ search.render_results_list }}

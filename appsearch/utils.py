@@ -1,20 +1,22 @@
-import operator
 import logging
+import json
+from operator import itemgetter
+from collections import defaultdict
 
 from django.db.models.query import Q
 from django.forms.formsets import formset_factory
 from django.core.urlresolvers import reverse
-from django.utils.encoding import StrAndUnicode
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.db.models.sql.constants import LOOKUP_SEP
+from django.utils.safestring import mark_safe
 
 from appsearch.registry import search, SearchRegistry
 from appsearch.forms import ModelSelectionForm, ConstraintForm, ConstraintFormset
 
 log = logging.getLogger(__name__)
 
-class Searcher(StrAndUnicode):
+class Searcher(object):
     """ Template helper, wrapping all the necessary components to render an appsearch page. """
 
     # Methods and fields not meant to be accessed from the template should start with an underscore
@@ -28,9 +30,6 @@ class Searcher(StrAndUnicode):
     # Instance data
     model_selection_form = None
     constraint_formset = None
-
-    field_data_url = None
-    operator_data_url = None
 
     results = None
 
@@ -47,14 +46,15 @@ class Searcher(StrAndUnicode):
     search_form_template_name = "appsearch/search_form.html"
     results_list_template_name = "appsearch/results_list.html"
 
-    def __init__(self, request, url=None, querydict=None, registry=search, **kwargs):
+    def __init__(self, request, url=None, querydict=None, registry=search, permission=None, **kwargs):
         self.kwargs = kwargs
         self.request = request
         self.url = url or request.path
-        self._determine_urls(kwargs)
 
         self._forms_ready = False
-        self._set_up_forms(querydict or request.GET, registry)
+        self._set_up_forms(querydict or request.GET, registry, permission)
+        self.permission = permission
+        self.registry = registry
 
         # Fallback items
         self.context_object_name = kwargs.get('context_object_name', self.context_object_name)
@@ -84,7 +84,52 @@ class Searcher(StrAndUnicode):
             self.context_object_name: self,
         }))
 
+    def render_constraint_fields(self, model):
+        """ Renders into JSON the model's fields available for search queries. """
 
+        configuration = self.registry.get_configuration(model)
+        choices = configuration.get_searchable_field_choices(include_types=True)
+        return json.dumps({'choices': choices})
+
+    def get_constraint_field_operators(self, model, field=None, hash=None):
+        """ Returns into JSON the model's field's valid search operators. """
+
+        if field is None and hash is None:
+            raise ValueError("Need one of 'field' or 'hash'.")
+
+        configuration = self.registry.get_configuration(model)
+
+        # Fetch the choices without the query orm language.  Only UI labels are used at this stage.
+        choices = configuration.get_operator_choices(field=field, hash=hash, flat=True)
+        return choices
+
+    def render_all_constraint_choices(self):
+        """
+        Returns a mapping of all models to their field choices, and all models to field hashes to
+        operators.
+
+        """
+
+        field_data = defaultdict(list)
+        operator_data = defaultdict(dict)
+
+        configurations = self.model_selection_form.configurations
+        model_values = map(itemgetter(0), self.model_selection_form.fields['model'].choices)[1:]
+
+        for model_value, config in zip(model_values, configurations):
+            model = config.model
+            field_choices = config.get_searchable_field_choices(include_types=False)
+            for orm_hash, field_label in field_choices:
+                operator_choices = self.get_constraint_field_operators(model, hash=orm_hash)
+                field_data[model_value].append([orm_hash, field_label])
+                operator_data[model_value][orm_hash] = operator_choices
+
+        return mark_safe(json.dumps({
+            'fields': field_data,
+            'operators': operator_data,
+        }))
+
+    # Configuration methods
     def get_model_selection_form_class(self):
         """ Returns ``self.model_selection_form_class`` """
         return self.model_selection_form_class
@@ -110,12 +155,10 @@ class Searcher(StrAndUnicode):
         ModelSelectionFormClass = self.get_model_selection_form_class()
         ConstraintFormClass = self.get_constraint_form_class()
         ConstraintFormsetClass = self.get_constraint_formset_class()
+        ConstraintFormsetClass = formset_factory(ConstraintFormClass, formset=ConstraintFormsetClass)
 
-        ConstraintFormsetClass = formset_factory(
-            ConstraintFormClass, formset=ConstraintFormsetClass)
-
-        self.model_selection_form = ModelSelectionFormClass(registry, self.request.user,
-                                                            permission, querydict)
+        self.model_selection_form = ModelSelectionFormClass(registry, self.request.user, permission,
+                querydict)
 
         if self.model_selection_form.is_valid():
             model_configuration = self.model_selection_form.get_selected_configuration()
@@ -127,27 +170,6 @@ class Searcher(StrAndUnicode):
                     permission)
             self.constraint_formset = ConstraintFormsetClass(configuration=None)
 
-    def _determine_urls(self, kwargs):
-        # If a URL is not customized, this namespace will be used to search out the default URL
-        url_namespace = kwargs.get('url_namespace')
-
-        # Check custom data URLs
-        field_url = kwargs.get('field_url')
-        operator_url = kwargs.get('operator_url')
-
-        if field_url is None:
-            url_name = 'appsearch:constraint-fields'
-            if url_namespace is not None:
-                url_name = url_namespace + ':' + url_name
-            field_url = reverse(url_name, kwargs=kwargs.get('field_url_kwargs', {}))
-        if operator_url is None:
-            url_name = 'appsearch:constraint-operators'
-            if url_namespace is not None:
-                url_name = url_namespace + ':' + url_name
-            operator_url = reverse(url_name, kwargs=kwargs.get('operator_url_kwargs', {}))
-
-        self.field_data_url = field_url
-        self.operator_data_url = operator_url
 
     def _perform_search(self):
         """
