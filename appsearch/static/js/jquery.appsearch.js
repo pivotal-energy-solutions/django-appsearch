@@ -6,6 +6,10 @@
         var form = this;
         var _option_template = $("<option />")
         
+        if (!options.modelSelect) {
+            options.modelSelect = $("#model-select-wrapper select");
+        }
+        
         form.data('options', options);
         
         options.modelSelect.on('change.appsearch', function(){
@@ -68,8 +72,7 @@
         form.on('update-field-list.appsearch', function(e){
             // Default handler that tries to call a user-supplied function or else the default one
             (options.updateFieldList || function(){
-                var modelSelect = form.find('#model-select-wrapper select')
-                var modelValue = modelSelect.val();
+                var modelValue = options.modelSelect.val();
                 var choices = (options.getFields || $.fn.appsearch._getFields)(form, modelValue);
                 
                 // Remove all constraint forms but the first one.
