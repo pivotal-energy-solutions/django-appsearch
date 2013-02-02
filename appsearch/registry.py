@@ -18,8 +18,8 @@ log = logging.getLogger(__name__)
 
 # Base fields to detect built-in operator types.  Fields that subclass these are implicitly included
 # in the type check.
-TEXT_FIELDS = (models.CharField, models.TextField, models.EmailField, models.FilePathField,
-        models.IPAddressField, models.GenericIPAddressField)
+TEXT_FIELDS = (models.CharField, models.TextField, models.FilePathField, models.IPAddressField,
+        models.GenericIPAddressField)
 DATE_FIELDS = (models.DateField, models.TimeField)
 NUMERIC_FIELDS = (models.IntegerField, models.AutoField, models.FloatField, models.DecimalField)
 BOOLEAN_FIELDS = (models.BooleanField, models.NullBooleanField)
@@ -338,7 +338,7 @@ class ModelSearch(object):
         Returns the sequence of 2-tuples of ('querytype', "Friendly Operator Name") for the given
         ``field`` Field instance, or given the ``hash`` representing that field.
 
-        if ``flat``, then only the text from each option is returned (read: not the "value"),
+        If ``flat``, then only the text from each option is returned (read: not the "value"),
         forming a sequence of strings such as ("= equal", "< less than", ...).
 
         """
@@ -362,6 +362,14 @@ class ModelSearch(object):
         return choices
 
     def get_field_classification(self, field):
+        """
+        Use field (either a proper Django ``Field`` instance or a field definition tuple from the
+        configuration) to return a type label for the field's data type.
+        
+        Returns one of "text", "date", "number", "boolean", or "model" (for relationship fields).
+        
+        """
+
         if isinstance(field, tuple):
             field = self.field_types[field]
 
@@ -460,13 +468,6 @@ class SearchRegistry(object):
     _registry = None
     permission = 'change_{}'
 
-    @staticmethod
-    def get_from_list(cls, configuration_list):
-        registry = SearchRegistry()
-        for configuration in configuration_list:
-            registry.register(configuration)
-        return registry
-
     def __init__(self):
         self._registry = {}
 
@@ -488,6 +489,7 @@ class SearchRegistry(object):
 
     def register(self, model, configuration):
         id_string = '.'.join((model._meta.app_label, model.__name__)).lower()
+        log.debug("Registering %r for appsearch configuration class %r", id_string, configuration)
         self._registry[id_string] = configuration(model)
 
     def filter_configurations_by_permission(self, user, permission_code):

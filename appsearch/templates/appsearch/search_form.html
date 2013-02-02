@@ -1,5 +1,4 @@
 <form id="appsearch-form" action="{{ search.url }}" method="get">
-    {% csrf_token %}
     {{ search.constraint_formset.management_form }}
             
     <div class="span-18 last" id="model-select-wrapper">
@@ -9,50 +8,53 @@
     </div>
     <div class="constraints-wrapper">
         {% for form in search.constraint_formset %}
-        <div class="span-18 last constraint-form">
-            {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
-            <div class="span-2 constraint-type{% if form.type.errors %} error{% endif %}">
-                {# This has a span so that the elements can be hidden via jquery #}
-                {% if form.type.errors %}{{ form.type.errors }}{% endif %}
-                <span>{{ form.type.label_tag }}:<br />{{ form.type }}</span>
-                &nbsp;
-            </div>
-            <div class="span-5 constraint-field{% if form.field.errors %} error{% endif %}">
-                {% if form.field.errors %}{{ form.field.errors }}{% endif %}
-                {{ form.field.label_tag }}:<br />{{ form.field }}
-            </div>
-            <div class="span-4 constraint-operator{% if form.operator.errors %} error{% endif %}">
-                {% if form.operator.errors %}{{ form.operator.errors }}{% endif %}
-                {{ form.operator.label_tag}}:<br />{{ form.operator }}
-            </div>
+            <div class="span-18 last constraint-form">
+                {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
+
+                <div class="span-2 constraint-type{% if form.type.errors %} error{% endif %}">
+                    {# This has a span so that the elements can be hidden via jquery #}
+                    {% if form.type.errors %}{{ form.type.errors }}{% endif %}
+                    <span>{{ form.type.label_tag }}:<br />{{ form.type }}</span>
+                    &nbsp;
+                </div>
+
+                <div class="span-5 constraint-field{% if form.field.errors %} error{% endif %}">
+                    {% if form.field.errors %}{{ form.field.errors }}{% endif %}
+                    {{ form.field.label_tag }}:<br />{{ form.field }}
+
+                </div>
+                <div class="span-4 constraint-operator{% if form.operator.errors %} error{% endif %}">
+                    {% if form.operator.errors %}{{ form.operator.errors }}{% endif %}
+                    {{ form.operator.label_tag }}:<br />{{ form.operator }}
+                </div>
             
-            {% with operator=form.operator.value %}
-            <div class="span-5 last constraint-terms">
-                <div class="span-5 term begin-term{% if form.term.errors %} error{% endif %}"
-                        {% if not form.term.errors %}
-                        {% if operator == "exists" or operator == "doesn't exist" %}
-                        style="display: none;"
-                        {% endif %}
-                        {% endif %}
-                        >
-                    {% if form.term.errors %}{{ form.term.errors }}{% endif %}
-                    {{ form.term.label_tag }}:<br />{{ form.term }}
-                    <div class="span-5 description"></div>
-                </div>
-                <div class="span-5 term end-term{% if form.end_term.errors %} error{% endif %}"
-                        {% if operator != "range" and not form.end_term.errors %}
-                        style="display: none;"
-                        {% endif %}>
-                    {% if form.end_term.errors %}{{ form.end_term.errors }}{% endif %}
-                    {{ form.end_term.label_tag }}:<br />{{ form.end_term }}
-                </div>
-                &nbsp;
-            </div>
-            {% endwith %}
+                {% with operator=form.operator.value %}
+                    <div class="span-5 last constraint-terms">
+                        <div class="span-5 term begin-term{% if form.term.errors %} error{% endif %}"
+                                {% if not form.term.errors %}
+                                {% if operator == "exists" or operator == "doesn't exist" %}
+                                style="display: none;"
+                                {% endif %}
+                                {% endif %}
+                                >
+                            {% if form.term.errors %}{{ form.term.errors }}{% endif %}
+                            {{ form.term.label_tag }}:<br />{{ form.term }}
+                            <div class="span-5 description"></div>
+                        </div>
+                        <div class="span-5 term end-term{% if form.end_term.errors %} error{% endif %}"
+                                {% if operator != "range" and not form.end_term.errors %}
+                                style="display: none;"
+                                {% endif %}>
+                            {% if form.end_term.errors %}{{ form.end_term.errors }}{% endif %}
+                            {{ form.end_term.label_tag }}:<br />{{ form.end_term }}
+                        </div>
+                        &nbsp;
+                    </div>
+                {% endwith %}
                     
-            {# Space for dynamic formset.js 'remove' link #}
-            <div class="span-1">&nbsp;</div>
-        </div>
+                {# Space for dynamic formset.js 'remove' link #}
+                <div class="span-1">&nbsp;</div>
+            </div>
         {% endfor %}
     </div>
 

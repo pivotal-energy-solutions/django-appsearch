@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """forms.py: appsearch forms"""
 import operator
+
 from django import forms
 from django.forms import ValidationError
 from django.forms.formsets import BaseFormSet
@@ -10,20 +11,27 @@ import dateutil.parser
 
 
 class ModelSelectionForm(forms.Form):
-    """Model Selector form"""
+    """
+    Default Model selection form.
+
+    Builds choices based on the registered configurations in the given ``registry``.  The form uses
+    content type ids for values instead of model names or module paths, etc.
+
+    """
+
     model = forms.ChoiceField(label="Search For")
 
     def __init__(self, registry, user, permission, *args, **kwargs):
         super(ModelSelectionForm, self).__init__(*args, **kwargs)
 
         self.registry = registry
-        configurations = registry.get_configurations(user=user, permission=permission)
+        self.configurations = registry.get_configurations(user=user, permission=permission)
 
         self.fields['model'].choices = BLANK_CHOICE_DASH + \
-            [(c._content_type.id, c.verbose_name) for c in configurations]
+            [(c._content_type.id, c.verbose_name) for c in self.configurations]
 
     def clean_model(self):
-        """Clean the model"""
+        """ Cleans the content type id into the model it represents. """
         model = self.cleaned_data['model']
         try:
             model = ContentType.objects.get(id=model).model_class()
@@ -34,12 +42,15 @@ class ModelSelectionForm(forms.Form):
         return model
 
     def get_selected_configuration(self):
-        """Get the selected configuration"""
+        """
+        Given that the form has passed validation, returns the configuration for the selected model.
+
+        """
         model_value = self.cleaned_data['model']
         return self.registry[model_value]
 
     def get_selected_model(self):
-        """ Returns the select model's class. """
+        """ Given that the form has passed validation, returns the selected model. """
         return self.get_selected_configuration().model
 
 
