@@ -160,10 +160,13 @@ class ConstraintForm(forms.Form):
 
         # Numbers and strings don't need processing, but the other types should be inspected.
         if classification == "date":
+            if not term:
+                raise ValidationError("Date cannot be blank.")
             try:
                 term = dateutil.parser.parse(term)
             except ValueError:
                 raise ValidationError("Unable to parse a date from \'{}\'".format(term))
+            
         elif classification == "boolean":
             if term.lower() in ("true", "yes"):
                 term = True
@@ -203,6 +206,8 @@ class ConstraintForm(forms.Form):
 
         if operator == "range":
             if classification == "date":
+                if not term:
+                    raise ValidationError("Ending date cannot be blank.")
                 term = dateutil.parser.parse(term)
             else:
                 raise ValidationError("Unknown range type %r." % classification)
