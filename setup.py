@@ -6,7 +6,6 @@ from setuptools import find_packages, setup
 setup(name='django-appsearch',
       version='1.0',
       description='Framework and generic app for cross-model searches on a single page',
-      author='Tim Val Klass',
       author='Tim Vallenta',
       author_email='tvalenta@pivotalenergysolutions.com',
       license='Apache License (2.0)',
