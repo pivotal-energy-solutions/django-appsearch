@@ -30,10 +30,10 @@ RELATIONSHIP_FIELDS = (models.ForeignKey, models.ManyToManyField, models.OneToOn
 # Notably, entries starting with  "!" are negative filters
 OPERATOR_MAP = {
     'text': (
-        ('iexact', "= equal"),
-        ('!iexact', u"≠ not equal"),
         ('icontains', "contains"),
         ('!icontains', "doesn't contain"),
+        ('iexact', "= equal"),
+        ('!iexact', u"≠ not equal"),
         ('!isnull', "exists"),
         ('isnull', "doesn't exist"),
     ),
@@ -49,6 +49,7 @@ OPERATOR_MAP = {
     'number': (
         ('gt', "> greater than"),
         ('lt', "< less than"),
+        ('exact', "= equal"),
         ('range', "between"),
         ('!isnull', "exists"),
         ('isnull', "doesn't exist"),
@@ -365,9 +366,9 @@ class ModelSearch(object):
         """
         Use field (either a proper Django ``Field`` instance or a field definition tuple from the
         configuration) to return a type label for the field's data type.
-        
+
         Returns one of "text", "date", "number", "boolean", or "model" (for relationship fields).
-        
+
         """
 
         if isinstance(field, tuple):
@@ -430,7 +431,7 @@ class ModelSearch(object):
         Hook for subclasses to modify querysets.  By default, this method returns the default
         manager's ``.all()`` method.  The request and user are also available for special
         requirements.
-        
+
         """
         return self.model.objects.all()
 
