@@ -47,12 +47,14 @@ OPERATOR_MAP = {
         ('isnull', "doesn't exist"),
     ),
     'number': (
+        ('exact', "= equal"),
         ('gt', "> greater than"),
         ('lt', "< less than"),
-        ('exact', "= equal"),
         ('range', "between"),
         ('!isnull', "exists"),
         ('isnull', "doesn't exist"),
+        ('icontains', "contains"),
+        ('!icontains', "doesn't contain"),
     ),
     'boolean': (
         ('exact', "= equal"),
