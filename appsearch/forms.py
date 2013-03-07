@@ -204,6 +204,8 @@ class ConstraintForm(forms.Form):
         if operator == "range":
             if classification == "date":
                 term = dateutil.parser.parse(term)
+            if classification == "number":
+                term = int(term)
             else:
                 raise ValidationError("Unknown range type %r." % classification)
 
