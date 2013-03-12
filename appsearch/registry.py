@@ -65,8 +65,12 @@ OPERATOR_MAP = {
         ('!isnull', "exists"),
         ('isnull', "doesn't exist"),
     ),
+
+    # If a field defines a "choices" list, we can't get very fancy with operator types
+    'choices': (
+        ('exact', "is"),
+    ),
 }
-# OPERATOR_REVERSE_MAP = {section: OPERATOR_MAP[section][::-1] for section in OPERATOR_MAP}
 
 
 def resolve_field_from_orm_path(model, orm_path):
@@ -380,7 +384,9 @@ class ModelSearch(object):
         if isinstance(field, tuple):
             field = self.field_types[field]
 
-        if isinstance(field, TEXT_FIELDS):
+        if field.choices:
+            return 'choices'
+        elif isinstance(field, TEXT_FIELDS):
             return 'text'
         elif isinstance(field, DATE_FIELDS):
             return 'date'
