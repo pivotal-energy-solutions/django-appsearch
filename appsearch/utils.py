@@ -197,6 +197,8 @@ class Searcher(object):
             # Search fields bound together in a tuple are considered OR conditions for a single
             # virtual field name.
             query = None
+
+            # Iterate multiple fields defined in a compound column
             for field in field_list:
                 value = term
 

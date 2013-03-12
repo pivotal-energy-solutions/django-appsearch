@@ -346,6 +346,10 @@ class ModelSearch(object):
 
         """
 
+        # TODO: Fields with a "choices" setting might be an IntegerField, but provide text-based
+        # values that the user will intuitively use as search values.  A "choices" setting might
+        # need to assume string data regardless of the underlying type.
+
         if hash is not None:
             field = self.reverse_field_hash(hash)
         elif field is None:

@@ -7,6 +7,7 @@ from django.forms import ValidationError
 from django.forms.formsets import BaseFormSet
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.contrib.contenttypes.models import ContentType
+
 import dateutil.parser
 
 
@@ -130,7 +131,7 @@ class ConstraintForm(forms.Form):
         return type
 
     def clean_field(self):
-        """ Convert field into ORM path tuple. """
+        """ Convert ``field`` hash into ORM path tuple. """
         return self.configuration.reverse_field_hash(self.cleaned_data['field'])
 
     def clean_operator(self):
