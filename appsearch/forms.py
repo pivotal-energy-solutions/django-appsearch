@@ -158,27 +158,35 @@ class ConstraintForm(forms.Form):
         classification = self.configuration.get_field_classification(self.cleaned_data['field'])
         operator = self.cleaned_data['operator']
         term = self.cleaned_data['term'].strip()
+        field_type = self.configuration.field_types[self.cleaned_data['field']]
 
-        # Numbers and strings don't need processing, but the other types should be inspected.
-        if classification == "date":
-            try:
-                term = dateutil.parser.parse(term)
-            except ValueError:
-                raise ValidationError("Unable to parse a date from \'{}\'".format(term))
-        elif classification == "boolean":
-            if term.lower() in ("true", "yes"):
-                term = True
-            elif term.lower() in ("false", "no"):
-                term = False
-            else:
-                raise ValidationError("Boolean value must be either true/false or yes/no.")
-        elif classification == "number":
-            try:
-                float(term)
-            except:
-                raise ValidationError("Value must be numeric.")
+        if field_type.choices:
+            # The field's database values aren't the display values, but the display values are
+            # what the user will search for.  e.g., choices=[(1, 'Bob'), (2, 'Mary')]
+            choices = {k.lower(): v for v, k in field_type.choices}
+            if term.lower() in choices:
+                term = choices[term.lower()]
+        else:
+            # Numbers and strings don't need processing, but the other types should be inspected.
+            if classification == "date":
+                try:
+                    term = dateutil.parser.parse(term)
+                except ValueError:
+                    raise ValidationError("Unable to parse a date from \'{}\'".format(term))
+            elif classification == "boolean":
+                if term.lower() in ("true", "yes"):
+                    term = True
+                elif term.lower() in ("false", "no"):
+                    term = False
+                else:
+                    raise ValidationError("Boolean value must be either true/false or yes/no.")
+            elif classification == "number":
+                try:
+                    float(term)
+                except:
+                    raise ValidationError("Value must be numeric.")
 
-        if operator not in ('isnull', '!isnull') and not term:
+        if operator not in ('isnull', '!isnull') and term in [None, '']:
             raise ValidationError("This field is required.")
 
         return term
