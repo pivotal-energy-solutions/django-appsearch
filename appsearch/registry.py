@@ -419,11 +419,13 @@ class ModelSearch(object):
         """ Returns the hash of field ORM paths derived from the initial configuration. """
 
         hashes = map(itemgetter(0), self.get_searchable_field_choices())
-
         try:
             return self._fields.keys()[hashes.index(hash)]
         except IndexError:
-            raise ValueError("Unknown field hash")
+            # raise ValueError("Unknown field hash")
+            # TODO Fix me!
+            log.exception("Unknown field hash")
+            return None
 
     def get_display_fields(self):
         """ Returns the list of labels for the display fields. """
