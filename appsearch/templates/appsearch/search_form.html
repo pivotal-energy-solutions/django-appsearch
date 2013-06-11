@@ -42,7 +42,7 @@
                             <div class="span-5 description"></div>
                         </div>
                         <div class="span-5 term end-term{% if form.end_term.errors %} error{% endif %}"
-                                {% if operator != "range" and not form.end_term.errors %}
+                                {% if operator != "range" and not form.end_term.errors and not form.end_term.value %}
                                 style="display: none;"
                                 {% endif %}>
                             {% if form.end_term.errors %}{{ form.end_term.errors }}{% endif %}
