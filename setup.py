@@ -20,7 +20,7 @@ setup(name='django-appsearch',
            'Topic :: Software Development',
       ],
       packages=find_packages(exclude=['tests', 'tests.*']),
-      package_data={'company_registration': ['static/js/*.js', 'templates/appsearch/*.html']},
+      package_data={'appsearch': ['static/js/*.js', 'templates/appsearch/*.html']},
       include_package_data=True,
       requires=['django (>=1.2)'],
 )
