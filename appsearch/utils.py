@@ -4,6 +4,7 @@ from operator import itemgetter
 from collections import defaultdict
 
 from django.db.models.query import Q
+from django.core import exceptions
 from django.forms.formsets import formset_factory
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
@@ -170,6 +171,26 @@ class Searcher(object):
                     permission)
             self.constraint_formset = ConstraintFormsetClass(configuration=None)
 
+    def _get_field(self, model, querystring):
+        """Given a model and a string the the actual field"""
+        original= model
+        field = None
+        querystring_list = querystring.split("__")
+        target_field_string = querystring_list[-1]
+        for idx, fieldname in enumerate(querystring_list[:-1]):
+            # Covers FK
+            try:
+                model = getattr(model, fieldname).field.rel.to
+            except (exceptions.ObjectDoesNotExist, AttributeError):
+                try:
+                    model = getattr(model(), fieldname).model
+                except exceptions.ObjectDoesNotExist:
+                    log.warning("Unable to figure out the target field given a model of {} and "
+                                "querystring of {}".format(original, querystring))
+                    break
+        field = next((f for f in model._meta.fields if f.name==target_field_string), None)
+        log.debug("Translated {} to field type of {}".format(querystring, field.get_internal_type()))
+        return field
 
     def _perform_search(self):
         """
@@ -202,6 +223,14 @@ class Searcher(object):
             for field in field_list:
                 value = term
 
+                # This covers the field choice swaparoo
+                target_field = self._get_field(self.model, field)
+                if target_field and len(target_field.choices):
+                    for key,val in dict(target_field.choices).items():
+                        if str(val).lower().startswith(str(value).lower()):
+                            value = key
+                            break
+
                 # Prep an inverted lookup
                 negative = constraint_operator.startswith('!')
                 if negative:
@@ -217,8 +246,8 @@ class Searcher(object):
                 q = Q(**{
                     field_query: value,
                 })
-
-                log.debug("Querying %s [%d]: %s=%r", self.model.__name__, i, field_query, value)
+                log.debug("Querying %s [%d]: %s%s=%r", self.model.__name__, i, field_query,
+                          "!" if negative else "", value)
 
                 # Negate if necessary
                 if negative:
