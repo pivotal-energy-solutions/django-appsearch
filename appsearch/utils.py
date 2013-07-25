@@ -189,7 +189,7 @@ class Searcher(object):
                                 "querystring of {}".format(original, querystring))
                     break
         field = next((f for f in model._meta.fields if f.name==target_field_string), None)
-        log.debug("Translated {} to field type of {}".format(querystring, field.get_internal_type()))
+        #log.debug("Translated {} to field type of {}".format(querystring, field.get_internal_type()))
         return field
 
     def _perform_search(self):
