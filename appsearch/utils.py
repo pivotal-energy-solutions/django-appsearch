@@ -2,6 +2,7 @@ import logging
 import json
 from operator import itemgetter
 from collections import defaultdict
+from django.contrib import messages
 
 from django.db.models.query import Q
 from django.core import exceptions
@@ -189,7 +190,7 @@ class Searcher(object):
                                 "querystring of {}".format(original, querystring))
                     break
         field = next((f for f in model._meta.fields if f.name==target_field_string), None)
-        #log.debug("Translated {} to field type of {}".format(querystring, field.get_internal_type()))
+        log.debug("Translated {} to field type of {}".format(querystring, field.get_internal_type()))
         return field
 
     def _perform_search(self):
@@ -226,10 +227,20 @@ class Searcher(object):
                 # This covers the field choice swaparoo
                 target_field = self._get_field(self.model, field)
                 if target_field and len(target_field.choices):
-                    for key,val in dict(target_field.choices).items():
-                        if str(val).lower().startswith(str(value).lower()):
-                            value = key
+                    found = False
+                    for key, val in dict(target_field.choices).items():
+                        if str(val).lower() in str(value).lower():
+                            found = key
                             break
+                    if found:
+                        value = key
+                    else:
+                        vals = [x[1] for x in target_field.choices]
+                        msg = "Unable to identify a matching key from \'{}\' - Valid " \
+                              "choices are: \'{}\'".format(value, "\', \'".join(vals))
+                        value = target_field.choices[0][0]
+                        messages.warning(self.request, msg)
+
 
                 # Prep an inverted lookup
                 negative = constraint_operator.startswith('!')
