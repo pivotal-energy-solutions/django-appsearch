@@ -172,26 +172,26 @@ class Searcher(object):
                     permission)
             self.constraint_formset = ConstraintFormsetClass(configuration=None)
 
-    def _get_field(self, model, querystring):
-        """ Looks up the field on ``model`` described by the ORM-style ``querystring``. """
-        original = model
-        field = None
-        querystring_list = querystring.split(LOOKUP_SEP)
-        target_field_string = querystring_list[-1]
-        for idx, fieldname in enumerate(querystring_list[:-1]):
-            # Covers FK
-            try:
-                model = getattr(model, fieldname).field.rel.to
-            except (exceptions.ObjectDoesNotExist, AttributeError):
-                try:
-                    model = getattr(model(), fieldname).model
-                except exceptions.ObjectDoesNotExist:
-                    log.warning("Unable to figure out the target field given a model of {} and "
-                                "querystring of {}".format(original, querystring))
-                    break
-        field = next((f for f in model._meta.fields if f.name==target_field_string), None)
-        log.debug("Translated {} to field type of {}".format(querystring, field.get_internal_type()))
-        return field
+    # def _get_field(self, model, querystring):
+    #     """ Looks up the field on ``model`` described by the ORM-style ``querystring``. """
+    #     original = model
+    #     field = None
+    #     querystring_list = querystring.split(LOOKUP_SEP)
+    #     target_field_string = querystring_list[-1]
+    #     for fieldname in querystring_list[:-1]:
+    #         # Covers FK
+    #         try:
+    #             model = getattr(model, fieldname).field.rel.to
+    #         except (exceptions.ObjectDoesNotExist, AttributeError) as e:
+    #             try:
+    #                 model = getattr(model(), fieldname).model
+    #             except exceptions.ObjectDoesNotExist:
+    #                 log.warning("Unable to figure out the target field given a model of {} and "
+    #                             "querystring of {}".format(original, querystring))
+    #                 break
+    #     field = next((f for f in model._meta.fields if f.name==target_field_string), None)
+    #     log.debug("Translated {} to field type of {}".format(querystring, repr(field)))
+    #     return field
 
     def _perform_search(self):
         """
