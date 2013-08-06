@@ -2,19 +2,19 @@ import logging
 import json
 from operator import itemgetter
 from collections import defaultdict
-from django.contrib import messages
 
 from django.db.models.query import Q
-from django.core import exceptions
 from django.forms.formsets import formset_factory
+from django.core import exceptions
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.db.models.sql.constants import LOOKUP_SEP
 from django.utils.safestring import mark_safe
+from django.contrib import messages
 
-from appsearch.registry import search, SearchRegistry
-from appsearch.forms import ModelSelectionForm, ConstraintForm, ConstraintFormset
+from .registry import search, SearchRegistry
+from .forms import ModelSelectionForm, ConstraintForm, ConstraintFormset
 
 log = logging.getLogger(__name__)
 
