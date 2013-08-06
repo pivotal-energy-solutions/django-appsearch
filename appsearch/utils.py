@@ -229,17 +229,14 @@ class Searcher(object):
                 # This covers the field choice swaparoo
                 target_field = resolve_orm_path(self.model, field)
                 if target_field and len(target_field.choices):
-                    found = False
                     for key, val in dict(target_field.choices).items():
                         if str(val).lower() in str(value).lower():
-                            found = key
+                            value = key
                             break
-                    if found:
-                        value = key
                     else:
                         vals = [x[1] for x in target_field.choices]
-                        msg = "Unable to identify a matching key from \'{}\' - Valid " \
-                              "choices are: \'{}\'".format(value, "\', \'".join(vals))
+                        msg = "Unable to identify a matching key from '{}' - Valid " \
+                              "choices are: '{}'".format(value, "', '".join(vals))
                         value = target_field.choices[0][0]
                         messages.warning(self.request, msg)
 
