@@ -176,7 +176,7 @@ class Searcher(object):
         """ Looks up the field on ``model`` described by the ORM-style ``querystring``. """
         original = model
         field = None
-        querystring_list = querystring.split("__")
+        querystring_list = querystring.split(LOOKUP_SEP)
         target_field_string = querystring_list[-1]
         for idx, fieldname in enumerate(querystring_list[:-1]):
             # Covers FK
