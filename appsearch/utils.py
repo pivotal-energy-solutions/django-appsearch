@@ -173,8 +173,8 @@ class Searcher(object):
             self.constraint_formset = ConstraintFormsetClass(configuration=None)
 
     def _get_field(self, model, querystring):
-        """Given a model and a string the the actual field"""
         original= model
+        """ Looks up the field on ``model`` described by the ORM-style ``querystring``. """
         field = None
         querystring_list = querystring.split("__")
         target_field_string = querystring_list[-1]
