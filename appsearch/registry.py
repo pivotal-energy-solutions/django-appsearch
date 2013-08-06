@@ -14,6 +14,9 @@ from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.utils.text import capfirst
 from django.forms.forms import pretty_name
 
+from .ormutils import resolve_orm_path
+
+
 log = logging.getLogger(__name__)
 
 # Base fields to detect built-in operator types.  Fields that subclass these are implicitly included
@@ -71,32 +74,6 @@ OPERATOR_MAP = {
         ('exact', "is"),
     ),
 }
-
-
-def resolve_field_from_orm_path(model, orm_path):
-    """
-    Beginning with a ``model`` class, breaks up the ``orm_path`` and crawls the attributes to
-    locate the endpoint Field descriptor.
-
-    """
-
-    attribute_list = orm_path.split(LOOKUP_SEP)
-
-    def _get_field(model_class, name):
-        related_descriptor = getattr(model_class, name)
-        try:
-            model_class = related_descriptor.related.model
-        except AttributeError:
-            try:
-                model_class = related_descriptor.field.rel.to
-            except AttributeError:
-                model_class = related_descriptor
-        return model_class
-
-    related_model = reduce(_get_field, [model] + attribute_list[:-1])
-    field, _, _, _ = related_model._meta.get_field_by_name(attribute_list[-1])
-
-    return field
 
 
 class ModelSearch(object):
