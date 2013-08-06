@@ -128,7 +128,7 @@ class ModelSearch(object):
                 field_name = field_info
                 verbose_name = None
 
-            field = resolve_field_from_orm_path(self.model, field_name)
+            field = resolve_orm_path(self.model, field_name)
 
             if verbose_name is None:
                 verbose_name = field.verbose_name
@@ -224,7 +224,7 @@ class ModelSearch(object):
                 if not isinstance(field_name, (tuple, list)):
                     field_name = (field_name,)
                 if field is None:
-                    field = resolve_field_from_orm_path(related_model, field_name[0])
+                    field = resolve_orm_path(related_model, field_name[0])
 
                 try:
                     field = field.field
@@ -243,6 +243,7 @@ class ModelSearch(object):
             # print sub_fields
 
         return sub_fields
+
     def get_operator_choices(self, field=None, hash=None, flat=False):
         """
         Returns the sequence of 2-tuples of ('querytype', "Friendly Operator Name") for the given
