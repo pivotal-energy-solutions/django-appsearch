@@ -15,8 +15,10 @@ from django.contrib import messages
 
 from .registry import search, SearchRegistry
 from .forms import ModelSelectionForm, ConstraintForm, ConstraintFormset
+from .ormutils import resolve_orm_path
 
 log = logging.getLogger(__name__)
+
 
 class Searcher(object):
     """ Template helper, wrapping all the necessary components to render an appsearch page. """
@@ -225,7 +227,7 @@ class Searcher(object):
                 value = term
 
                 # This covers the field choice swaparoo
-                target_field = self._get_field(self.model, field)
+                target_field = resolve_orm_path(self.model, field)
                 if target_field and len(target_field.choices):
                     found = False
                     for key, val in dict(target_field.choices).items():
