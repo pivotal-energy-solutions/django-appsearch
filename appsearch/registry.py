@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 # Base fields to detect built-in operator types.  Fields that subclass these are implicitly included
 # in the type check.
 TEXT_FIELDS = (models.CharField, models.TextField, models.FilePathField, models.IPAddressField,
-        models.GenericIPAddressField)
+               models.GenericIPAddressField)
 DATE_FIELDS = (models.DateField, models.TimeField)
 NUMERIC_FIELDS = (models.IntegerField, models.AutoField, models.FloatField, models.DecimalField)
 BOOLEAN_FIELDS = (models.BooleanField, models.NullBooleanField)
