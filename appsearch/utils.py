@@ -300,18 +300,12 @@ class Searcher(object):
 
     def get_select_related_fields(self, model, config):
         """ Returns a list of queryset language names to pass into ``.select_related()`` """
-        display_fields = self._get_display_fields(model, config)
+        display_fields = config._display_fields
         related_names = set()
-        for field_info in display_fields:
-            if isinstance(field_info, (tuple, list)):
-                _, field_name = field_info
-            else:
-                field_name = field_info
-
-            related_path = field_name.rsplit(LOOKUP_SEP, 1)[0]
-
-            if LOOKUP_SEP in related_path:
-                related_names.add(related_path)
+        for _, field_name, _ in display_fields:
+            name_bits = field_name.rsplit(LOOKUP_SEP, 1)
+            if len(name_bits) == 2:
+                related_names.add(name_bits[0])
 
         return related_names
 
