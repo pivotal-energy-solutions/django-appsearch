@@ -115,7 +115,7 @@ search_fields = (
 )
 ```
 
-Related fields can be recursively referenced:
+Related fields can be nested:
 
 ```python
 search_fields = (
