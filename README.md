@@ -33,62 +33,70 @@ Patterned after `django.contrib.admin` interface, appsearch includes a `registry
 
 We'll use this example base model for registration, which reaches out to a couple of other fake models for the sake of demonstration:
 
-    # car/models.py
+```python
+# car/models.py
 
-    class Car(models.Model):
-        year = models.PositiveIntegerField()
-        make = models.ForeignKey(CarMake)
-        model = models.ForeignKey(CarModel)
+class Car(models.Model):
+    year = models.PositiveIntegerField()
+    make = models.ForeignKey(CarMake)
+    model = models.ForeignKey(CarModel)
 
-        owners = models.ManyToManyField(User)
+    owners = models.ManyToManyField(User)
 
-        nickname = models.CharField(max_length=50)
-        adoption_story = models.TextField()
+    nickname = models.CharField(max_length=50)
+    adoption_story = models.TextField()
+```
 
 ##### `search_fields`
 
 To register this model, place a `search.py` submodule in your app's directory and include at least this basic registration code.  We'll leave out the majority of `Car`'s fields for clarity:
 
-    # car/search.py
+```python
+# car/search.py
 
-    from appsearch.registry import ModelSearch, search
-    from project.car.models import Car
+from appsearch.registry import ModelSearch, search
+from project.car.models import Car
 
-    class CarSearch(ModelSearch):
-        search_fields = (
-            'year',
-            'nickname',
-            'adoption_story',
-        )
+class CarSearch(ModelSearch):
+    search_fields = (
+        'year',
+        'nickname',
+        'adoption_story',
+    )
 
-    search.register(Car, CarSearch)
+search.register(Car, CarSearch)
+```
 
 `search_fields` is an iterable whose items describe searchable fields.  The order that the fields are listed here will be respected in the appsearch UI.  An item in the list can be a string if it directly describes a model field name.  The field will be looked up and its `verbose_name` stored for use in the UI.  To explicitly declare a "verbose name" for use within the appsearch UI, you can make the string a 2-tuple of the verbose name and the field name:
 
-    search_fields = (
-        'year',
-        ("Name", 'nickname'),
-        'adoption_story',
-    )
+```python
+search_fields = (
+    'year',
+    ("Name", 'nickname'),
+    'adoption_story',
+)
+```
 
 To pull related fields into the mix, an item can instead be a single-entry dictionary, mapping the attribute to a nested structure following the same format:
 
-    search_fields = (
-        'year',
-        ("Name", 'nickname'),
-        'adoption_story',
-        {'make': (
-            'name',
-        )},
-        {'model': (
-            'name',
-        )},
-        {'owners': (
-            'username',
-            'first_name',
-            'last_name',
-        )},
-    )
+```python
+search_fields = (
+    'year',
+    ("Name", 'nickname'),
+    'adoption_story',
+    {'make': (
+        'name',
+    )},
+    {'model': (
+        'name',
+    )},
+    {'owners': (
+        'username',
+        'first_name',
+        'last_name',
+    )},
+)
+```
 
 This syntax reduces potentially repetitive query language such as `"owners__username"`, `"owners__first_name"`, and `"owners__last_name"`.
 
@@ -96,29 +104,34 @@ Any related field that doesn't supply its own verbose name here in the search co
 
 To prevent the automatic prefix, you can supply your own verbose name as previously shown:
 
-    search_fields = (
-        # ...
-        {'owners': (
-            ("Username", 'username'), # would have been "User username"
-            ("User's First name", "first_name"), # would have been "User first name"
-            ("User's Last name", "last_name"), # would have been "User last name"
-        )},
-    )
+```python
+search_fields = (
+    # ...
+    {'owners': (
+        ("Username", 'username'), # would have been "User username"
+        ("User's First name", "first_name"), # would have been "User first name"
+        ("User's Last name", "last_name"), # would have been "User last name"
+    )},
+)
+```
 
 Related fields can be recursively referenced:
 
-    search_fields = (
-        # ...
-        {'owners': (
-            'username', # displayed as "User username"
-            {'groups': (
-                'name', # displayed as "Group name"
-            )},
+```python
+search_fields = (
+    # ...
+    {'owners': (
+        'username', # displayed as "User username"
+        {'groups': (
+            'name', # displayed as "Group name"
         )},
-    )
+    )},
+)
+```
 
 Another way to specify a related field is to use the related model class itself as the dictionary key.  Using this method, the field name will automatically be retrieved by inspecting the relationships between the two models:
 
+```python
     search_fields = (
         # ...
         {User: ( # validated to the string "owner", as in the previous example
@@ -128,35 +141,40 @@ Another way to specify a related field is to use the related model class itself 
             )},
         )}
     )
+```
 
 Eventually this syntax will be the supported method for accessing generic foreign keys, although such relationships are not yet implemented.
 
 **NOTE**: Generic models that are referenced by a [GenericRelation](https://docs.djangoproject.com/en/dev/ref/contrib/contenttypes/#reverse-generic-relations) field (e.g., a Car object with a GenericRelation field called "comments" to a generic Comment model) are considered valid and are digested by the appsearch framework:
 
-    search_fields = (
-        # ...
-        {'comments': ( # Car.comments as a GenericRelation field to Comment model
-            'title',
-            'content',
-        )},
-    )
+```python
+search_fields = (
+    # ...
+    {'comments': ( # Car.comments as a GenericRelation field to Comment model
+        'title',
+        'content',
+    )},
+)
+```
 
 ##### `display_fields`
 
 By default, the results table shown by appsearch will include all local fields on the model.  To explicitly declare the field list, your configuration can include another attribute `display_fields`, which follows a similar format to `search_fields`:
 
-    class CarSearch(ModelSearch):
-        display_fields = (
-            'nickname',
-            'year',
-            ("Make", 'make__name'),
-            ("Model", 'model__name'),
-            ("Owners", 'get_owners_list'), # attribute on the Car model
-        )
+```python
+class CarSearch(ModelSearch):
+    display_fields = (
+        'nickname',
+        'year',
+        ("Make", 'make__name'),
+        ("Model", 'model__name'),
+        ("Owners", 'get_owners_list'), # attribute on the Car model
+    )
 
-        search_fields = (
-            # ...
-        )
+    search_fields = (
+        # ...
+    )
+```
 
 `display_fields` is an iterable of items, either strings or 2-tuples of (verbosename, fieldname).  As with `search_fields`, fields will have their `verbose_name` automatically retrieved, unless it is supplied explicitly in the configuration.
 
@@ -178,43 +196,49 @@ You need to declare your own starting point for the client to initially visit an
 
 `BaseSearchView` is a simple `TemplateView` subclass that also inherits from `appsearch.views.SearchMixin`.  For a completely vanilla behavior, you could include the `BaseSearchView` directly:
 
-    # project/mysearchapp/urls.py
+```python
+# project/mysearchapp/urls.py
 
-    from django.conf.urls.defaults import patterns, url
-    from appsearch.views import BaseSearchView
-    import appsearch.autodiscover
-    
-    appsearch.autodiscover()
+from django.conf.urls.defaults import patterns, url
+from appsearch.views import BaseSearchView
+import appsearch.autodiscover
 
-    urlpatterns = patterns('',
-        url(r'^search/$', BaseSearchView.as_view(template_name="search.html")),
-    )
+appsearch.autodiscover()
+
+urlpatterns = patterns('',
+    url(r'^search/$', BaseSearchView.as_view(template_name="search.html")),
+)
+```
 
 Remember, because `BaseSearchView` is pretty much just a `TemplateView`, you need to give it a `template_name` value.  Don't worry though, since the view inherits machinery for making the search form trivial to render into your custom template.
 
 Alternately, you can of course go and actually subclass `BaseSearchView` and gain access to extra flexibility:
 
-    # project/mysearchapp/views.py
+```python
+# project/mysearchapp/views.py
 
-    from appsearch.views import BaseSearchView
+from appsearch.views import BaseSearchView
 
-    class SearchView(BaseSearchView):
-        template_name = "search.html"
+class SearchView(BaseSearchView):
+    template_name = "search.html"
+```
 
 #### search.html
 
 You're free to make whatever template you want for the search to exist on.  By default, all you need to do is render the ``search`` context variable into your template.  Just make sure that jQuery and the appsearch plugin are loaded:
 
-    {# search.html #}
-    
-    {% block javascript %}
-        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.8.3.min.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.appsearch.js"></script>
-    {% endblock %}
-    
-    {% block content %}
-        {{ search }}
-    {% endblock %}
+```html
+{# search.html #}
+
+{% block javascript %}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.8.3.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.appsearch.js"></script>
+{% endblock %}
+
+{% block content %}
+    {{ search }}
+{% endblock %}
+```
 
 There are plenty of ways to customize how the form is rendered and how the Javascript behaves, but this is enough to get a fully functioning search implementation.
 
@@ -247,15 +271,21 @@ An iterable of column description items.
 
 Each "item" can be a string:
 
-    'field_name'
+```python
+'field_name'
+```
 
 or a 2-tuple where the verbose name is explicitly supplied:
 
-    ("My field name", 'field_name')
+```python
+("My field name", 'field_name')
+```
 
 In either case, the field name can refer to a local field (including a method name), or a queryset-style lookup path.  In the latter case, an explicit verbose name should be supplied:
 
-    ("Related field name", 'relationship__field_name')
+```python
+("Related field name", 'relationship__field_name')
+```
 
 Any cross-model lookups will be automatically detected and the appropriate `.select_related()` statement will be issued.
 
@@ -267,31 +297,41 @@ An iterable of field description items.
 
 Each "item" can be a string describing a local database field:
 
-    'field_name'
+```python
+'field_name'
+```
 
 or a 2-tuple where the verbose name is explicitly supplied:
 
-    ("My field name", 'field_name')
+```python
+("My field name", 'field_name')
+```
 
 or a single-item dictionary mapping a related accessor to a new iterable of related field description items following the same format rules:
 
-    {'users': (
-        # strings, 2-tuples, or more nested single-item dictionaries
-    )}
+```python
+{'users': (
+    # strings, 2-tuples, or more nested single-item dictionaries
+)}
+```
 
 The order in which `search_fields` are declared will be respected by the search form UI.
 
 For related fields inside of a dictionary item, verbose names will be prefixed with the field's model's `verbose_name`:
 
-    {'users': (
-        'username', # displays User's verbose name + User.username's verbose name: "User username"
-    )}
+```python
+{'users': (
+    'username', # displays User's verbose name + User.username's verbose name: "User username"
+)}
+```
 
 The prefix will not be added if the field already explicitly declares a verbose name:
 
-    {'users': (
-        ("Username", 'username'), # displays "Username" only
-    )}
+```python
+{'users': (
+    ("Username", 'username'), # displays "Username" only
+)}
+```
 
 #### `get_queryset(user)`
 
