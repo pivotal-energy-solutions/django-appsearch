@@ -122,10 +122,10 @@ class Searcher(object):
 
         for model_value, config in zip(model_values, configurations):
             model = config.model
-            field_choices = config.get_searchable_field_choices(include_types=False)
-            for orm_hash, field_label in field_choices:
+            field_choices = config.get_searchable_field_choices(include_types=True)
+            for orm_hash, field_label, field_type in field_choices:
                 operator_choices = self.get_constraint_field_operators(model, hash=orm_hash)
-                field_data[model_value].append([orm_hash, field_label])
+                field_data[model_value].append([orm_hash, field_label, field_type])
                 operator_data[model_value][orm_hash] = operator_choices
 
         return mark_safe(json.dumps({
