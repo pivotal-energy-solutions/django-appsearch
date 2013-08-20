@@ -228,7 +228,9 @@ class Searcher(object):
 
                 # This covers the field choice swaparoo
                 target_field = resolve_orm_path(self.model, field)
-                if target_field and len(target_field.choices):
+                # Check for explicit choices list, except for on reverse relations
+                if target_field and not hasattr(target_field, 'field') and \
+                        len(target_field.choices):
                     for key, val in dict(target_field.choices).items():
                         if str(val).lower() in str(value).lower():
                             value = key
