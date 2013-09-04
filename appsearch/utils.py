@@ -11,7 +11,6 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.db.models.sql.constants import LOOKUP_SEP
 from django.utils.safestring import mark_safe
-from django.contrib import messages
 
 from .registry import search, SearchRegistry
 from .forms import ModelSelectionForm, ConstraintForm, ConstraintFormset
@@ -225,23 +224,7 @@ class Searcher(object):
             # Iterate multiple fields defined in a compound column
             for field in field_list:
                 value = term
-
-                # This covers the field choice swaparoo
                 target_field = resolve_orm_path(self.model, field)
-                # Check for explicit choices list, except for on reverse relations
-                if target_field and not hasattr(target_field, 'field') and \
-                        len(target_field.choices):
-                    for key, val in dict(target_field.choices).items():
-                        if str(val).lower() in str(value).lower():
-                            value = key
-                            break
-                    else:
-                        vals = [x[1] for x in target_field.choices]
-                        msg = "Unable to identify a matching key from '{}' - Valid " \
-                              "choices are: '{}'".format(value, "', '".join(vals))
-                        value = target_field.choices[0][0]
-                        messages.warning(self.request, msg)
-
 
                 # Prep an inverted lookup
                 negative = constraint_operator.startswith('!')
