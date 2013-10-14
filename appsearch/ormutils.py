@@ -1,4 +1,7 @@
-from django.db.models.sql.constants import LOOKUP_SEP
+try:
+    from django.db.models.sql.constants import LOOKUP_SEP
+except:
+    from django.db.models.constants import LOOKUP_SEP
 from django.db.models.fields import FieldDoesNotExist
 
 def resolve_orm_path(model, orm_path):

@@ -9,7 +9,10 @@ from django.core import exceptions
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.template.loader import render_to_string
-from django.db.models.sql.constants import LOOKUP_SEP
+try:
+    from django.db.models.sql.constants import LOOKUP_SEP
+except:
+    from django.db.models.constants import LOOKUP_SEP
 from django.utils.safestring import mark_safe
 
 from .registry import search, SearchRegistry

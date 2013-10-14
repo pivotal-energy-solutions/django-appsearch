@@ -9,7 +9,10 @@ from sha import sha
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
-from django.db.models.sql.constants import LOOKUP_SEP
+try:
+    from django.db.models.sql.constants import LOOKUP_SEP
+except:
+    from django.db.models.constants import LOOKUP_SEP
 from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.utils.text import capfirst
 from django.forms.forms import pretty_name
