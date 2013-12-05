@@ -4,7 +4,10 @@ import logging
 from operator import itemgetter, attrgetter
 from collections import OrderedDict
 from itertools import chain
-from sha import sha
+try:
+   from hashlib import sha1 as sha
+except ImportError:
+    from sha import sha
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
