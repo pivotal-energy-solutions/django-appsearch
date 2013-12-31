@@ -42,13 +42,13 @@ OPERATOR_MAP = {
         ('icontains', "contains"),
         ('!icontains', "doesn't contain"),
         ('iexact', "= equal"),
-        ('!iexact', u"≠ not equal"),
+        ('!iexact', "≠ not equal"),
         ('!isnull', "exists"),
         ('isnull', "doesn't exist"),
     ),
     'date': (
         ('exact', "= equal"),
-        ('!exact', u"≠ not equal"),
+        ('!exact', "≠ not equal"),
         ('gt', "> greater than"),
         ('lt', "< less than"),
         ('range', "between"),
@@ -102,7 +102,7 @@ class ModelSearch(object):
             # of reverting back to the model's Meta verbose_plural_name (which might just be a
             # pluralization of its verbose_name, which is explicitly being overridden).
             if self.verbose_name:
-                self.verbose_name_plural = self.verbose_name + u"s"
+                self.verbose_name_plural = self.verbose_name + "s"
             else:
                 self.verbose_name_plural = capfirst(self.model._meta.verbose_name_plural)
         if not self.verbose_name:
@@ -381,7 +381,7 @@ class ModelSearch(object):
 
         # Convert the first column's data into a link to the model instance
         if hasattr(obj, 'get_absolute_url'):
-            data[0] = u"""<a href="{}">{}</a>""".format(obj.get_absolute_url(), data[0])
+            data[0] = """<a href="{}">{}</a>""".format(obj.get_absolute_url(), data[0])
 
         return data
 

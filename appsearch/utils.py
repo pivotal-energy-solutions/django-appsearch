@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""utils.py: Searcher"""
+
+from __future__ import unicode_literals
+
 import logging
 import json
 from operator import itemgetter

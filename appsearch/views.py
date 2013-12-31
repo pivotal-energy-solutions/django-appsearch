@@ -1,4 +1,7 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
+"""views.py: ORM Utils"""
+
+from __future__ import unicode_literals
 
 from django.views.generic import View, TemplateView
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden

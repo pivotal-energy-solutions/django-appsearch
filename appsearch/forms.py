@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 """forms.py: appsearch forms"""
+
+from __future__ import unicode_literals
+
 import operator
 
 from django import forms
