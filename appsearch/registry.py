@@ -179,6 +179,8 @@ class ModelSearch(object):
                         related_model = field.rel.to
                     else:
                         related_model = field.model
+                else:  # Field is a virtual field from reverse relation
+                    related_model = field.model
             else:
                 # Syntax allowing a model class reference itself.
                 # Trace the relationship backwards from the related class's Meta to get the field
