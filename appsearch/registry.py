@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import logging
 from operator import itemgetter, attrgetter
 from collections import OrderedDict
@@ -383,7 +386,7 @@ class ModelSearch(object):
 
         # Convert the first column's data into a link to the model instance
         if hasattr(obj, 'get_absolute_url'):
-            data[0] = """<a href="{}">{}</a>""".format(obj.get_absolute_url(), data[0])
+            data[0] = "<a href='{}'>{}</a>".format(obj.get_absolute_url(), data[0])
 
         return data
 
