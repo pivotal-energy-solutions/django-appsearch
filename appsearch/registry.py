@@ -179,7 +179,10 @@ class ModelSearch(object):
 
                 if related_model is None:  # Field is local, follow relationship to find the model
                     if direct:
-                        related_model = field.rel.to
+                        if hasattr(field, 'field'):
+                            related_model = field.field.rel.to
+                        else:
+                            related_model = field.rel.to
                     else:
                         related_model = field.model
                 else:  # Field is a virtual field from reverse relation
