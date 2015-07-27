@@ -10,8 +10,6 @@ from collections import defaultdict
 
 from django.db.models.query import Q
 from django.forms.formsets import formset_factory
-from django.core import exceptions
-from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.template.loader import render_to_string
 try:
