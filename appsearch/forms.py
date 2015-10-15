@@ -174,7 +174,7 @@ class ConstraintForm(forms.Form):
             if classification == "date":
                 try:
                     term = dateutil.parser.parse(term)
-                except ValueError:
+                except (TypeError, ValueError):
                     raise ValidationError("Unable to parse a date from '{}'".format(term))
             elif classification == "boolean":
                 if term.lower() in ("true", "yes"):
