@@ -19,7 +19,12 @@ def resolve_orm_path(model, orm_path):
 
     bits = orm_path.split(LOOKUP_SEP)
     endpoint_model = reduce(get_model_at_related_field, [model] + bits[:-1])
-    field = endpoint_model._meta.get_field(bits[-1])
+    try:
+        # Post 1.8
+        field = endpoint_model._meta.get_field(bits[-1])
+    except:
+        # Pre 1.8
+        field, _, _, _ = endpoint_model._meta.get_field_by_name(bits[-1])
     return field
 
 
