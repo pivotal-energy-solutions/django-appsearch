@@ -166,9 +166,6 @@ class ModelSearch(object):
         # Store each element's [::2] (that is, [0] and [2]) as a mapping to the field object
         self.field_types = dict(map(itemgetter(slice(0, None, 2)), extended_info))
 
-
-
-
     def _get_field_info(self, orm_path_bits, model, related_name, field_list,
                         include_model_in_verbose_name=True):
         """
@@ -178,15 +175,9 @@ class ModelSearch(object):
 
         if related_name:
             if isinstance(related_name, basestring):
-
-                try:
-                    # Post 1.8
-                    field = model._meta.get_field(related_name)
-                    direct = not field.auto_created or field.concrete
-                    related_model = None if field.model._meta.concrete_model is model else field.model._meta.concrete_model
-                except FieldDoesNotExist:
-                    # Pre 1.8
-                    field, related_model, direct, m2m = model._meta.get_field_by_name(related_name)
+                field = model._meta.get_field(related_name)
+                direct = not field.auto_created or field.concrete
+                related_model = None if field.model._meta.concrete_model is model else field.model._meta.concrete_model
 
                 if related_model is None:  # Field is local, follow relationship to find the model
                     if direct:
@@ -195,43 +186,24 @@ class ModelSearch(object):
                         else:
                             related_model = field.rel.to
                     else:
-
-                        if hasattr(field, 'related_model'):
-                            # Post 1.8
-                            related_model = field.related_model
-                        else:
-                            # Pre 1.8
-                            related_model = field.model
-                else:  # Field is a virtual field from reverse relation
-                    if hasattr(field, 'related_model'):
-                        # Post 1.8
                         related_model = field.related_model
-                    else:
-                        # Pre 1.8
-                        related_model = field.model
+                else:  # Field is a virtual field from reverse relation
+                    related_model = field.related_model
             else:
                 # Syntax allowing a model class reference itself.
                 # Trace the relationship backwards from the related class's Meta to get the field
                 # name.
                 related_model = related_name
 
-                try:
-                    # Post 1.8
-                    fk_objects = [
-                        f for f in related_model._meta.get_fields()
-                        if (f.one_to_many or f.one_to_one)
-                           and f.auto_created and not f.concrete
-                    ]
-                    m2m_objects = [
-                        f for f in related_model._meta.get_fields(include_hidden=True)
-                        if f.many_to_many and f.auto_created
-                    ]
-
-                except:
-                    # Pre 1.8
-                    raise
-                    fk_objects = related_model._meta.get_all_related_objects()
-                    m2m_objects = related_model._meta.get_all_related_many_to_many_objects()
+                fk_objects = [
+                    f for f in related_model._meta.get_fields()
+                    if (f.one_to_many or f.one_to_one)
+                       and f.auto_created and not f.concrete
+                ]
+                m2m_objects = [
+                    f for f in related_model._meta.get_fields(include_hidden=True)
+                    if f.many_to_many and f.auto_created
+                ]
 
                 for related_object in chain(fk_objects, m2m_objects):
                     if related_object.field.model is model:
@@ -266,12 +238,7 @@ class ModelSearch(object):
                 else:
                     # Derive a verbose name.  If the field comes from a model other than the base
                     # model, prepend the relate model's own verbose name.
-                    try:
-                        # Post 1.8
-                        field = related_model._meta.get_field(field_name)
-                    except:
-                        # Pre 1.8
-                        field, _, _, _ = related_model._meta.get_field_by_name(field_name)
+                    field = related_model._meta.get_field(field_name)
 
                     if related_name:
                         verbose_name_bits = [related_model._meta.verbose_name, field.verbose_name]
