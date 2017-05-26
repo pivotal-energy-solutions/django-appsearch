@@ -29,9 +29,7 @@ def get_model_at_related_field(model, attr):
     """
 
     field = model._meta.get_field(attr)
-    direct = not field.auto_created
-
-    if hasattr(field, 'related_model'):
-        return field.related_model
-
-    raise ValueError("{0}.{1} ({2}) is not a relationship field.".format(model.__name__, attr, field.__class__.__name__))
+    related_model = field.related_model
+    if related_model is None:
+        raise ValueError("{0}.{1} ({2}) is not a relationship field.".format(model.__name__, attr, field.__class__.__name__))
+    return related_model
