@@ -7,7 +7,6 @@ try:
     from django.db.models.sql.constants import LOOKUP_SEP
 except:
     from django.db.models.constants import LOOKUP_SEP
-from django.db.models.fields import FieldDoesNotExist
 
 def resolve_orm_path(model, orm_path):
     """
@@ -32,14 +31,7 @@ def get_model_at_related_field(model, attr):
     field = model._meta.get_field(attr)
     direct = not field.auto_created
 
-    if not direct:
-        if hasattr(field, 'related_model'):  # Reverse relationship
-            return field.related_model
-
-    if hasattr(field, 'rel') and field.rel:   # Forward/m2m relationship
-        return field.rel.model
-
-    if hasattr(field, 'field'):    # Forward GenericForeignKey in Django 1.6+
-        return field.field.rel.model
+    if hasattr(field, 'related_model'):
+        return field.related_model
 
     raise ValueError("{0}.{1} ({2}) is not a relationship field.".format(model.__name__, attr, field.__class__.__name__))
