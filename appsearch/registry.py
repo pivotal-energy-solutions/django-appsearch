@@ -176,19 +176,7 @@ class ModelSearch(object):
         if related_name:
             if isinstance(related_name, basestring):
                 field = model._meta.get_field(related_name)
-                direct = not field.auto_created or field.concrete
-                related_model = None if field.model._meta.concrete_model is model else field.model._meta.concrete_model
-
-                if related_model is None:  # Field is local, follow relationship to find the model
-                    if direct:
-                        if hasattr(field, 'field'):
-                            related_model = field.field.rel.model
-                        else:
-                            related_model = field.rel.model
-                    else:
-                        related_model = field.related_model
-                else:  # Field is a virtual field from reverse relation
-                    related_model = field.related_model
+                related_model = field.related_model
             else:
                 # Syntax allowing a model class reference itself.
                 # Trace the relationship backwards from the related class's Meta to get the field
