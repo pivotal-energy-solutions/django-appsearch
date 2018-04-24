@@ -15,7 +15,7 @@ here = path.abspath(path.dirname(__file__))
 
 from appsearch import __name__, __version__, __author__
 
-base_url = 'https://github.com/pivotal-energy-solutions/https://github.com/pivotal-energy-solutions/django-appsearch'
+base_url = 'https://github.com/pivotal-energy-solutions/django-appsearch'
 name = 'django-' + __name__
 
 # Get the long description from the README file
