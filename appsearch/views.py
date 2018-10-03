@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 """views.py: ORM Utils"""
 
+from __future__ import absolute_import
 from __future__ import unicode_literals
+from __future__ import print_function
 
-from django.views.generic import View, TemplateView
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
-from django.contrib.contenttypes.models import ContentType
+from django.views.generic import TemplateView
 
 from appsearch.utils import Searcher
-from appsearch.registry import search
 
 
 class SearchMixin(object):

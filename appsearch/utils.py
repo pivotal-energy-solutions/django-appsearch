@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 """utils.py: Searcher"""
 
+from __future__ import absolute_import
 from __future__ import unicode_literals
+from __future__ import print_function
 
 import logging
 import json
