@@ -16,10 +16,7 @@ except ImportError:
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
-try:
-    from django.db.models.sql.constants import LOOKUP_SEP
-except:
-    from django.db.models.constants import LOOKUP_SEP
+from django.db.models.constants import LOOKUP_SEP
 from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.utils.text import capfirst
 from django.forms.forms import pretty_name
@@ -192,9 +189,9 @@ class ModelSearch(object):
                 if related_model is None:  # Field is local, follow relationship to find the model
                     if direct:
                         if hasattr(field, 'field'):
-                            related_model = field.field.rel.to
+                            related_model = field.field.remote_field.model
                         else:
-                            related_model = field.rel.to
+                            related_model = field.remote_field.model
                     else:
 
                         if hasattr(field, 'related_model'):

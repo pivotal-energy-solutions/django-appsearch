@@ -79,21 +79,18 @@ class Searcher(object):
 
     # Rendering methods
     def __unicode__(self):
-        return render_to_string(self.form_template_name, RequestContext(self.request, {
-            self.context_object_name: self,
-        }))
+        return render_to_string(self.form_template_name,
+                                RequestContext(self.request, {self.context_object_name: self}).flatten())
 
     def render_search_form(self):
         """ Renders only the template at ``search_form_template_name`` """
-        return render_to_string(self.search_form_template_name, RequestContext(self.request, {
-            self.context_object_name: self,
-        }))
+        return render_to_string(self.search_form_template_name,
+                                RequestContext(self.request, {self.context_object_name: self, }).flatten())
 
     def render_results_list(self):
         """ Renders only the template at ``results_list_template_name`` """
-        return render_to_string(self.results_list_template_name, RequestContext(self.request, {
-            self.context_object_name: self,
-        }))
+        return render_to_string(self.results_list_template_name,
+                                RequestContext(self.request, {self.context_object_name: self, }).flatten())
 
     def render_constraint_fields(self, model):
         """ Renders into JSON the model's fields available for search queries. """
