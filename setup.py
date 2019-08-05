@@ -199,4 +199,7 @@ setup(
         'Say Thanks!': 'http://saythanks.io/to/rh0dium',
         'Source': base_url,
     },
+    setup_requires=[
+          'setuptools>=41.0.1',
+          'wheel>=0.33.4']
 )
