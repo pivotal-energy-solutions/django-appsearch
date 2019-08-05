@@ -119,7 +119,7 @@ class ModelSearch(object):
         try:
             self._content_type = ContentType.objects.get_for_model(self.model)
         except ProgrammingError:
-            if "check" not in sys.argv:
+            if not {'migrate', 'syncdb', 'check'}.intersection(set(sys.argv)):
                 raise
             log.info("Unable to get ContentType for %s" % self.model)
         else:
