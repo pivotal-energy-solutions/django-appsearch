@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import logging
+import sys
 from operator import itemgetter, attrgetter
 from collections import OrderedDict
 from itertools import chain
@@ -114,11 +115,17 @@ class ModelSearch(object):
         self._process_searchable_fields()
 
         # Determine the ContentType in advance.
-        self._content_type = ContentType.objects.get_for_model(self.model)
-
-        # Process the display fields
-        if not self.display_fields:
-            self.display_fields = list(map(attrgetter('name'), self.model._meta.local_fields))
+        from django.db import ProgrammingError
+        try:
+            self._content_type = ContentType.objects.get_for_model(self.model)
+        except ProgrammingError:
+            if "check" not in sys.argv:
+                raise
+            log.info("Unable to get ContentType for %s" % self.model)
+        else:
+            # Process the display fields
+            if not self.display_fields:
+                self.display_fields = list(map(attrgetter('name'), self.model._meta.local_fields))
 
     def _process_display_fields(self):
         """
