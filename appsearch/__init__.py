@@ -31,4 +31,5 @@ def autodiscover():
                 mod = import_module(config.name + '.search')
             except:
                 exc_type, e, traceback = sys.exc_info()
-                raise exc_type, e.message, traceback
+                raise exc_type(e.message).with_traceback(traceback)
+
