@@ -13,6 +13,7 @@ __license__ = 'See the file LICENSE.txt for licensing information.'
 
 log = logging.getLogger(__name__)
 
+
 def autodiscover():
     """
     Auto-discover INSTALLED_APPS search.py modules and fail silently when
@@ -27,9 +28,5 @@ def autodiscover():
 
     for config in apps.get_app_configs():
         if module_has_submodule(config.module, 'search'):
-            try:
-                mod = import_module(config.name + '.search')
-            except:
-                exc_type, e, traceback = sys.exc_info()
-                raise exc_type(e.message).with_traceback(traceback)
+            mod = import_module(config.name + '.search')
 

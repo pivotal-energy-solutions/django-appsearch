@@ -1,0 +1,42 @@
+dist: xenial
+
+services:
+  - postgresql
+  - rabbitmq
+
+addons:
+  apt:
+    packages:
+      - rabbitmq-server
+
+language: python
+
+sudo: false
+
+git:
+  depth: 1
+  quiet: true
+
+cache: pip
+
+python:
+ - "3.7"
+ - "3.6"
+ - "3.5"
+ - "2.7"
+
+before_script:
+  - psql -c 'create database postgress;' -U postgres
+
+install:
+  - 'pip install tox-travis pyyaml python-coveralls'
+
+script: tox
+
+notifications:
+    slack:
+      rooms:
+        - pivotalenergy:SvNSkVaLVlZeu82utL37wSvy#travis
+
+after_success:
+  - coveralls

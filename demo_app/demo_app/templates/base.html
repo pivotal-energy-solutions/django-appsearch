@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+{% load cache %}
+{% load static from staticfiles %}
+
+<html lang="en">
+<head>
+    <title>{% block page_title %}PAGE TITLE{% endblock %}</title>
+    {# CSS #}
+
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+          crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp"
+          crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+
+    {% block style_sheet %}{% endblock style_sheet %}
+
+    {% block javascript_head %}{% endblock %}
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="{{STATIC_URL}}js/vendor/html-5-shiv/3.7.2/html5shiv{% if not debug %}.min{% endif %}.js"></script>
+      <script src="{{STATIC_URL}}js/vendor/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+<body>
+{% block body %}
+    <div id="content" class="container">
+        {% block full_content %}
+            <div class="row">
+                <div class="col-md-12">
+                    {% block content %}
+                        <div class="jumbotron">
+                            {% if request.user.is_authenticated %}
+                                <h3>{{ user }} ({{ user.id }}) is currently logged in!</h3>
+                                <p><a href="{% url 'logout' %}" class="btn btn-primary btn-large">Log
+                                    out</a></p>
+                            {% else %}
+                                <h3>Not Logged In</h3>
+                                <p><a href="{% url 'login' %}" class="btn btn-primary btn-large">Log
+                                    back in</a></p>
+                            {% endif %}
+                            <a href="{% url 'search' %}">Search!</a>
+                        </div>
+                    {% endblock content %}
+                </div>
+            </div>
+        {% endblock full_content %}
+        <hr>
+    </div>
+{% endblock body %}
+</body>
+</html>
+{% block javascript_tail %}{% endblock %}

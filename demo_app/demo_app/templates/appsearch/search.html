@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block javascript_head %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static 'js/formset.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery.appsearch.js' %}"></script>
+    <script type="text/javascript">
+        $(function(){
+            var form = $('form');
+            form.find('input[type=text]').addClass('form-control');
+            // Activate appsearch
+            form.appsearch({
+                formChoices: {{ search.render_all_constraint_choices }},
+                setFieldDescription: function(descriptionBox, type, text, value, constraintForm){
+                    var description;
+                    if (type == "text") {
+                        description = "Text";
+                    } else if (type == "date") {
+                        description = "MM/DD/YYYY";
+                    } else if (type == "number") {
+                        description = "Number";
+                    } else if (type == "boolean") {
+                        description = "true/false or yes/no";
+                    }
+                    constraintForm.find('.term input').attr('placeholder', description);
+                },
+                // Passed directly to formset.js
+                formsetOptions: {
+                    prefix: '{{ search.constraint_formset.prefix }}',
+                    addText: '',
+                    deleteText: ''
+                }
+            });
+            $('#add-button-column button').on('click', function(){
+                form.find('a.add-row').click();
+                return false;
+            });
+            $('.delete-button-column a').on('click', function(){
+                return $(this).closest('.constraint-form').find('.delete-row').click();
+            });
+            // Hook the field-update event and configure the datepicker when appropriate
+            form.on('field-updated', function(e, inputs, type){
+                if (type == "date") {
+                    inputs.datepicker({ dateFormat: 'yy-mm-dd' });
+                } else {
+                    inputs.datepicker("remove");
+                }
+            });
+            form.find('.constraint-operator select').on('change', function(){
+                var select = $(this);
+                var option = select.find(':selected');
+                var value = select.val();
+                var constraintForm = select.closest('.constraint-form')
+                var begin_term = constraintForm.find('.begin-term');
+                if (value == "between") {
+                    begin_term.addClass('col-md-6').removeClass('col-md-12');
+                } else {
+                    begin_term.removeClass('col-md-6').addClass('col-md-12');
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block full_content %}
+    <a href="/"><- Back to main</a>
+    <header>
+        <div class="row row-header">
+            <div class="col-md-12">
+                <p>Structured Search</p>
+            </div>
+        </div>
+    </header>
+
+    {{ search.render_search_form }}
+
+    {% if search.ready %}
+        <hr />
+        {{ search.render_results_list }}
+    {% endif %}
+{% endblock %}
