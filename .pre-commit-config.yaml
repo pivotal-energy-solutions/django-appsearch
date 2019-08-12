@@ -1,0 +1,29 @@
+repos:
+  - repo: git://github.com/pre-commit/pre-commit-hooks
+    rev: v1.4.0
+    hooks:
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+      - id: check-byte-order-marker
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: detect-private-key
+      - id: flake8
+      - id: fix-encoding-pragma
+        exclude: migrations
+      - id: end-of-file-fixer
+        exclude: .*/*
+      - id: trailing-whitespace
+        exclude: .*/*
+      - id: mixed-line-ending
+        exclude: .*/*
+      - id: double-quote-string-fixer
+        exclude: .*/*
+      - id: check-json
+        files: tensor_registration
+  - repo: https://github.com/pre-commit/mirrors-isort
+    rev: v4.3.16  # Use the revision sha / tag you want to point at
+    hooks:
+      - id: isort
+        exclude: setup.py
