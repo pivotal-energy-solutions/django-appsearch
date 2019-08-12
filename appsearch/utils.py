@@ -1,28 +1,29 @@
 # -*- coding: utf-8 -*-
 """utils.py: Searcher"""
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import absolute_import, print_function, unicode_literals
 
-import logging
 import json
-from operator import itemgetter
+import logging
 from collections import defaultdict
+from operator import itemgetter
 
 from django.db.models.query import Q
 from django.forms.formsets import formset_factory
 from django.template import RequestContext
 from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
+
+from .forms import ConstraintForm, ConstraintFormset, ModelSelectionForm
+from .ormutils import resolve_orm_path
+from .registry import SearchRegistry, search
+
+
 try:
     from django.db.models.sql.constants import LOOKUP_SEP
 except:
     from django.db.models.constants import LOOKUP_SEP
-from django.utils.safestring import mark_safe
 
-from .registry import search, SearchRegistry
-from .forms import ModelSelectionForm, ConstraintForm, ConstraintFormset
-from .ormutils import resolve_orm_path
 
 log = logging.getLogger(__name__)
 

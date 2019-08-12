@@ -12,6 +12,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views.generic.edit import UpdateView
 
+
 __author__ = 'Artem Hruzd'
 __date__ = '08/07/2019 21:59'
 __copyright__ = 'Copyright 2011-2019 Pivotal Energy Solutions. All rights reserved.'

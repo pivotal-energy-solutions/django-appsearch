@@ -219,5 +219,3 @@ LOGIN_URL = '/accounts/login/'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'backend@pivotalenergy.net'
-
-

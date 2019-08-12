@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 """ormutils.py: ORM Utils"""
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import absolute_import, print_function, unicode_literals
+
+from django.db.models.fields import FieldDoesNotExist
+
 
 try:
     from django.db.models.sql.constants import LOOKUP_SEP
 except:
     from django.db.models.constants import LOOKUP_SEP
-from django.db.models.fields import FieldDoesNotExist
 
 def resolve_orm_path(model, orm_path):
     """

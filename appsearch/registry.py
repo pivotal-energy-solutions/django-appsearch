@@ -1,28 +1,30 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import absolute_import, print_function, unicode_literals
 
 import logging
 import sys
-from operator import itemgetter, attrgetter
 from collections import OrderedDict
 from itertools import chain
+from operator import attrgetter, itemgetter
+
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
+from django.db import models
+from django.db.models.constants import LOOKUP_SEP
+from django.db.models.fields import FieldDoesNotExist
+from django.forms.forms import pretty_name
+from django.utils.text import capfirst
+
+from .ormutils import resolve_orm_path
+
+
 try:
    from hashlib import sha1 as sha
 except ImportError:
     from sha import sha
 
-from django.contrib.contenttypes.models import ContentType
-from django.db import models
-from django.db.models.fields import FieldDoesNotExist
-from django.db.models.constants import LOOKUP_SEP
-from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
-from django.utils.text import capfirst
-from django.forms.forms import pretty_name
 
-from .ormutils import resolve_orm_path
 
 
 log = logging.getLogger(__name__)
