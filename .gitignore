@@ -59,6 +59,7 @@ docs/_build/
 .python-version
 .coverage
 .venv
+.venv3
 .env
 .tox
 .DS_Store
