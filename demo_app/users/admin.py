@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
-from django.urls import reverse_lazy
 from django.utils.translation import ugettext_lazy as _
 
 from .forms import UserAdminChangeForm, UserAdminCreationForm

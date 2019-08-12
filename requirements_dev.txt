@@ -8,4 +8,3 @@ isort
 coverage
 pre-commit
 coveralls
-django==1.11
