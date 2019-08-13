@@ -12,7 +12,7 @@ from os import path
 # Always prefer setuptools over distutils
 from setuptools import find_packages, setup
 
-__name__ = 'appsearch'
+__name__ = 'django-appsearch'
 __author__ = 'Pivotal Energy Solutions'
 __version_info__ = (1, 0, 0)
 __version__ = '.'.join(map(str, __version_info__))
