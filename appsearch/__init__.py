@@ -30,4 +30,8 @@ def autodiscover():
 
     for config in apps.get_app_configs():
         if module_has_submodule(config.module, 'search'):
-            mod = import_module(config.name + '.search')
+            try:
+                mod = import_module(config.name + '.search')
+            except Exception:
+                exc_type, e, traceback = sys.exc_info()
+                raise exc_type().with_traceback(traceback)
