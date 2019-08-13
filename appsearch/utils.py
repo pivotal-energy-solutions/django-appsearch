@@ -8,6 +8,7 @@ import logging
 from collections import defaultdict
 from operator import itemgetter
 
+import six
 from django.db.models.query import Q
 from django.forms.formsets import formset_factory
 from django.template import RequestContext
@@ -123,7 +124,7 @@ class Searcher(object):
         operator_data = defaultdict(dict)
 
         configurations = self.model_selection_form.configurations
-        model_values = map(itemgetter(0), self.model_selection_form.fields['model'].choices)[1:]
+        model_values = list(map(itemgetter(0), self.model_selection_form.fields['model'].choices))[1:]
 
         for model_value, config in zip(model_values, configurations):
             model = config.model
@@ -242,7 +243,7 @@ class Searcher(object):
 
             # Do some natural processing
             if isinstance(value, (tuple, list)):
-                value = ' - '.join(map(unicode, value))
+                value = ' - '.join(list(map(unicode, value)))
             else:
                 value = str(value)
             bits = [verbose_name, constraint_form['operator'].value(), value]
@@ -251,7 +252,7 @@ class Searcher(object):
             natural_string.append(bits)
 
         # The first query's "type" should be ignored for the sake of the reduce line below.
-        query = reduce(lambda q1, (op, q2): op(q1, q2), query_list[1:], query_list[0][1])
+        query = six.moves.reduce(lambda q1, q2: q2[0](q1, q2[1]), query_list[1:], query_list[0][1])
 
         queryset = self.build_queryset(self.model, query)
         data_rows = self.process_results(queryset)

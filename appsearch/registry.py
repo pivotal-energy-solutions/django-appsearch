@@ -8,6 +8,7 @@ from collections import OrderedDict
 from itertools import chain
 from operator import attrgetter, itemgetter
 
+import six
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.db import models
@@ -23,9 +24,6 @@ try:
    from hashlib import sha1 as sha
 except ImportError:
     from sha import sha
-
-
-
 
 log = logging.getLogger(__name__)
 
@@ -173,9 +171,6 @@ class ModelSearch(object):
         # Store each element's [::2] (that is, [0] and [2]) as a mapping to the field object
         self.field_types = dict(map(itemgetter(slice(0, None, 2)), extended_info))
 
-
-
-
     def _get_field_info(self, orm_path_bits, model, related_name, field_list,
                         include_model_in_verbose_name=True):
         """
@@ -184,7 +179,7 @@ class ModelSearch(object):
         """
 
         if related_name:
-            if isinstance(related_name, basestring):
+            if isinstance(related_name, six.string_types):
 
                 try:
                     # Post 1.8
@@ -257,7 +252,7 @@ class ModelSearch(object):
         for field_name in field_list:
             if isinstance(field_name, dict):
                 # Nested dict.  Recurse the function with the new related context
-                extended_name, sub_field_list = field_name.items()[0]
+                extended_name, sub_field_list = list(field_name.items())[0]
                 orm_path_bits = base_orm_path[:]
                 if related_name:
                     orm_path_bits.append(related_name)
@@ -339,7 +334,7 @@ class ModelSearch(object):
         if flat:
             choices = map(itemgetter(1), choices)
 
-        return choices
+        return list(choices)
 
     def get_field_classification(self, field):
         """
@@ -381,15 +376,15 @@ class ModelSearch(object):
             choices = map(lambda c: c + (self.get_field_classification(c[0]),), choices)
 
         # Perform a sha hash on the ORM path to get something unique and obscured for the frontend
-        encode_value = lambda pair: (sha(','.join(pair[0])).hexdigest(),) + tuple(pair[1:])
+        encode_value = lambda pair: (sha((','.join(pair[0])).encode('utf-8')).hexdigest(),) + tuple(pair[1:])
         return map(encode_value, choices)
 
     def reverse_field_hash(self, hash):
         """ Returns the hash of field ORM paths derived from the initial configuration. """
 
-        hashes = map(itemgetter(0), self.get_searchable_field_choices())
+        hashes = list(map(itemgetter(0), self.get_searchable_field_choices()))
         try:
-            return self._fields.keys()[hashes.index(hash)]
+            return list(self._fields.keys())[hashes.index(hash)]
         except IndexError:
             # raise ValueError("Unknown field hash")
             # TODO Fix me!
@@ -430,7 +425,7 @@ class ModelSearch(object):
         data = []
         for _, field_name, _ in self._display_fields:
             try:
-                value = reduce(getattr, [obj] + field_name.split(LOOKUP_SEP))
+                value = six.moves.reduce(getattr, [obj] + field_name.split(LOOKUP_SEP))
             except (ObjectDoesNotExist, AttributeError):
                 value = None
 
@@ -461,7 +456,7 @@ class SearchRegistry(object):
             yield k
 
     def __getitem__(self, k):
-        if not isinstance(k, basestring):
+        if not isinstance(k, six.string_types):
             k = '.'.join((k._meta.app_label, k.__name__.lower()))
         return self._registry[k]
 
