@@ -1,0 +1,41 @@
+[
+{
+    "model": "company.company",
+    "pk": 1,
+    "fields": {
+        "name": "Builder company",
+        "company_type": "builder",
+        "home_page": "https://github.com",
+        "description": "Some builder description text",
+        "default_email": "builder@gmail.com",
+        "slug": "unique_builder",
+        "is_active": true
+    }
+},
+{
+    "model": "company.company",
+    "pk": 2,
+    "fields": {
+        "name": "Rater company",
+        "company_type": "rater",
+        "home_page": null,
+        "description": "This where raters are working on",
+        "default_email": "rater@gmail.com",
+        "slug": "rater_1",
+        "is_active": true
+    }
+},
+{
+    "model": "company.company",
+    "pk": 3,
+    "fields": {
+        "name": "Provider company",
+        "company_type": "provider",
+        "home_page": "http://127.0.0.1:8000",
+        "description": "",
+        "default_email": null,
+        "slug": "provider_1",
+        "is_active": true
+    }
+}
+]

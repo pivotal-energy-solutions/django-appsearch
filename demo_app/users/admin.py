@@ -24,7 +24,6 @@ class UserAdmin(AuthUserAdmin):
         }),
         (_('Permissions'), {
             'fields': ('is_active',
-                       'is_approved',
                        'is_staff',
                        'is_public',
                        'is_company_admin',

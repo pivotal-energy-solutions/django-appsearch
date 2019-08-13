@@ -565,3 +565,56 @@ Inherits from `SearchMixin` and the built-in `TemplateView`.
 2.  Tag the release with the version. `git tag <version> -m "Release"; git push --tags`
 3.  Build the release `rm -rf dist build *egg-info; python setup.py sdist bdist_wheel`
 4.  Upload the data `twine upload dist/*`
+
+## Example / Setup
+
+1. Create and activate a virtual environment with:
+ 
+`virtualenv`
+
+```
+virtualenv -p python2.7 .venv
+source .venv/bin/activate
+```
+
+or with `virtualenvwrapper`
+
+```
+mkproject pivotal_tensor_registration
+git clone git@github.com:pivotal-energy-solutions/tensor-registration.git .
+```
+
+2. Create env variables: `cp .env.example .env`
+3. Install requirements:
+```
+pip install -r requirements.txt
+pip install -r requirements_dev.txt
+```
+4. Start basic services: `docker-compose up -d`
+5. Check basic services are running (they should have `Up` state: `docker-compose ps`
+6. Makemigrations, migrate and start the server:
+```
+cd demo_app
+./manage.py makemigrations
+./manage.py migrate
+./manage.py runserver
+```
+
+You can access the service at http://127.0.0.1:8000
+
+## Demo data
+
+Upload fixtures. 
+```
+python demo_app/manage.py loaddata demo_app/users/fixtures/users.json
+python demo_app/manage.py loaddata demo_app/company/fixtures/companies.json
+```
+
+There are already a superuser:
+
+```
+username: root
+email: root@gmail.com
+password: Changeme1!
+```
+Few users and few companies.
