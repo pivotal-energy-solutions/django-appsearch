@@ -15,16 +15,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 
-import appsearch
-
-from appsearch.views import BaseSearchView
-
-from django.conf.urls import url
-from django.contrib import admin
 from django.conf import settings
+from django.conf.urls import url
 from django.conf.urls.static import static
+from django.contrib import admin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import TemplateView
+
+import appsearch
+from appsearch.views import BaseSearchView
+
 
 appsearch.autodiscover()
 

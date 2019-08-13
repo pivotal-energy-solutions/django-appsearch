@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 # This code is heavily based on contrib.admin's autodiscover mechanism.
 
 import logging
 import sys
+
 
 __name__ = 'appsearch'
 __author__ = 'Pivotal Energy Solutions'
@@ -29,4 +31,3 @@ def autodiscover():
     for config in apps.get_app_configs():
         if module_has_submodule(config.module, 'search'):
             mod = import_module(config.name + '.search')
-

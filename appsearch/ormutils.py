@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 """ormutils.py: ORM Utils"""
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-from __future__ import print_function
+from __future__ import absolute_import, print_function, unicode_literals
+
+import six
+from django.db.models.fields import FieldDoesNotExist
+
 
 try:
     from django.db.models.sql.constants import LOOKUP_SEP
-except:
+except ImportError:
     from django.db.models.constants import LOOKUP_SEP
-from django.db.models.fields import FieldDoesNotExist
+
 
 def resolve_orm_path(model, orm_path):
     """
@@ -20,7 +22,7 @@ def resolve_orm_path(model, orm_path):
     """
 
     bits = orm_path.split(LOOKUP_SEP)
-    endpoint_model = reduce(get_model_at_related_field, [model] + bits[:-1])
+    endpoint_model = six.moves.reduce(get_model_at_related_field, [model] + bits[:-1])
     field = endpoint_model._meta.get_field(bits[-1])
     return field
 
