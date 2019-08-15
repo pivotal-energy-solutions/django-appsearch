@@ -61,7 +61,6 @@ setup(name=__name__,
                    'Programming Language :: Python :: 3.6',
                    'Programming Language :: Python :: 3.7',
                    'Topic :: Utilities'],
-      python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
       install_requires=[
           'Django>=1.11,<2.0',
           'python-dateutil'
@@ -71,5 +70,4 @@ setup(name=__name__,
           'Bug Reports': '{}/issues'.format(base_url),
           'Say Thanks!': 'http://saythanks.io/to/rh0dium',
           'Source': base_url,
-      },
-      )
+      })
