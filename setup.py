@@ -49,7 +49,8 @@ setup(name=__name__,
                    'Topic :: Utilities'],
       install_requires=[
           'Django>=1.11,<2.0',
-          'python-dateutil'
+          'python-dateutil',
+          'six'
       ],
       scripts=[],
       project_urls={
