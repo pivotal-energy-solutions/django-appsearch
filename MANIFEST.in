@@ -5,6 +5,6 @@ include *.md
 include LICENSE.txt
 
 # Include the data files
-recursive-include appsearch/static/*.js
-recursive-include appsearch/templates/*.html
+recursive-include appsearch/static/ *.js
+recursive-include appsearch/templates/ *.html
 

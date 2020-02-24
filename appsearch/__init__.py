@@ -5,9 +5,9 @@ import logging
 import sys
 
 
-__name__ = 'appsearch'
+__name__ = 'django-appsearch'
 __author__ = 'Pivotal Energy Solutions'
-__version_info__ = (1, 1, 5)
+__version_info__ = (1, 1, 6)
 __version__ = '.'.join(map(str, __version_info__))
 __date__ = '2014/07/22 4:47:00 PM'
 __credits__ = ['Tim Valenta', "Steven Klass"]
@@ -31,7 +31,7 @@ def autodiscover():
     for config in apps.get_app_configs():
         if module_has_submodule(config.module, 'search'):
             try:
-                mod = import_module(config.name + '.search')
+                _ = import_module(config.name + '.search')
             except Exception:
                 exc_type, e, traceback = sys.exc_info()
                 raise exc_type().with_traceback(traceback)

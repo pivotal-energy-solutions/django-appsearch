@@ -12,18 +12,9 @@ from os import path
 # Always prefer setuptools over distutils
 from setuptools import find_packages, setup
 
-__name__ = 'django-appsearch'
-__author__ = 'Pivotal Energy Solutions'
-__version_info__ = (1, 0, 0)
-__version__ = '.'.join(map(str, __version_info__))
-__date__ = '08/07/2018 9:30 AM'
-__credits__ = ['Steven Klass']
-__license__ = 'See the file LICENSE.txt for licensing information.'
-
+from appsearch import __name__, __version__, __author__
 
 here = path.abspath(path.dirname(__file__))
-
-
 base_url = 'https://github.com/pivotal-energy-solutions/django-appsearch/'
 
 # Get the long description from the README file
@@ -68,6 +59,5 @@ setup(name=__name__,
       scripts=[],
       project_urls={
           'Bug Reports': '{}/issues'.format(base_url),
-          'Say Thanks!': 'http://saythanks.io/to/rh0dium',
           'Source': base_url,
       })
