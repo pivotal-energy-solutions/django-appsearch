@@ -12,7 +12,7 @@ from os import path
 # Always prefer setuptools over distutils
 from setuptools import find_packages, setup
 
-from appsearch import __name__, __version__, __author__
+from appsearch import __version__, __author__
 
 here = path.abspath(path.dirname(__file__))
 base_url = 'https://github.com/pivotal-energy-solutions/django-appsearch/'
@@ -21,7 +21,7 @@ base_url = 'https://github.com/pivotal-energy-solutions/django-appsearch/'
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
-setup(name=__name__,
+setup(name='django-appsearch',
       zip_safe=False,  # eggs are the devil.
       version=__version__,
       description='Framework and generic app for cross-model searches on a single page',
