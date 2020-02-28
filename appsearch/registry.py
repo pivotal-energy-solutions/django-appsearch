@@ -452,15 +452,32 @@ class SearchRegistry(object):
         self._registry = {}
 
     def __iter__(self):
+        """
+        Yields the registration keys, which are strings in the form `"applabel.modelname"`.
+        :return:
+        """
         for k in self._registry:
             yield k
 
     def __getitem__(self, k):
+        """
+        If `k` is a model class, the registration key is generated (`"applabel.modelname"`)
+        in its place.  Otherwise, `k` is directly used to
+        look up a model configuration in the registry.
+        :param k:
+        :return:
+        """
         if not isinstance(k, six.string_types):
             k = '.'.join((k._meta.app_label, k.__name__.lower()))
         return self._registry[k]
 
     def __contains__(self, k):
+        """
+        If `k` is a model class, the registration key is generated (`"applabel.modelname"`)
+        in its place.  Otherwise, `k` is directly used to test membership in the registry.
+        :param k:
+        :return:
+        """
         try:
             config = self.__getitem__(k)
             return True
@@ -468,6 +485,12 @@ class SearchRegistry(object):
             return False
 
     def register(self, model, configuration):
+        """
+        Registers a model class `model` with the given `configuration` class.
+        :param model:
+        :param configuration:
+        :return:
+        """
         id_string = '.'.join((model._meta.app_label, model.__name__)).lower()
         log.debug("Registering %r for appsearch configuration class %r", id_string, configuration)
         self._registry[id_string] = configuration(model)
@@ -483,6 +506,14 @@ class SearchRegistry(object):
         return sorted(configurations, key=attrgetter('verbose_name'))
 
     def set_sort_function(self, f):
+        """
+        `f` should be a function that accepts a parameter `configurations`
+        and returns the configurations in the desired order.
+        The default sort function arranges the configurations
+        based on their `verbose_name` attributes.
+        :param f:
+        :return:
+        """
         self.sort_function = f
 
     def sort_configurations(self, configurations):
@@ -492,7 +523,6 @@ class SearchRegistry(object):
         """
         Hook for returning the registry data in a particular order.  By default, the configurations
         are returned in alphabetical order according to their model names.
-
         """
 
         configurations = self.filter_configurations_by_permission(user)
@@ -500,6 +530,12 @@ class SearchRegistry(object):
         return self.sort_configurations(configurations)
 
     def get_configuration(self, model, user):
+        """
+        Returns the configuration instance associated with `model`.
+        :param model:
+        :param user:
+        :return:
+        """
         try:
             configuration = self[model]
         except KeyError:
