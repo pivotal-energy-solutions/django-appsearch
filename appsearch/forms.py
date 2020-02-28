@@ -25,7 +25,7 @@ class ModelSelectionForm(forms.Form):
 
     model = forms.ChoiceField(label="Search For")
 
-    def __init__(self, registry, user, permission, *args, **kwargs):
+    def __init__(self, registry, user, *args, **kwargs):
         super(ModelSelectionForm, self).__init__(*args, **kwargs)
 
         self.registry = registry

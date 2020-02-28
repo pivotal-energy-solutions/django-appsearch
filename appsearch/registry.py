@@ -11,7 +11,7 @@ from operator import attrgetter, itemgetter
 import six
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import models
+from django.db import ProgrammingError, models
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models.fields import FieldDoesNotExist
 from django.forms.forms import pretty_name
@@ -116,7 +116,6 @@ class ModelSearch(object):
         self._process_searchable_fields()
 
         # Determine the ContentType in advance.
-        from django.db import ProgrammingError
         try:
             self._content_type = ContentType.objects.get_for_model(self.model)
         except ProgrammingError:

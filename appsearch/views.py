@@ -68,5 +68,6 @@ class SearchMixin(object):
     def get_results_list_template_name(self):
         return self.results_list_template_name
 
+
 class BaseSearchView(SearchMixin, TemplateView):
     pass

@@ -54,15 +54,13 @@ class Searcher(object):
     search_form_template_name = "appsearch/search_form.html"
     results_list_template_name = "appsearch/results_list.html"
 
-    def __init__(self, request, url=None, querydict=None, registry=search, permission=None,
-                 **kwargs):
+    def __init__(self, request, url=None, querydict=None, registry=search, **kwargs):
         self.kwargs = kwargs
         self.request = request
         self.url = url or request.path
 
         self._forms_ready = False
-        self._set_up_forms(querydict or request.GET, registry, permission)
-        self.permission = permission
+        self._set_up_forms(querydict or request.GET, registry)
         self.registry = registry
 
         # Fallback items
@@ -163,15 +161,14 @@ class Searcher(object):
             self.model = self.model_config.model
         return self._forms_ready
 
-    def _set_up_forms(self, querydict, registry, permission=None):
+    def _set_up_forms(self, querydict, registry):
         ModelSelectionFormClass = self.get_model_selection_form_class()
         ConstraintFormClass = self.get_constraint_form_class()
         ConstraintFormsetClass = self.get_constraint_formset_class()
         ConstraintFormsetClass = formset_factory(ConstraintFormClass,
                                                  formset=ConstraintFormsetClass)
 
-        self.model_selection_form = ModelSelectionFormClass(registry, self.request.user, permission,
-                                                            querydict)
+        self.model_selection_form = ModelSelectionFormClass(registry, self.request.user, querydict)
 
         if self.model_selection_form.is_valid():
             model_configuration = self.model_selection_form.get_selected_configuration()
@@ -179,8 +176,7 @@ class Searcher(object):
             if self.constraint_formset.is_valid():
                 self._forms_ready = True
         else:
-            self.model_selection_form = ModelSelectionFormClass(registry, self.request.user,
-                                                                permission)
+            self.model_selection_form = ModelSelectionFormClass(registry, self.request.user)
             self.constraint_formset = ConstraintFormsetClass(configuration=None)
 
     def _perform_search(self):
