@@ -10,7 +10,7 @@ from operator import attrgetter, itemgetter
 
 import six
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models.constants import LOOKUP_SEP
 from django.db.models.fields import FieldDoesNotExist
@@ -21,7 +21,7 @@ from .ormutils import resolve_orm_path
 
 
 try:
-   from hashlib import sha1 as sha
+    from hashlib import sha1 as sha
 except ImportError:
     from sha import sha
 
@@ -88,6 +88,7 @@ class ModelSearch(object):
     """ Contains search and display configuration for a single Model. """
 
     model = None
+    permission = 'change_{}'
     verbose_name = None
     verbose_name_plural = None
 
@@ -245,7 +246,6 @@ class ModelSearch(object):
         else:
             related_model = model
 
-
         base_orm_path = orm_path_bits
         sub_fields = []
 
@@ -257,7 +257,7 @@ class ModelSearch(object):
                 if related_name:
                     orm_path_bits.append(related_name)
                 sub_fields.extend(self._get_field_info(orm_path_bits, related_model, extended_name,
-                        sub_field_list))
+                                                       sub_field_list))
             else:
                 # Raw field name or 2-tuple
 
@@ -296,7 +296,7 @@ class ModelSearch(object):
                     orm_path_bits.append(related_name)
 
                 orm_info = tuple('__'.join(orm_path_bits + [component])
-                        for component in field_name)
+                                 for component in field_name)
                 sub_fields.append([orm_info, verbose_name, field])
                 # print orm_info, field.name, related_model, verbose_name
 
@@ -376,7 +376,8 @@ class ModelSearch(object):
             choices = map(lambda c: c + (self.get_field_classification(c[0]),), choices)
 
         # Perform a sha hash on the ORM path to get something unique and obscured for the frontend
-        encode_value = lambda pair: (sha((','.join(pair[0])).encode('utf-8')).hexdigest(),) + tuple(pair[1:])
+        encode_value = lambda pair: (sha((','.join(pair[0])).encode('utf-8')).hexdigest(),) + tuple(
+            pair[1:])
         return map(encode_value, choices)
 
     def reverse_field_hash(self, hash):
@@ -397,12 +398,13 @@ class ModelSearch(object):
 
     def user_has_perm(self, user):
         """
-        Returns ``True`` or ``False`` to indicate definitive user permission, or else ``None`` to
-        let the registry default permission decide.
-
+        Returns ``True`` or ``False`` to indicate definitive user permission
         """
-
-        return None
+        if user.is_superuser:
+            return True
+        permission = self.permission.format(self.model.__name__.lower())
+        permission = '{}.{}'.format(self.model._meta.app_label, permission)
+        return user.has_perm(permission)
 
     def get_queryset(self, request, user):
         """
@@ -439,14 +441,12 @@ class ModelSearch(object):
 
         return data
 
+
 class SearchRegistry(object):
     """
     Holds the gathered configurations from apps that use an appsearch.py module.
-
     """
-
     _registry = None
-    permission = 'change_{}'
 
     def __init__(self):
         self._registry = {}
@@ -472,18 +472,10 @@ class SearchRegistry(object):
         log.debug("Registering %r for appsearch configuration class %r", id_string, configuration)
         self._registry[id_string] = configuration(model)
 
-    def filter_configurations_by_permission(self, user, permission_code):
+    def filter_configurations_by_permission(self, user):
         configurations = self._registry.values()
-        if permission_code is None:
-            permission_code = self.permission
 
-        def check_permission(config):
-            permission = permission_code.format(config.model.__name__.lower())
-            permission = '{}.{}'.format(config.model._meta.app_label, permission)
-            return user.has_perm(permission)
-
-        if user:
-            configurations = filter(check_permission, configurations)
+        configurations = filter(lambda config: config.user_has_perm(user=user), configurations)
 
         return configurations
 
@@ -496,32 +488,31 @@ class SearchRegistry(object):
     def sort_configurations(self, configurations):
         return self.sort_function(configurations)
 
-    def get_configurations(self, user=None, permission=None):
+    def get_configurations(self, user=None):
         """
         Hook for returning the registry data in a particular order.  By default, the configurations
         are returned in alphabetical order according to their model names.
 
         """
 
-        configurations = self.filter_configurations_by_permission(user, permission)
+        configurations = self.filter_configurations_by_permission(user)
 
         return self.sort_configurations(configurations)
 
-    def get_configuration(self, model, user=None, permission=None):
+    def get_configuration(self, model, user):
         try:
             configuration = self[model]
         except KeyError:
             log.warn("No registered configuration for model %r.", model)
             configuration = None
         else:
-            if user:
-                available_configurations = self.filter_configurations_by_permission(user, permission)
-                if configuration not in available_configurations:
-                    log.warn("Configuration for model %r available, but user %r doesn't have "
-                            "permission (permission filter: %r).", model, user.username,
-                            permission or self.permission)
-                    configuration = None
+            available_configurations = self.filter_configurations_by_permission(user)
+            if configuration not in available_configurations:
+                log.warn("Configuration for model %r available, but user %r doesn't have "
+                         "permission (permission filter: %r).", model, user.username)
+                configuration = None
 
         return configuration
+
 
 search = SearchRegistry()

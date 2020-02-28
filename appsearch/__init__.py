@@ -2,8 +2,6 @@
 # This code is heavily based on contrib.admin's autodiscover mechanism.
 
 import logging
-import sys
-
 
 __name__ = 'appsearch'
 __author__ = 'Pivotal Energy Solutions'
@@ -33,5 +31,4 @@ def autodiscover():
             try:
                 _ = import_module(config.name + '.search')
             except Exception:
-                exc_type, e, traceback = sys.exc_info()
-                raise exc_type().with_traceback(traceback)
+                raise ImportError('Loading {}.search module failed'.format(config.name))
