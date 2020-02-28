@@ -88,7 +88,7 @@ class ModelSearch(object):
     """ Contains search and display configuration for a single Model. """
 
     model = None
-    permission = 'change_{}'
+    permission = 'view_{}'
     verbose_name = None
     verbose_name_plural = None
 
