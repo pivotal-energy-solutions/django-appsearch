@@ -9,6 +9,7 @@ from collections import defaultdict
 from operator import itemgetter
 
 import six
+from django.db.models.constants import LOOKUP_SEP
 from django.db.models.query import Q
 from django.forms.formsets import formset_factory
 from django.template import RequestContext
@@ -17,13 +18,7 @@ from django.utils.safestring import mark_safe
 
 from .forms import ConstraintForm, ConstraintFormset, ModelSelectionForm
 from .ormutils import resolve_orm_path
-from .registry import SearchRegistry, search
-
-
-try:
-    from django.db.models.sql.constants import LOOKUP_SEP
-except:
-    from django.db.models.constants import LOOKUP_SEP
+from .registry import search
 
 
 log = logging.getLogger(__name__)
@@ -51,7 +46,7 @@ class Searcher(object):
     _build_queryset_callback = None
     _process_results_callback = None
 
-    ## Fallback items normally provided by the view
+    # Fallback items normally provided by the view
     context_object_name = 'search'
 
     # Default templates
@@ -59,21 +54,22 @@ class Searcher(object):
     search_form_template_name = "appsearch/search_form.html"
     results_list_template_name = "appsearch/results_list.html"
 
-    def __init__(self, request, url=None, querydict=None, registry=search, permission=None, **kwargs):
+    def __init__(self, request, url=None, querydict=None, registry=search, **kwargs):
         self.kwargs = kwargs
         self.request = request
         self.url = url or request.path
 
         self._forms_ready = False
-        self._set_up_forms(querydict or request.GET, registry, permission)
-        self.permission = permission
+        self._set_up_forms(querydict or request.GET, registry)
         self.registry = registry
 
         # Fallback items
         self.context_object_name = kwargs.get('context_object_name', self.context_object_name)
         self.form_template_name = kwargs.get('form_template_name', self.form_template_name)
-        self.search_form_template_name = kwargs.get('search_form_template_name', self.search_form_template_name)
-        self.results_list_template_name = kwargs.get('results_list_template_name', self.results_list_template_name)
+        self.search_form_template_name = kwargs.get('search_form_template_name',
+                                                    self.search_form_template_name)
+        self.results_list_template_name = kwargs.get('results_list_template_name',
+                                                     self.results_list_template_name)
 
         self._display_fields_callback = kwargs.get('display_fields_callback')
         self._build_queryset_callback = kwargs.get('build_queryset_callback')
@@ -82,22 +78,25 @@ class Searcher(object):
     # Rendering methods
     def __unicode__(self):
         return render_to_string(self.form_template_name,
-                                RequestContext(self.request, {self.context_object_name: self}).flatten())
+                                RequestContext(self.request, {
+                                    self.context_object_name: self}).flatten())
 
     def render_search_form(self):
         """ Renders only the template at ``search_form_template_name`` """
         return render_to_string(self.search_form_template_name,
-                                RequestContext(self.request, {self.context_object_name: self, }).flatten())
+                                RequestContext(self.request, {self.context_object_name: self,
+                                                              }).flatten())
 
     def render_results_list(self):
         """ Renders only the template at ``results_list_template_name`` """
         return render_to_string(self.results_list_template_name,
-                                RequestContext(self.request, {self.context_object_name: self, }).flatten())
+                                RequestContext(self.request, {self.context_object_name: self,
+                                                              }).flatten())
 
     def render_constraint_fields(self, model):
         """ Renders into JSON the model's fields available for search queries. """
 
-        configuration = self.registry.get_configuration(model)
+        configuration = self.registry.get_configuration(model, user=self.request.user)
         choices = configuration.get_searchable_field_choices(include_types=True)
         return json.dumps({'choices': choices})
 
@@ -107,7 +106,7 @@ class Searcher(object):
         if field is None and hash is None:
             raise ValueError("Need one of 'field' or 'hash'.")
 
-        configuration = self.registry.get_configuration(model)
+        configuration = self.registry.get_configuration(model, user=self.request.user)
 
         # Fetch the choices without the query orm language.  Only UI labels are used at this stage.
         choices = configuration.get_operator_choices(field=field, hash=hash, flat=True)
@@ -124,7 +123,8 @@ class Searcher(object):
         operator_data = defaultdict(dict)
 
         configurations = self.model_selection_form.configurations
-        model_values = list(map(itemgetter(0), self.model_selection_form.fields['model'].choices))[1:]
+        model_values = list(map(itemgetter(0),
+                                self.model_selection_form.fields['model'].choices))[1:]
 
         for model_value, config in zip(model_values, configurations):
             model = config.model
@@ -161,14 +161,14 @@ class Searcher(object):
             self.model = self.model_config.model
         return self._forms_ready
 
-    def _set_up_forms(self, querydict, registry, permission=None):
+    def _set_up_forms(self, querydict, registry):
         ModelSelectionFormClass = self.get_model_selection_form_class()
         ConstraintFormClass = self.get_constraint_form_class()
         ConstraintFormsetClass = self.get_constraint_formset_class()
-        ConstraintFormsetClass = formset_factory(ConstraintFormClass, formset=ConstraintFormsetClass)
+        ConstraintFormsetClass = formset_factory(ConstraintFormClass,
+                                                 formset=ConstraintFormsetClass)
 
-        self.model_selection_form = ModelSelectionFormClass(registry, self.request.user, permission,
-                querydict)
+        self.model_selection_form = ModelSelectionFormClass(registry, self.request.user, querydict)
 
         if self.model_selection_form.is_valid():
             model_configuration = self.model_selection_form.get_selected_configuration()
@@ -176,8 +176,7 @@ class Searcher(object):
             if self.constraint_formset.is_valid():
                 self._forms_ready = True
         else:
-            self.model_selection_form = ModelSelectionFormClass(registry, self.request.user,
-                    permission)
+            self.model_selection_form = ModelSelectionFormClass(registry, self.request.user)
             self.constraint_formset = ConstraintFormsetClass(configuration=None)
 
     def _perform_search(self):
@@ -243,11 +242,11 @@ class Searcher(object):
 
             # Do some natural processing
             if isinstance(value, (tuple, list)):
-                value = ' - '.join(list(map(unicode, value)))
+                value = ' - '.join(list(map(six.u, value)))
             else:
                 value = str(value)
             bits = [verbose_name, constraint_form['operator'].value(), value]
-            if i != 0: # Skip the leading "and" on the first constraint
+            if i != 0:  # Skip the leading "and" on the first constraint
                 bits.insert(0, constraint_form['type'].value())
             natural_string.append(bits)
 
@@ -308,7 +307,7 @@ class Searcher(object):
 
         if self._build_queryset_callback:
             queryset = self._build_queryset_callback(self, model, self.model_config, query,
-                    queryset)
+                                                     queryset)
 
         return queryset
 

@@ -15,6 +15,9 @@ __credits__ = ['Artem Hruzd', 'Steven Klass', ]
 
 
 class CompanySearch(ModelSearch):
+    """
+    Company search available for all users
+    """
     display_fields = (
         'name',
         'slug',
@@ -25,5 +28,9 @@ class CompanySearch(ModelSearch):
         'name',
         'company_type'
     )
+
+    def user_has_perm(self, user):
+        return True
+
 
 search.register(Company, CompanySearch)

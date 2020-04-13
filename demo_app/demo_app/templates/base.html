@@ -4,7 +4,7 @@
 
 <html lang="en">
 <head>
-    <title>{% block page_title %}PAGE TITLE{% endblock %}</title>
+    <title>{% block page_title %}App search demo{% endblock %}</title>
     {# CSS #}
 
     <link rel="stylesheet"
@@ -37,22 +37,57 @@
 </head>
 <body>
 {% block body %}
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">AppSearch demo</a>
+            </div>
+            <ul class="nav navbar-nav">
+                {% url 'home' as home_url %}
+                <li class="{% if request.get_full_path == home_url %} active{% endif %}"><a href="{{ home_url }}">Home</a></li>
+                {% url 'search' as search_url %}
+                <li class="{% if request.get_full_path == search_url %} active{% endif %}"><a href="{{ search_url }}">Search</a></li>
+                {% url 'admin:index' as admin_url %}
+                <li class="{% if request.get_full_path == admin_url %} active{% endif %}"><a href="{{ admin_url }}">Admin</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                {% if request.user.is_authenticated %}
+                    <li><a href="#">{{ user }} ({{ user.id }})</a></li>
+                    {% url 'logout' as logout_url %}
+                    <li class="{% if request.get_full_path == logout_url %} active{% endif %}"><a href="{{ logout_url }}">Log out</a></li>
+                {% else %}
+                    {% url 'login' as login_url %}
+                    <li class="{% if request.get_full_path == login_url %} active{% endif %}"><a href="{{ login_url }}">Log in</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
     <div id="content" class="container">
         {% block full_content %}
             <div class="row">
                 <div class="col-md-12">
                     {% block content %}
                         <div class="jumbotron">
+                            <p>
+                                Demo app for
+                                <a target="_blank" href="https://github.com/pivotal-energy-solutions/django-appsearch">
+                                    django-appsearch
+                                </a>
+                            </p>
                             {% if request.user.is_authenticated %}
-                                <h3>{{ user }} ({{ user.id }}) is currently logged in!</h3>
-                                <p><a href="{% url 'logout' %}" class="btn btn-primary btn-large">Log
-                                    out</a></p>
+                                <p>Try to search something</p>
                             {% else %}
-                                <h3>Not Logged In</h3>
-                                <p><a href="{% url 'login' %}" class="btn btn-primary btn-large">Log
-                                    back in</a></p>
+                                <pre>
+                                    To login as superuser:
+
+                                    username: root
+                                    email: root@gmail.com
+                                    password: Changeme1!
+
+                                    Other users have a password:
+                                    Changeme1!
+                                </pre>
                             {% endif %}
-                            <a href="{% url 'search' %}">Search!</a>
                         </div>
                     {% endblock content %}
                 </div>

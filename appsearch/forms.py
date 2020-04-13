@@ -25,14 +25,14 @@ class ModelSelectionForm(forms.Form):
 
     model = forms.ChoiceField(label="Search For")
 
-    def __init__(self, registry, user, permission, *args, **kwargs):
+    def __init__(self, registry, user, *args, **kwargs):
         super(ModelSelectionForm, self).__init__(*args, **kwargs)
 
         self.registry = registry
-        self.configurations = registry.get_configurations(user=user, permission=permission)
+        self.configurations = registry.get_configurations(user=user)
 
-        self.fields['model'].choices = BLANK_CHOICE_DASH + \
-            [(c._content_type.id, c.verbose_name) for c in self.configurations]
+        self.fields['model'].choices = \
+            BLANK_CHOICE_DASH + [(c._content_type.id, c.verbose_name) for c in self.configurations]
 
     def clean_model(self):
         """ Cleans the content type id into the model it represents. """
@@ -236,4 +236,4 @@ class ConstraintFormset(BaseFormSet):
     def _construct_form(self, i, **kwargs):
         """ Sends the specified model configuration to the form. """
         return super(ConstraintFormset, self)._construct_form(i, configuration=self.configuration,
-                **kwargs)
+                                                              **kwargs)

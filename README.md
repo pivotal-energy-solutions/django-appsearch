@@ -349,38 +349,6 @@ The work done by the default search mechanism will attempt to call `select_relat
 1. Override `Searcher.build_queryset()` method, calling super() and performing extra `select_related()` calls on the return value.
 2. Override `get_select_related_fields()` directly and adding to the list.
 
-### `SearchRegistry`
-**`appsearch.registry.SearchRegistry`**
-
-The registry container where configurations are stored for use in the search form.
-
-The default registry is made available in the module variable called `search`.
-
-#### `__iter__()`
-Yields the registration keys, which are strings in the form `"applabel.modelname"`.
-
-#### `__getitem__(k)`
-If `k` is a model class, the registration key is generated (`"applabel.modelname"`) in its place.  Otherwise, `k` is directly used to look up a model configuration in the registry.
-
-#### `__contains__(k)`
-If `k` is a model class, the registration key is generated (`"applabel.modelname"`) in its place.  Otherwise, `k` is directly used to test membership in the registry.
-
-#### `register(model, configuration)`
-Registers a model class `model` with the given `configuration` class.
-
-#### `get_configuration(model)`
-Returns the configuration instance associated with `model`.
-
-#### `get_configurations([user[, permission]])`
-Returns the configurations in sorted order.
-
-If `user` is specified, configurations will be included only if the user has the built-in `"applabel.change_modelname"` permission on the associated model class.
-
-If `permission` is also supplied, it should be a string with two string-formatting positions for the applabel and the modelname, such as `"{}.add_{}"` or `{}.manage_{}`.
-
-#### `set_sort_function(f)`
-`f` should be a function that accepts a parameter `configurations` and returns the configurations in the desired order.  The default sort function arranges the configurations based on their `verbose_name` attributes.
-
 ### `Searcher`
 **`appsearch.utils.Searcher`**
 
