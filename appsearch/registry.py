@@ -10,7 +10,7 @@ from operator import attrgetter, itemgetter
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist
-from django.db import ProgrammingError, models
+from django.db import OperationalError, ProgrammingError, models
 from django.db.models.constants import LOOKUP_SEP
 from django.forms.utils import pretty_name
 from django.utils.text import capfirst
@@ -111,8 +111,8 @@ class ModelSearch(object):
         # Determine the ContentType in advance.
         try:
             self._content_type = ContentType.objects.get_for_model(self.model)
-        except ProgrammingError:
-            if not {'migrate', 'syncdb', 'check'}.intersection(set(sys.argv)):
+        except (ProgrammingError, OperationalError):
+            if not {'migrate', 'makemigrations', 'check'}.intersection(set(sys.argv)):
                 raise
             log.info("Unable to get ContentType for %s" % self.model)
         else:
