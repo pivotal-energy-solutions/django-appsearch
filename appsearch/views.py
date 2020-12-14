@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """views.py: ORM Utils"""
 
-from __future__ import absolute_import, print_function, unicode_literals
-
 from django.views.generic import TemplateView
 
 from appsearch.utils import Searcher

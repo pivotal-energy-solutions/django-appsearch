@@ -25,7 +25,7 @@ def autodiscover():
     from importlib import import_module
     from django.apps import apps
     from django.utils.module_loading import module_has_submodule
-    from appsearch.registry import search
+    from appsearch.registry import search  # noqa: F401
 
     for config in apps.get_app_configs():
         if module_has_submodule(config.module, 'search'):

@@ -2,12 +2,6 @@ dist: xenial
 
 services:
   - postgresql
-  - rabbitmq
-
-addons:
-  apt:
-    packages:
-      - rabbitmq-server
 
 language: python
 
@@ -20,8 +14,10 @@ git:
 cache: pip
 
 python:
- - "3.7"
- - "2.7"
+  - "3.7"
+  - "3.8"
+  - "3.9"
+  - "3.10-dev"
 
 before_script:
   - psql -c 'create database postgress;' -U postgres

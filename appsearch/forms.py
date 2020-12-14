@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """forms.py: appsearch forms"""
 
-from __future__ import absolute_import, print_function, unicode_literals
-
 import operator
 
 from django import forms
@@ -152,7 +150,7 @@ class ConstraintForm(forms.Form):
 
         return operator
 
-    def clean_term(self):
+    def clean_term(self):    # noqa: C901
         """ Normalizes the ``term`` field to what makes sense for the operator. """
 
         if 'field' not in self.cleaned_data or 'operator' not in self.cleaned_data:
@@ -186,7 +184,7 @@ class ConstraintForm(forms.Form):
             elif classification == "number":
                 try:
                     float(term)
-                except:
+                except TypeError:
                     raise ValidationError("Value must be numeric.")
 
         if operator not in ('isnull', '!isnull') and term in [None, '']:

@@ -1,29 +1,22 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import, print_function, unicode_literals
-
 import logging
 import sys
 from collections import OrderedDict
+from functools import reduce
+from hashlib import sha1 as sha
 from itertools import chain
 from operator import attrgetter, itemgetter
 
-import six
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist
 from django.db import ProgrammingError, models
 from django.db.models.constants import LOOKUP_SEP
-from django.db.models.fields import FieldDoesNotExist
-from django.forms.forms import pretty_name
+from django.forms.utils import pretty_name
 from django.utils.text import capfirst
 
 from .ormutils import resolve_orm_path
 
-
-try:
-    from hashlib import sha1 as sha
-except ImportError:
-    from sha import sha
 
 log = logging.getLogger(__name__)
 
@@ -171,21 +164,21 @@ class ModelSearch(object):
         # Store each element's [::2] (that is, [0] and [2]) as a mapping to the field object
         self.field_types = dict(map(itemgetter(slice(0, None, 2)), extended_info))
 
-    def _get_field_info(self, orm_path_bits, model, related_name, field_list,
-                        include_model_in_verbose_name=True):
+    def _get_field_info(self, orm_path_bits, model, related_name, field_list):  # noqa: C901
         """
         Recurses the fields listed on the model to provide a complete index of their ORM paths and
         friendly names.
         """
 
         if related_name:
-            if isinstance(related_name, six.string_types):
+            if isinstance(related_name, str):
 
                 try:
                     # Post 1.8
                     field = model._meta.get_field(related_name)
                     direct = not field.auto_created or field.concrete
-                    related_model = None if field.model._meta.concrete_model is model else field.model._meta.concrete_model
+                    _concrete = field.model._meta.concrete_model
+                    related_model = None if _concrete is model else _concrete
                 except FieldDoesNotExist:
                     # Pre 1.8
                     field, related_model, direct, m2m = model._meta.get_field_by_name(related_name)
@@ -217,23 +210,14 @@ class ModelSearch(object):
                 # name.
                 related_model = related_name
 
-                try:
-                    # Post 1.8
-                    fk_objects = [
-                        f for f in related_model._meta.get_fields()
-                        if (f.one_to_many or f.one_to_one)
-                           and f.auto_created and not f.concrete
-                    ]
-                    m2m_objects = [
-                        f for f in related_model._meta.get_fields(include_hidden=True)
-                        if f.many_to_many and f.auto_created
-                    ]
-
-                except:
-                    # Pre 1.8
-                    raise
-                    fk_objects = related_model._meta.get_all_related_objects()
-                    m2m_objects = related_model._meta.get_all_related_many_to_many_objects()
+                fk_objects = [
+                    f for f in related_model._meta.get_fields()
+                    if (f.one_to_many or f.one_to_one) and f.auto_created and not f.concrete
+                ]
+                m2m_objects = [
+                    f for f in related_model._meta.get_fields(include_hidden=True)
+                    if f.many_to_many and f.auto_created
+                ]
 
                 for related_object in chain(fk_objects, m2m_objects):
                     if related_object.field.model is model:
@@ -267,12 +251,7 @@ class ModelSearch(object):
                 else:
                     # Derive a verbose name.  If the field comes from a model other than the base
                     # model, prepend the relate model's own verbose name.
-                    try:
-                        # Post 1.8
-                        field = related_model._meta.get_field(field_name)
-                    except:
-                        # Pre 1.8
-                        field, _, _, _ = related_model._meta.get_field_by_name(field_name)
+                    field = related_model._meta.get_field(field_name)
 
                     if related_name:
                         verbose_name_bits = [related_model._meta.verbose_name, field.verbose_name]
@@ -287,7 +266,7 @@ class ModelSearch(object):
 
                 try:
                     field = field.field
-                except:
+                except AttributeError:
                     pass
 
                 orm_path_bits = base_orm_path[:]
@@ -375,8 +354,8 @@ class ModelSearch(object):
             choices = map(lambda c: c + (self.get_field_classification(c[0]),), choices)
 
         # Perform a sha hash on the ORM path to get something unique and obscured for the frontend
-        encode_value = lambda pair: (sha((','.join(pair[0])).encode('utf-8')).hexdigest(),) + tuple(
-            pair[1:])
+        encode_value = lambda pair: \
+            (sha((','.join(pair[0])).encode('utf-8')).hexdigest(),) + tuple(pair[1:])  # noqa: E731
         return map(encode_value, choices)
 
     def reverse_field_hash(self, hash):
@@ -426,7 +405,7 @@ class ModelSearch(object):
         data = []
         for _, field_name, _ in self._display_fields:
             try:
-                value = six.moves.reduce(getattr, [obj] + field_name.split(LOOKUP_SEP))
+                value = reduce(getattr, [obj] + field_name.split(LOOKUP_SEP))
             except (ObjectDoesNotExist, AttributeError):
                 value = None
 
@@ -466,7 +445,7 @@ class SearchRegistry(object):
         :param k:
         :return:
         """
-        if not isinstance(k, six.string_types):
+        if not isinstance(k, str):
             k = '.'.join((k._meta.app_label, k.__name__.lower()))
         return self._registry[k]
 
@@ -478,7 +457,7 @@ class SearchRegistry(object):
         :return:
         """
         try:
-            config = self.__getitem__(k)
+            _config = self.__getitem__(k)  # noqa: F841
             return True
         except KeyError:
             return False

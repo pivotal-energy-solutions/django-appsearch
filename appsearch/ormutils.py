@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 """ormutils.py: ORM Utils"""
+from functools import reduce
 
-from __future__ import absolute_import, print_function, unicode_literals
-
-import six
-from django.db.models.fields import FieldDoesNotExist
+from django.core.exceptions import FieldDoesNotExist
 
 
 try:
@@ -22,7 +20,7 @@ def resolve_orm_path(model, orm_path):
     """
 
     bits = orm_path.split(LOOKUP_SEP)
-    endpoint_model = six.moves.reduce(get_model_at_related_field, [model] + bits[:-1])
+    endpoint_model = reduce(get_model_at_related_field, [model] + bits[:-1])
     field = endpoint_model._meta.get_field(bits[-1])
     return field
 
@@ -47,4 +45,5 @@ def get_model_at_related_field(model, attr):
         rel = getattr(field, 'remote_field', None)
         return rel.model
 
-    raise ValueError("{0}.{1} ({2}) is not a relationship field.".format(model.__name__, attr, field.__class__.__name__))
+    raise ValueError("{0}.{1} ({2}) is not a relationship field.".format(
+        model.__name__, attr, field.__class__.__name__))
