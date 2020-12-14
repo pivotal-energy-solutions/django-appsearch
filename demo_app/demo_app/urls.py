@@ -16,10 +16,10 @@ Including another URLconf
 """
 
 from django.conf import settings
-from django.conf.urls import url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.views import LoginView, LogoutView
+from django.urls import re_path
 from django.views.generic import TemplateView
 
 import appsearch
@@ -29,11 +29,11 @@ from appsearch.views import BaseSearchView
 appsearch.autodiscover()
 
 urlpatterns = [
-    url(r'^$', TemplateView.as_view(template_name='base.html'), name='home'),
-    url(r'^admin/', admin.site.urls),
-    url(r'^accounts/login/', LoginView.as_view(), name='login'),
-    url(r'^accounts/logout/', LogoutView.as_view(), name='logout'),
-    url(r'^search/$', BaseSearchView.as_view(template_name='appsearch/search.html'), name='search'),
+    re_path(r'^$', TemplateView.as_view(template_name='base.html'), name='home'),
+    re_path(r'^admin/', admin.site.urls),
+    re_path(r'^accounts/login/', LoginView.as_view(), name='login'),
+    re_path(r'^accounts/logout/', LogoutView.as_view(), name='logout'),
+    re_path(r'^search/$', BaseSearchView.as_view(template_name='appsearch/search.html'), name='search'),
 ]
 
 if settings.DEBUG:
