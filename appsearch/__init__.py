@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
 # This code is heavily based on contrib.admin's autodiscover mechanism.
 
-import logging
-import sys
-from sqlite3 import OperationalError
-
-
 __name__ = 'appsearch'
 __author__ = 'Pivotal Energy Solutions'
 __version_info__ = (2, 0, 0)
@@ -14,6 +9,7 @@ __date__ = '2014/07/22 4:47:00 PM'
 __credits__ = ['Tim Valenta', "Steven Klass"]
 __license__ = 'See the file LICENSE.txt for licensing information.'
 
+import logging
 
 log = logging.getLogger(__name__)
 
@@ -34,8 +30,5 @@ def autodiscover():
         if module_has_submodule(config.module, 'search'):
             try:
                 _ = import_module(config.name + '.search')
-            except OperationalError:
-                if not {'migrate', 'makemigrations', 'check'}.intersection(set(sys.argv)):
-                    raise
             except Exception:
                 raise ImportError('Loading {}.search module failed'.format(config.name))
