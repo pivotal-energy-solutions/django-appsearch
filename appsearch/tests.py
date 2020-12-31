@@ -22,8 +22,8 @@ class SearchTests(TestCase):
         """Test a basic contains"""
         self.assertEqual(Company.objects.count(), 0)
 
-        term = "Foobar"
-        company = Company.objects.create(name="%s Plumbing" % term)
+        term = 'Foobar'
+        company = Company.objects.create(name='%s Plumbing' % term)
         self.assertEqual(Company.objects.count(), 1)
 
         url = reverse('search')
@@ -61,17 +61,17 @@ class SearchTests(TestCase):
             'form-0-term': 'foo',
             'form-0-end_term': None,
         }
-        url += "?" + urlencode(data)
+        url += '?' + urlencode(data)
 
         response = self.client.get(url)
-        self.assertIn("<h2>1 Compan", str(response.content))
+        self.assertIn('<h2>1 Compan', str(response.content))
         self.assertIn(company.name, str(response.content))
 
     def test_object_contains_no_data(self):
 
         self.assertEqual(Company.objects.count(), 0)
-        term = "XYS"
-        company = Company.objects.create(name="%s Plumbing" % term)
+        term = 'XYS'
+        company = Company.objects.create(name='%s Plumbing' % term)
         self.assertEqual(Company.objects.count(), 1)
 
         url = reverse('search')
@@ -109,8 +109,8 @@ class SearchTests(TestCase):
             'form-0-term': 'foo',
             'form-0-end_term': None,
         }
-        url += "?" + urlencode(data)
+        url += '?' + urlencode(data)
 
         response = self.client.get(url)
-        self.assertNotIn("<h2>1 Compan", str(response.content))
+        self.assertNotIn('<h2>1 Compan', str(response.content))
         self.assertNotIn(company.name, str(response.content))

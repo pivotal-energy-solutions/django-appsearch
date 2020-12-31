@@ -1,6 +1,6 @@
 <form id="appsearch-form" action="{{ search.url }}" method="get">
     {{ search.constraint_formset.management_form }}
-            
+
     <div class="span-18 last" id="model-select-wrapper">
         {{ search.model_selection_form.model.errors }}
         {{ search.model_selection_form.model.label_tag }}:<br />
@@ -27,7 +27,7 @@
                     {% if form.operator.errors %}{{ form.operator.errors }}{% endif %}
                     {{ form.operator.label_tag }}:<br />{{ form.operator }}
                 </div>
-            
+
                 {% with operator=form.operator.value %}
                     <div class="span-5 last constraint-terms">
                         <div class="span-5 term begin-term{% if form.term.errors %} error{% endif %}"
@@ -51,7 +51,7 @@
                         &nbsp;
                     </div>
                 {% endwith %}
-                    
+
                 {# Space for dynamic formset.min.js 'remove' link #}
                 <div class="span-1">&nbsp;</div>
             </div>

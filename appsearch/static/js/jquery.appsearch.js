@@ -5,13 +5,13 @@
         var options = $.extend({}, $.fn.appsearch.defaults, opts);
         var form = this;
         var _option_template = $("<option />")
-        
+
         if (!options.modelSelect) {
             options.modelSelect = $("#model-select-wrapper select");
         }
-        
+
         form.data('options', options);
-        
+
         options.modelSelect.on('change.appsearch', function(){
             // Model has changed; trigger field list update
             var select = $(this);
@@ -31,7 +31,7 @@
             var option = select.find(':selected');
             var constraintForm = select.closest('.constraint-form');
             form.trigger('update-operator-list', [constraintForm]);
-            
+
             // Set the description text
             var fieldType = option.attr('data-type');
             var fieldText = option.text();
@@ -45,10 +45,10 @@
             var select = $(this);
             var option = select.find(':selected');
             var value = select.val();
-            
+
             var constraintForm = select.closest('.constraint-form')
             var termInputs = constraintForm.find('.term');
-            
+
             if (options.termlessOperators.indexOf(value) != -1) {
                 // termless operator; hide inputs
                 termInputs.slideUp('fast');
@@ -63,7 +63,7 @@
                 }
             }
         });
-        
+
         form.on('configure-formset.appsearch', function(){
             // Re-initialize the formset after stripping out the add/remove links
             form.find('.add-row,.delete-row').remove(); // formset.js
@@ -74,20 +74,20 @@
             (options.updateFieldList || function(){
                 var modelValue = options.modelSelect.val();
                 var choices = (options.getFields || $.fn.appsearch._getFields)(form, modelValue);
-                
+
                 // Remove all constraint forms but the first one.
                 var constraintForms = form.find('.constraint-form');
                 constraintForms.slice(1).slideUp('fast', function(){
                     $(this).find('.delete-row').click(); // formset.js
                 });
-                
+
                 // 1 or 0 remaining constraint-form divs; make sure 1 exists
                 var constraintForm = constraintForms.eq(0);
                 if (constraintForm.size() == 0) {
                     form.find('.add-row').click(); // formset.js
                     constraintForm = form.find('.constraint-form');
                 }
-                        
+
                 // Set the field <option> choices
                 var fieldSelect = constraintForm.find('.constraint-field select');
                 fieldSelect.empty();
@@ -98,7 +98,7 @@
                     fieldSelect.append(option);
                 }
                 fieldSelect.change();
-                
+
                 // Ask for the operator list to update according to the form's field
                 form.trigger('update-operator-list', [constraintForm]);
             })(e);
@@ -106,16 +106,16 @@
         form.on('update-operator-list.appsearch', function(e, constraintForm){
             (options.updateOperatorList || function(e, constraintForm){
                 var fieldSelect = constraintForm.find('.constraint-field select');
-            
+
                 var modelValue = options.modelSelect.val();
                 var fieldValue = fieldSelect.val();
                 var choices = (options.getOperators || $.fn.appsearch._getOperators)(form, modelValue, fieldValue);
-            
+
                 var operatorSelect = constraintForm.find('.constraint-operator select').empty();
                 for (var i = 0; i < choices.length; i++) {
                     operatorSelect.append(_option_template.clone().val(choices[i]).text(choices[i]));
                 }
-                
+
                 // Propagate change through the operator <select>, updating the term fields
                 operatorSelect.change();
             })(e, constraintForm);
@@ -124,14 +124,14 @@
             var f = options.setFieldDescription || $.fn.appsearch._setFieldDescription;
             f(descriptionBox, type, text, value, constraintForm);
         });
-        
+
         // Make sure preloaded form data is immediately validated.
         form.trigger('configure-formset');
-        
+
         // Make the form available for chained calls
         return this;
     };
-    
+
     $.fn.appsearch._getFields = function(form, modelValue){
         var choices = form.data('options').formChoices;
         if (choices) {
@@ -164,26 +164,26 @@
         } else {
             console.warn("Unknown field type:", type);
         }
-                
+
         descriptionBox.text(description);
     };
-    
+
     $.fn.appsearch.defaults = {
         'modelSelect': null,
         'formChoices': null,
-        
+
         'modelSelectedCallback': null,
         'updateFieldList': null,
         'updateOperatorList': null,
         'constraintFormChanged': null,
         'setFieldDescription': null,
-        
+
         'getFields': null,
         'getOperators': null,
-        
+
         'termlessOperators': ["exists", "doesn't exist"],
         'twoTermOperators': ["between"],
-        
+
         'formsetOptions': null,
     };
 })(jQuery);

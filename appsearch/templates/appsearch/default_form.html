@@ -2,7 +2,7 @@
     $(function(){
         $('#appsearch-form').appsearch({
             'formChoices': {{ search.render_all_constraint_choices }},
-                
+
             // Passed directly to formset.js
             'formsetOptions': {
                 prefix: '{{ search.constraint_formset.prefix }}',
@@ -14,7 +14,7 @@
 </script>
 
 {{ search.render_search_form }}
-    
+
 <div>&nbsp;</div>
 
 {{ search.render_results_list }}

@@ -47,9 +47,9 @@ class Searcher(object):
     context_object_name = 'search'
 
     # Default templates
-    form_template_name = "appsearch/default_form.html"
-    search_form_template_name = "appsearch/search_form.html"
-    results_list_template_name = "appsearch/results_list.html"
+    form_template_name = 'appsearch/default_form.html'
+    search_form_template_name = 'appsearch/search_form.html'
+    results_list_template_name = 'appsearch/results_list.html'
 
     def __init__(self, request, url=None, querydict=None, registry=search, **kwargs):
         self.kwargs = kwargs
@@ -213,7 +213,7 @@ class Searcher(object):
                 if negative:
                     constraint_operator = constraint_operator[1:]
 
-                if constraint_operator == "isnull":
+                if constraint_operator == 'isnull':
                     value = not negative
                     negative = False
 
@@ -223,8 +223,8 @@ class Searcher(object):
                 q = Q(**{
                     field_query: value,
                 })
-                log.debug("Querying %s [%d]: %s%s=%r", self.model.__name__, i, field_query,
-                          "!" if negative else "", value)
+                log.debug('Querying %s [%d]: %s%s=%r', self.model.__name__, i, field_query,
+                          '!' if negative else '', value)
 
                 # Negate if necessary
                 if negative:
@@ -257,7 +257,7 @@ class Searcher(object):
             'count': len(queryset),
             'list': data_rows,
             'fields': self._get_display_fields(self.model, self.model_config),
-            'natural_string': "where " + ', '.join(map(' '.join, natural_string)),
+            'natural_string': 'where ' + ', '.join(map(' '.join, natural_string)),
         }
 
     def _get_display_fields(self, model, config):

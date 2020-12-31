@@ -34,45 +34,45 @@ RELATIONSHIP_FIELDS = (models.ForeignKey, models.ManyToManyField, models.OneToOn
 # Notably, entries starting with  "!" are negative filters
 OPERATOR_MAP = {
     'text': (
-        ('icontains', "contains"),
+        ('icontains', 'contains'),
         ('!icontains', "doesn't contain"),
-        ('iexact', "= equal"),
-        ('!iexact', "≠ not equal"),
-        ('!isnull', "exists"),
+        ('iexact', '= equal'),
+        ('!iexact', '≠ not equal'),
+        ('!isnull', 'exists'),
         ('isnull', "doesn't exist"),
     ),
     'date': (
-        ('exact', "= equal"),
-        ('!exact', "≠ not equal"),
-        ('gt', "> greater than"),
-        ('lt', "< less than"),
-        ('range', "between"),
-        ('!isnull', "exists"),
+        ('exact', '= equal'),
+        ('!exact', '≠ not equal'),
+        ('gt', '> greater than'),
+        ('lt', '< less than'),
+        ('range', 'between'),
+        ('!isnull', 'exists'),
         ('isnull', "doesn't exist"),
     ),
     'number': (
-        ('exact', "= equal"),
-        ('gt', "> greater than"),
-        ('lt', "< less than"),
-        ('range', "between"),
-        ('!isnull', "exists"),
+        ('exact', '= equal'),
+        ('gt', '> greater than'),
+        ('lt', '< less than'),
+        ('range', 'between'),
+        ('!isnull', 'exists'),
         ('isnull', "doesn't exist"),
-        ('icontains', "contains"),
+        ('icontains', 'contains'),
         ('!icontains', "doesn't contain"),
     ),
     'boolean': (
-        ('exact', "= equal"),
-        ('!isnull', "exists"),
+        ('exact', '= equal'),
+        ('!isnull', 'exists'),
         ('isnull', "doesn't exist"),
     ),
     'model': (
-        ('!isnull', "exists"),
+        ('!isnull', 'exists'),
         ('isnull', "doesn't exist"),
     ),
 
     # If a field defines a "choices" list, we can't get very fancy with operator types
     'choices': (
-        ('exact', "is"),
+        ('exact', 'is'),
     ),
 }
 
@@ -98,7 +98,7 @@ class ModelSearch(object):
             # of reverting back to the model's Meta verbose_plural_name (which might just be a
             # pluralization of its verbose_name, which is explicitly being overridden).
             if self.verbose_name:
-                self.verbose_name_plural = self.verbose_name + "s"
+                self.verbose_name_plural = self.verbose_name + 's'
             else:
                 self.verbose_name_plural = capfirst(self.model._meta.verbose_name_plural)
         if not self.verbose_name:
@@ -114,7 +114,7 @@ class ModelSearch(object):
         except (ProgrammingError, OperationalError):
             if not {'migrate', 'makemigrations', 'check'}.intersection(set(sys.argv)):
                 raise
-            log.info("Unable to get ContentType for %s" % self.model)
+            log.info('Unable to get ContentType for %s' % self.model)
         else:
             # Process the display fields
             if not self.display_fields:
@@ -224,7 +224,7 @@ class ModelSearch(object):
                         related_name = related_object.field.name
                         break
                 else:
-                    raise ValueError("Relationship field from %r to %r not found." % (
+                    raise ValueError('Relationship field from %r to %r not found.' % (
                         model.__name__, related_model.__name__))
         else:
             related_model = model
@@ -339,7 +339,7 @@ class ModelSearch(object):
         elif isinstance(field, RELATIONSHIP_FIELDS):
             return 'model'
         else:
-            raise ValueError("Unhandled field type %s" % field.__class__.__name__)
+            raise ValueError('Unhandled field type %s' % field.__class__.__name__)
 
     def get_searchable_field_choices(self, include_types=False):
         """
@@ -367,7 +367,7 @@ class ModelSearch(object):
         except IndexError:
             # raise ValueError("Unknown field hash")
             # TODO Fix me!
-            log.exception("Unknown field hash")
+            log.exception('Unknown field hash')
             return None
 
     def get_display_fields(self):
@@ -470,7 +470,7 @@ class SearchRegistry(object):
         :return:
         """
         id_string = '.'.join((model._meta.app_label, model.__name__)).lower()
-        log.debug("Registering %r for appsearch configuration class %r", id_string, configuration)
+        log.debug('Registering %r for appsearch configuration class %r', id_string, configuration)
         self._registry[id_string] = configuration(model)
 
     def filter_configurations_by_permission(self, user):
@@ -517,13 +517,13 @@ class SearchRegistry(object):
         try:
             configuration = self[model]
         except KeyError:
-            log.warn("No registered configuration for model %r.", model)
+            log.warn('No registered configuration for model %r.', model)
             configuration = None
         else:
             available_configurations = self.filter_configurations_by_permission(user)
             if configuration not in available_configurations:
                 log.warn("Configuration for model %r available, but user %r doesn't have "
-                         "permission (permission filter: %r).", model, user.username)
+                         'permission (permission filter: %r).', model, user.username)
                 configuration = None
 
         return configuration

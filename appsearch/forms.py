@@ -21,7 +21,7 @@ class ModelSelectionForm(forms.Form):
 
     """
 
-    model = forms.ChoiceField(label="Search For")
+    model = forms.ChoiceField(label='Search For')
 
     def __init__(self, registry, user, *args, **kwargs):
         super(ModelSelectionForm, self).__init__(*args, **kwargs)
@@ -38,9 +38,9 @@ class ModelSelectionForm(forms.Form):
         try:
             model = ContentType.objects.get(id=model).model_class()
         except ContentType.DoesNotExist as e:
-            raise ValidationError("Invalid choice - {}".format(e))
+            raise ValidationError('Invalid choice - {}'.format(e))
         if model not in self.registry:
-            raise ValidationError("Invalid choice")
+            raise ValidationError('Invalid choice')
         return model
 
     def get_selected_configuration(self):
@@ -63,19 +63,19 @@ class ConstraintForm(forms.Form):
 
     """
 
-    type = forms.ChoiceField(label="Constraint", choices=[
+    type = forms.ChoiceField(label='Constraint', choices=[
         ('and', 'AND'),
         ('or', 'OR'),
     ])
 
     # Dynamically populated list of fields available for filtering
-    field = forms.ChoiceField(label="Filter by", choices=[])
+    field = forms.ChoiceField(label='Filter by', choices=[])
 
     # Dynamically populated list of valid operators for the chosen ``field``
-    operator = forms.ChoiceField(label="Constraint type", choices=[])
+    operator = forms.ChoiceField(label='Constraint type', choices=[])
 
-    term = forms.CharField(label="Search term", required=False)
-    end_term = forms.CharField(label="End term", required=False)
+    term = forms.CharField(label='Search term', required=False)
+    end_term = forms.CharField(label='End term', required=False)
 
     def __init__(self, configuration, *args, **kwargs):
         """
@@ -124,9 +124,9 @@ class ConstraintForm(forms.Form):
 
         type = self.cleaned_data['type']
 
-        if type == "and":
+        if type == 'and':
             type = operator.and_
-        elif type == "or":
+        elif type == 'or':
             type = operator.or_
 
         return type
@@ -169,26 +169,26 @@ class ConstraintForm(forms.Form):
                 term = choices[term.lower()]
         else:
             # Numbers and strings don't need processing, but the other types should be inspected.
-            if classification == "date":
+            if classification == 'date':
                 try:
                     term = dateutil.parser.parse(term)
                 except (TypeError, ValueError):
                     raise ValidationError("Unable to parse a date from '{}'".format(term))
-            elif classification == "boolean":
-                if term.lower() in ("true", "yes"):
+            elif classification == 'boolean':
+                if term.lower() in ('true', 'yes'):
                     term = True
-                elif term.lower() in ("false", "no"):
+                elif term.lower() in ('false', 'no'):
                     term = False
                 else:
-                    raise ValidationError("Boolean value must be either true/false or yes/no.")
-            elif classification == "number":
+                    raise ValidationError('Boolean value must be either true/false or yes/no.')
+            elif classification == 'number':
                 try:
                     float(term)
                 except TypeError:
-                    raise ValidationError("Value must be numeric.")
+                    raise ValidationError('Value must be numeric.')
 
         if operator not in ('isnull', '!isnull') and term in [None, '']:
-            raise ValidationError("This field is required.")
+            raise ValidationError('This field is required.')
 
         return term
 
@@ -211,16 +211,16 @@ class ConstraintForm(forms.Form):
         begin_term = self.cleaned_data['term']
         term = self.cleaned_data['end_term']
 
-        if operator == "range":
-            if classification == "date":
+        if operator == 'range':
+            if classification == 'date':
                 term = dateutil.parser.parse(term)
-            elif classification == "number":
+            elif classification == 'number':
                 term = int(term)
             else:
-                raise ValidationError("Unknown range type %r." % classification)
+                raise ValidationError('Unknown range type %r.' % classification)
             self.cleaned_data['term'] = [begin_term, term]
 
-        return ""
+        return ''
 
 
 class ConstraintFormset(BaseFormSet):

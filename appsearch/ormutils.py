@@ -45,5 +45,5 @@ def get_model_at_related_field(model, attr):
         rel = getattr(field, 'remote_field', None)
         return rel.model
 
-    raise ValueError("{0}.{1} ({2}) is not a relationship field.".format(
+    raise ValueError('{0}.{1} ({2}) is not a relationship field.'.format(
         model.__name__, attr, field.__class__.__name__))

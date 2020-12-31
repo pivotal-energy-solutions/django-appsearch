@@ -10,9 +10,9 @@ class SearchMixin(object):
     searcher_class = Searcher
 
     context_object_name = 'search'
-    form_template_name = "appsearch/default_form.html"
-    search_form_template_name = "appsearch/search_form.html"
-    results_list_template_name = "appsearch/results_list.html"
+    form_template_name = 'appsearch/default_form.html'
+    search_form_template_name = 'appsearch/search_form.html'
+    results_list_template_name = 'appsearch/results_list.html'
 
     # Callbacks, unprovided by default
     get_display_fields = None

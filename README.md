@@ -537,7 +537,7 @@ Inherits from `SearchMixin` and the built-in `TemplateView`.
 ## Example / Setup
 
 1. Create and activate a virtual environment with:
- 
+
 `virtualenv`
 
 ```
@@ -572,7 +572,7 @@ You can access the service at http://127.0.0.1:8000
 
 ## Demo data
 
-Upload fixtures. 
+Upload fixtures.
 ```
 python demo_app/manage.py loaddata demo_app/users/fixtures/users.json
 python demo_app/manage.py loaddata demo_app/company/fixtures/companies.json

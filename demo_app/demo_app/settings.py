@@ -88,7 +88,7 @@ WSGI_APPLICATION = 'demo_app.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(os.path.dirname(BASE_DIR), "db.db"),
+        'NAME': os.path.join(os.path.dirname(BASE_DIR), 'db.db'),
     }
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql',
