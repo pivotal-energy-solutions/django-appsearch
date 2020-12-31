@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """search.py: Django """
 
-from __future__ import absolute_import, print_function, unicode_literals
 
 import logging
 
