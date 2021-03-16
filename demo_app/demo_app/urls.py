@@ -19,7 +19,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.views import LoginView, LogoutView
-from django.urls import re_path
+from django.urls import path
 from django.views.generic import TemplateView
 
 import appsearch
@@ -29,11 +29,11 @@ from appsearch.views import BaseSearchView
 appsearch.autodiscover()
 
 urlpatterns = [
-    re_path(r'^$', TemplateView.as_view(template_name='base.html'), name='home'),
-    re_path(r'^admin/', admin.site.urls),
-    re_path(r'^accounts/login/', LoginView.as_view(), name='login'),
-    re_path(r'^accounts/logout/', LogoutView.as_view(), name='logout'),
-    re_path(r'^search/$', BaseSearchView.as_view(template_name='appsearch/search.html'), name='search'),
+    path('', TemplateView.as_view(template_name='base.html'), name='home'),
+    path('admin/', admin.site.urls),
+    path('accounts/login/', LoginView.as_view(), name='login'),
+    path('accounts/logout/', LogoutView.as_view(), name='logout'),
+    path('search/', BaseSearchView.as_view(template_name='appsearch/search.html'), name='search'),
 ]
 
 if settings.DEBUG:
