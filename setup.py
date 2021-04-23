@@ -50,6 +50,7 @@ setup(name='django-appsearch',
                    'Programming Language :: Python :: 3.9',
                    'Programming Language :: Python :: 3.10',
                    'Topic :: Utilities'],
+      python_requires='>=3.8.*',
       install_requires=[
           'django>2.2',
           'python-dateutil',
