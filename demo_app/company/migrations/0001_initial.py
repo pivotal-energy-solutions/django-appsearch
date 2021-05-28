@@ -8,24 +8,38 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Company',
+            name="Company",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=25)),
-                ('company_type', models.CharField(choices=[(b'builder', b'Builder'), (b'rater', b'Rater'), (b'provider', b'Provider')], max_length=100)),
-                ('home_page', models.URLField(blank=True, null=True)),
-                ('description', models.TextField(blank=True, null=True)),
-                ('default_email', models.EmailField(blank=True, max_length=254, null=True)),
-                ('slug', models.SlugField(unique=True, verbose_name=b'slug')),
-                ('is_active', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True, primary_key=True, serialize=False, verbose_name="ID"
+                    ),
+                ),
+                ("name", models.CharField(max_length=25)),
+                (
+                    "company_type",
+                    models.CharField(
+                        choices=[
+                            (b"builder", b"Builder"),
+                            (b"rater", b"Rater"),
+                            (b"provider", b"Provider"),
+                        ],
+                        max_length=100,
+                    ),
+                ),
+                ("home_page", models.URLField(blank=True, null=True)),
+                ("description", models.TextField(blank=True, null=True)),
+                ("default_email", models.EmailField(blank=True, max_length=254, null=True)),
+                ("slug", models.SlugField(unique=True, verbose_name=b"slug")),
+                ("is_active", models.BooleanField(default=True)),
             ],
             options={
-                'verbose_name_plural': 'Companies',
+                "verbose_name_plural": "Companies",
             },
         ),
     ]

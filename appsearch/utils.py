@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 
 class Searcher(object):
-    """ Template helper, wrapping all the necessary components to render an appsearch page. """
+    """Template helper, wrapping all the necessary components to render an appsearch page."""
 
     # Methods and fields not meant to be accessed from the template should start with an underscore
     # to let the template variable name resolution block access.
@@ -44,12 +44,12 @@ class Searcher(object):
     _process_results_callback = None
 
     # Fallback items normally provided by the view
-    context_object_name = 'search'
+    context_object_name = "search"
 
     # Default templates
-    form_template_name = 'appsearch/default_form.html'
-    search_form_template_name = 'appsearch/search_form.html'
-    results_list_template_name = 'appsearch/results_list.html'
+    form_template_name = "appsearch/default_form.html"
+    search_form_template_name = "appsearch/search_form.html"
+    results_list_template_name = "appsearch/results_list.html"
 
     def __init__(self, request, url=None, querydict=None, registry=search, **kwargs):
         self.kwargs = kwargs
@@ -61,44 +61,59 @@ class Searcher(object):
         self.registry = registry
 
         # Fallback items
-        self.context_object_name = kwargs.get('context_object_name', self.context_object_name)
-        self.form_template_name = kwargs.get('form_template_name', self.form_template_name)
-        self.search_form_template_name = kwargs.get('search_form_template_name',
-                                                    self.search_form_template_name)
-        self.results_list_template_name = kwargs.get('results_list_template_name',
-                                                     self.results_list_template_name)
+        self.context_object_name = kwargs.get("context_object_name", self.context_object_name)
+        self.form_template_name = kwargs.get("form_template_name", self.form_template_name)
+        self.search_form_template_name = kwargs.get(
+            "search_form_template_name", self.search_form_template_name
+        )
+        self.results_list_template_name = kwargs.get(
+            "results_list_template_name", self.results_list_template_name
+        )
 
-        self._display_fields_callback = kwargs.get('display_fields_callback')
-        self._build_queryset_callback = kwargs.get('build_queryset_callback')
-        self._process_results_callback = kwargs.get('process_results_callback')
+        self._display_fields_callback = kwargs.get("display_fields_callback")
+        self._build_queryset_callback = kwargs.get("build_queryset_callback")
+        self._process_results_callback = kwargs.get("process_results_callback")
 
     # Rendering methods
     def __unicode__(self):
-        return render_to_string(self.form_template_name,
-                                RequestContext(self.request, {
-                                    self.context_object_name: self}).flatten())
+        return render_to_string(
+            self.form_template_name,
+            RequestContext(self.request, {self.context_object_name: self}).flatten(),
+        )
 
     def render_search_form(self):
-        """ Renders only the template at ``search_form_template_name`` """
-        return render_to_string(self.search_form_template_name,
-                                RequestContext(self.request, {self.context_object_name: self,
-                                                              }).flatten())
+        """Renders only the template at ``search_form_template_name``"""
+        return render_to_string(
+            self.search_form_template_name,
+            RequestContext(
+                self.request,
+                {
+                    self.context_object_name: self,
+                },
+            ).flatten(),
+        )
 
     def render_results_list(self):
-        """ Renders only the template at ``results_list_template_name`` """
-        return render_to_string(self.results_list_template_name,
-                                RequestContext(self.request, {self.context_object_name: self,
-                                                              }).flatten())
+        """Renders only the template at ``results_list_template_name``"""
+        return render_to_string(
+            self.results_list_template_name,
+            RequestContext(
+                self.request,
+                {
+                    self.context_object_name: self,
+                },
+            ).flatten(),
+        )
 
     def render_constraint_fields(self, model):
-        """ Renders into JSON the model's fields available for search queries. """
+        """Renders into JSON the model's fields available for search queries."""
 
         configuration = self.registry.get_configuration(model, user=self.request.user)
         choices = configuration.get_searchable_field_choices(include_types=True)
-        return json.dumps({'choices': choices})
+        return json.dumps({"choices": choices})
 
     def get_constraint_field_operators(self, model, field=None, hash=None):
-        """ Returns into JSON the model's field's valid search operators. """
+        """Returns into JSON the model's field's valid search operators."""
 
         if field is None and hash is None:
             raise ValueError("Need one of 'field' or 'hash'.")
@@ -120,8 +135,9 @@ class Searcher(object):
         operator_data = defaultdict(dict)
 
         configurations = self.model_selection_form.configurations
-        model_values = list(map(itemgetter(0),
-                                self.model_selection_form.fields['model'].choices))[1:]
+        model_values = list(map(itemgetter(0), self.model_selection_form.fields["model"].choices))[
+            1:
+        ]
 
         for model_value, config in zip(model_values, configurations):
             model = config.model
@@ -131,27 +147,31 @@ class Searcher(object):
                 field_data[model_value].append([orm_hash, field_label, field_type])
                 operator_data[model_value][orm_hash] = operator_choices
 
-        return mark_safe(json.dumps({
-            'fields': field_data,
-            'operators': operator_data,
-        }))
+        return mark_safe(
+            json.dumps(
+                {
+                    "fields": field_data,
+                    "operators": operator_data,
+                }
+            )
+        )
 
     # Configuration methods
     def get_model_selection_form_class(self):
-        """ Returns ``self.model_selection_form_class`` """
+        """Returns ``self.model_selection_form_class``"""
         return self.model_selection_form_class
 
     def get_constraint_form_class(self):
-        """ Returns ``self.constraint_form_class`` """
+        """Returns ``self.constraint_form_class``"""
         return self.constraint_form_class
 
     def get_constraint_formset_class(self):
-        """ Returns ``self.constraint_formset_class`` """
+        """Returns ``self.constraint_formset_class``"""
         return self.constraint_formset_class
 
     @property
     def ready(self):
-        """ Indicates if a search has been executed by the constructed state. """
+        """Indicates if a search has been executed by the constructed state."""
 
         if self._forms_ready:
             self.model_config = self.model_selection_form.get_selected_configuration()
@@ -162,8 +182,9 @@ class Searcher(object):
         ModelSelectionFormClass = self.get_model_selection_form_class()
         ConstraintFormClass = self.get_constraint_form_class()
         ConstraintFormsetClass = self.get_constraint_formset_class()
-        ConstraintFormsetClass = formset_factory(ConstraintFormClass,
-                                                 formset=ConstraintFormsetClass)
+        ConstraintFormsetClass = formset_factory(
+            ConstraintFormClass, formset=ConstraintFormsetClass
+        )
 
         self.model_selection_form = ModelSelectionFormClass(registry, self.request.user, querydict)
 
@@ -190,10 +211,10 @@ class Searcher(object):
         query_list = []
 
         for i, constraint_form in enumerate(self.constraint_formset):
-            type_operator = constraint_form.cleaned_data['type']
-            field_list = constraint_form.cleaned_data['field']
-            constraint_operator = constraint_form.cleaned_data['operator']
-            term = constraint_form.cleaned_data['term']
+            type_operator = constraint_form.cleaned_data["type"]
+            field_list = constraint_form.cleaned_data["field"]
+            constraint_operator = constraint_form.cleaned_data["operator"]
+            term = constraint_form.cleaned_data["term"]
             # _end_term = constraint_form.cleaned_data['end_term']
 
             verbose_name = self.model_config._fields[field_list]
@@ -209,22 +230,30 @@ class Searcher(object):
                 # _target_field = resolve_orm_path(self.model, field)
 
                 # Prep an inverted lookup
-                negative = constraint_operator.startswith('!')
+                negative = constraint_operator.startswith("!")
                 if negative:
                     constraint_operator = constraint_operator[1:]
 
-                if constraint_operator == 'isnull':
+                if constraint_operator == "isnull":
                     value = not negative
                     negative = False
 
                 # Bake the queryset language string
                 field_query = LOOKUP_SEP.join((field, constraint_operator))
 
-                q = Q(**{
-                    field_query: value,
-                })
-                log.debug('Querying %s [%d]: %s%s=%r', self.model.__name__, i, field_query,
-                          '!' if negative else '', value)
+                q = Q(
+                    **{
+                        field_query: value,
+                    }
+                )
+                log.debug(
+                    "Querying %s [%d]: %s%s=%r",
+                    self.model.__name__,
+                    i,
+                    field_query,
+                    "!" if negative else "",
+                    value,
+                )
 
                 # Negate if necessary
                 if negative:
@@ -239,12 +268,12 @@ class Searcher(object):
 
             # Do some natural processing
             if isinstance(value, (tuple, list)):
-                value = ' - '.join(list(map(str, value)))
+                value = " - ".join(list(map(str, value)))
             else:
                 value = str(value)
-            bits = [verbose_name, constraint_form['operator'].value(), value]
+            bits = [verbose_name, constraint_form["operator"].value(), value]
             if i != 0:  # Skip the leading "and" on the first constraint
-                bits.insert(0, constraint_form['type'].value())
+                bits.insert(0, constraint_form["type"].value())
             natural_string.append(bits)
 
         # The first query's "type" should be ignored for the sake of the reduce line below.
@@ -254,10 +283,10 @@ class Searcher(object):
         data_rows = self.process_results(queryset)
 
         self.results = {
-            'count': len(queryset),
-            'list': data_rows,
-            'fields': self._get_display_fields(self.model, self.model_config),
-            'natural_string': 'where ' + ', '.join(map(' '.join, natural_string)),
+            "count": len(queryset),
+            "list": data_rows,
+            "fields": self._get_display_fields(self.model, self.model_config),
+            "natural_string": "where " + ", ".join(map(" ".join, natural_string)),
         }
 
     def _get_display_fields(self, model, config):
@@ -266,7 +295,7 @@ class Searcher(object):
         return config.get_display_fields()
 
     def get_select_related_fields(self, model, config):
-        """ Returns a list of queryset language names to pass into ``.select_related()`` """
+        """Returns a list of queryset language names to pass into ``.select_related()``"""
         display_fields = config._display_fields
         related_names = set()
         for _, field_name, _ in display_fields:
@@ -303,8 +332,9 @@ class Searcher(object):
         queryset = queryset.filter(query).select_related(*related_names).distinct()
 
         if self._build_queryset_callback:
-            queryset = self._build_queryset_callback(self, model, self.model_config, query,
-                                                     queryset)
+            queryset = self._build_queryset_callback(
+                self, model, self.model_config, query, queryset
+            )
 
         return queryset
 

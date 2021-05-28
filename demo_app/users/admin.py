@@ -13,22 +13,43 @@ class UserAdmin(AuthUserAdmin):
     add_form = UserAdminCreationForm
 
     fieldsets = (
-        (None, {
-            'fields': ('username', 'password'),
-        }),
-        (_('User Profile'), {
-            'fields': ('first_name', 'last_name', 'email'),
-        }),
-        (_('Company Info'), {
-            'fields': ('company', 'title', 'department', 'work_phone', 'cell_phone', 'date_joined')
-        }),
-        (_('Permissions'), {
-            'fields': ('is_active',
-                       'is_staff',
-                       'is_public',
-                       'is_company_admin',
-                       'is_superuser',),
-        }),
+        (
+            None,
+            {
+                "fields": ("username", "password"),
+            },
+        ),
+        (
+            _("User Profile"),
+            {
+                "fields": ("first_name", "last_name", "email"),
+            },
+        ),
+        (
+            _("Company Info"),
+            {
+                "fields": (
+                    "company",
+                    "title",
+                    "department",
+                    "work_phone",
+                    "cell_phone",
+                    "date_joined",
+                )
+            },
+        ),
+        (
+            _("Permissions"),
+            {
+                "fields": (
+                    "is_active",
+                    "is_staff",
+                    "is_public",
+                    "is_company_admin",
+                    "is_superuser",
+                ),
+            },
+        ),
     )
 
 

@@ -9,7 +9,7 @@ class CompanyAdmin(admin.ModelAdmin):
     Company admin panel
     """
 
-    list_display = ('name',)
+    list_display = ("name",)
 
 
 admin.site.register(Company, CompanyAdmin)

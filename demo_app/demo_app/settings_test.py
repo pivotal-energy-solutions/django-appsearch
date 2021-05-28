@@ -16,15 +16,15 @@ class DisableMigrations(object):
 MIGRATION_MODULES = DisableMigrations()
 
 # Handle system warning as log messages
-warnings.simplefilter('once')
+warnings.simplefilter("once")
 
-for handler in LOGGING.get('handlers', []):
-    LOGGING['handlers'][handler]['level'] = 'ERROR'
-for logger in LOGGING.get('loggers', []):
-    LOGGING['loggers'][logger]['level'] = 'ERROR'
+for handler in LOGGING.get("handlers", []):
+    LOGGING["handlers"][handler]["level"] = "ERROR"
+for logger in LOGGING.get("loggers", []):
+    LOGGING["loggers"][logger]["level"] = "ERROR"
 
 DATABASES = {
-    'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': ':memory:'},
+    "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"},
 }
 
-SILENCED_SYSTEM_CHECKS = ['django_mysql.E016']
+SILENCED_SYSTEM_CHECKS = ["django_mysql.E016"]

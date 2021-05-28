@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 # This code is heavily based on contrib.admin's autodiscover mechanism.
 
-__name__ = 'appsearch'
-__author__ = 'Pivotal Energy Solutions'
+__name__ = "appsearch"
+__author__ = "Pivotal Energy Solutions"
 __version_info__ = (2, 1, 4)
-__version__ = '.'.join(map(str, __version_info__))
-__date__ = '2014/07/22 4:47:00 PM'
-__credits__ = ['Tim Valenta', 'Steven Klass']
-__license__ = 'See the file LICENSE.txt for licensing information.'
+__version__ = ".".join(map(str, __version_info__))
+__date__ = "2014/07/22 4:47:00 PM"
+__credits__ = ["Tim Valenta", "Steven Klass"]
+__license__ = "See the file LICENSE.txt for licensing information."
 
 import logging
 
@@ -27,8 +27,8 @@ def autodiscover():
     from appsearch.registry import search  # noqa: F401
 
     for config in apps.get_app_configs():
-        if module_has_submodule(config.module, 'search'):
+        if module_has_submodule(config.module, "search"):
             try:
-                _ = import_module(config.name + '.search')
+                _ = import_module(config.name + ".search")
             except Exception:
-                raise ImportError('Loading {}.search module failed'.format(config.name))
+                raise ImportError("Loading {}.search module failed".format(config.name))

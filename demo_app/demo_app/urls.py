@@ -29,11 +29,11 @@ from appsearch.views import BaseSearchView
 appsearch.autodiscover()
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='base.html'), name='home'),
-    path('admin/', admin.site.urls),
-    path('accounts/login/', LoginView.as_view(), name='login'),
-    path('accounts/logout/', LogoutView.as_view(), name='logout'),
-    path('search/', BaseSearchView.as_view(template_name='appsearch/search.html'), name='search'),
+    path("", TemplateView.as_view(template_name="base.html"), name="home"),
+    path("admin/", admin.site.urls),
+    path("accounts/login/", LoginView.as_view(), name="login"),
+    path("accounts/logout/", LogoutView.as_view(), name="logout"),
+    path("search/", BaseSearchView.as_view(template_name="appsearch/search.html"), name="search"),
 ]
 
 if settings.DEBUG:

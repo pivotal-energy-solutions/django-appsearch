@@ -38,12 +38,15 @@ def get_model_at_related_field(model, attr):
         raise
 
     if not field.concrete:
-        if hasattr(field, 'related_model'):  # Reverse relationship
+        if hasattr(field, "related_model"):  # Reverse relationship
             return field.related_model
 
-    if hasattr(field, 'remote_field') and field.remote_field:  # Forward/m2m relationship
-        rel = getattr(field, 'remote_field', None)
+    if hasattr(field, "remote_field") and field.remote_field:  # Forward/m2m relationship
+        rel = getattr(field, "remote_field", None)
         return rel.model
 
-    raise ValueError('{0}.{1} ({2}) is not a relationship field.'.format(
-        model.__name__, attr, field.__class__.__name__))
+    raise ValueError(
+        "{0}.{1} ({2}) is not a relationship field.".format(
+            model.__name__, attr, field.__class__.__name__
+        )
+    )

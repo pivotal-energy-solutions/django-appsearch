@@ -4,13 +4,11 @@ from django.db import models
 
 
 class User(AbstractUser):
-    """ Axis-customized User model. """
+    """Axis-customized User model."""
+
     company = models.ForeignKey(
-        'company.Company',
-        related_name='users',
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL)
+        "company.Company", related_name="users", blank=True, null=True, on_delete=models.SET_NULL
+    )
 
     title = models.CharField(max_length=32, null=True, blank=True)
     department = models.CharField(max_length=16, blank=True)

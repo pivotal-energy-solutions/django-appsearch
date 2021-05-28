@@ -21,7 +21,7 @@ class ModelSelectionForm(forms.Form):
 
     """
 
-    model = forms.ChoiceField(label='Search For')
+    model = forms.ChoiceField(label="Search For")
 
     def __init__(self, registry, user, *args, **kwargs):
         super(ModelSelectionForm, self).__init__(*args, **kwargs)
@@ -29,18 +29,19 @@ class ModelSelectionForm(forms.Form):
         self.registry = registry
         self.configurations = registry.get_configurations(user=user)
 
-        self.fields['model'].choices = \
-            BLANK_CHOICE_DASH + [(c._content_type.id, c.verbose_name) for c in self.configurations]
+        self.fields["model"].choices = BLANK_CHOICE_DASH + [
+            (c._content_type.id, c.verbose_name) for c in self.configurations
+        ]
 
     def clean_model(self):
-        """ Cleans the content type id into the model it represents. """
-        model = self.cleaned_data['model']
+        """Cleans the content type id into the model it represents."""
+        model = self.cleaned_data["model"]
         try:
             model = ContentType.objects.get(id=model).model_class()
         except ContentType.DoesNotExist as e:
-            raise ValidationError('Invalid choice - {}'.format(e))
+            raise ValidationError("Invalid choice - {}".format(e))
         if model not in self.registry:
-            raise ValidationError('Invalid choice')
+            raise ValidationError("Invalid choice")
         return model
 
     def get_selected_configuration(self):
@@ -48,11 +49,11 @@ class ModelSelectionForm(forms.Form):
         Given that the form has passed validation, returns the configuration for the selected model.
 
         """
-        model_value = self.cleaned_data['model']
+        model_value = self.cleaned_data["model"]
         return self.registry[model_value]
 
     def get_selected_model(self):
-        """ Given that the form has passed validation, returns the selected model. """
+        """Given that the form has passed validation, returns the selected model."""
         return self.get_selected_configuration().model
 
 
@@ -63,19 +64,22 @@ class ConstraintForm(forms.Form):
 
     """
 
-    type = forms.ChoiceField(label='Constraint', choices=[
-        ('and', 'AND'),
-        ('or', 'OR'),
-    ])
+    type = forms.ChoiceField(
+        label="Constraint",
+        choices=[
+            ("and", "AND"),
+            ("or", "OR"),
+        ],
+    )
 
     # Dynamically populated list of fields available for filtering
-    field = forms.ChoiceField(label='Filter by', choices=[])
+    field = forms.ChoiceField(label="Filter by", choices=[])
 
     # Dynamically populated list of valid operators for the chosen ``field``
-    operator = forms.ChoiceField(label='Constraint type', choices=[])
+    operator = forms.ChoiceField(label="Constraint type", choices=[])
 
-    term = forms.CharField(label='Search term', required=False)
-    end_term = forms.CharField(label='End term', required=False)
+    term = forms.CharField(label="Search term", required=False)
+    end_term = forms.CharField(label="End term", required=False)
 
     def __init__(self, configuration, *args, **kwargs):
         """
@@ -88,7 +92,7 @@ class ConstraintForm(forms.Form):
 
         self.configuration = configuration
         if configuration:
-            self.fields['field'].choices = configuration.get_searchable_field_choices()
+            self.fields["field"].choices = configuration.get_searchable_field_choices()
 
     def _clean_fields(self):
         """
@@ -108,35 +112,35 @@ class ConstraintForm(forms.Form):
 
         """
 
-        field_field = self.fields['field']
-        field_hash = field_field.widget.value_from_datadict(self.data, {}, self.add_prefix('field'))
+        field_field = self.fields["field"]
+        field_hash = field_field.widget.value_from_datadict(self.data, {}, self.add_prefix("field"))
         operators = self.configuration.get_operator_choices(hash=field_hash)
-        self.fields['operator'].choices = map(list, map(reversed, operators))
+        self.fields["operator"].choices = map(list, map(reversed, operators))
 
         # Allow default validation to occur, including the "clean_operator" method below.
         super(ConstraintForm, self)._clean_fields()
 
         # Set the operators back to the flat choices of frontend-only values
-        self.fields['operator'].choices = map(lambda o: (o[1], o[1]), operators)
+        self.fields["operator"].choices = map(lambda o: (o[1], o[1]), operators)
 
     def clean_type(self):
-        """ Convert type into an ``operator.and_`` or ``operator.or_`` reference. """
+        """Convert type into an ``operator.and_`` or ``operator.or_`` reference."""
 
-        type = self.cleaned_data['type']
+        type = self.cleaned_data["type"]
 
-        if type == 'and':
+        if type == "and":
             type = operator.and_
-        elif type == 'or':
+        elif type == "or":
             type = operator.or_
 
         return type
 
     def clean_field(self):
-        """ Convert ``field`` hash into ORM path tuple. """
-        return self.configuration.reverse_field_hash(self.cleaned_data['field'])
+        """Convert ``field`` hash into ORM path tuple."""
+        return self.configuration.reverse_field_hash(self.cleaned_data["field"])
 
     def clean_operator(self):
-        """ Convert operator into ORM query type such as "icontains" """
+        """Convert operator into ORM query type such as "icontains" """
 
         # The default cleaned_value will be the text from the UI, so the choices (which have been
         # reversed for default validation to accept the text as a valid choice) are converted to a
@@ -145,21 +149,21 @@ class ConstraintForm(forms.Form):
         # Input: "= equal"
         # Output: "iexact"
 
-        operator = self.cleaned_data['operator']
-        operator = dict(self.fields['operator'].choices)[operator]
+        operator = self.cleaned_data["operator"]
+        operator = dict(self.fields["operator"].choices)[operator]
 
         return operator
 
-    def clean_term(self):    # noqa: C901
-        """ Normalizes the ``term`` field to what makes sense for the operator. """
+    def clean_term(self):  # noqa: C901
+        """Normalizes the ``term`` field to what makes sense for the operator."""
 
-        if 'field' not in self.cleaned_data or 'operator' not in self.cleaned_data:
-            return self.cleaned_data['term']
+        if "field" not in self.cleaned_data or "operator" not in self.cleaned_data:
+            return self.cleaned_data["term"]
 
-        classification = self.configuration.get_field_classification(self.cleaned_data['field'])
-        operator = self.cleaned_data['operator']
-        term = self.cleaned_data['term'].strip()
-        field_type = self.configuration.field_types[self.cleaned_data['field']]
+        classification = self.configuration.get_field_classification(self.cleaned_data["field"])
+        operator = self.cleaned_data["operator"]
+        term = self.cleaned_data["term"].strip()
+        field_type = self.configuration.field_types[self.cleaned_data["field"]]
 
         if field_type.choices:
             # The field's database values aren't the display values, but the display values are
@@ -169,26 +173,26 @@ class ConstraintForm(forms.Form):
                 term = choices[term.lower()]
         else:
             # Numbers and strings don't need processing, but the other types should be inspected.
-            if classification == 'date':
+            if classification == "date":
                 try:
                     term = dateutil.parser.parse(term)
                 except (TypeError, ValueError):
                     raise ValidationError("Unable to parse a date from '{}'".format(term))
-            elif classification == 'boolean':
-                if term.lower() in ('true', 'yes'):
+            elif classification == "boolean":
+                if term.lower() in ("true", "yes"):
                     term = True
-                elif term.lower() in ('false', 'no'):
+                elif term.lower() in ("false", "no"):
                     term = False
                 else:
-                    raise ValidationError('Boolean value must be either true/false or yes/no.')
-            elif classification == 'number':
+                    raise ValidationError("Boolean value must be either true/false or yes/no.")
+            elif classification == "number":
                 try:
                     float(term)
                 except TypeError:
-                    raise ValidationError('Value must be numeric.')
+                    raise ValidationError("Value must be numeric.")
 
-        if operator not in ('isnull', '!isnull') and term in [None, '']:
-            raise ValidationError('This field is required.')
+        if operator not in ("isnull", "!isnull") and term in [None, ""]:
+            raise ValidationError("This field is required.")
 
         return term
 
@@ -202,36 +206,40 @@ class ConstraintForm(forms.Form):
 
         """
 
-        if 'field' not in self.cleaned_data or 'operator' not in self.cleaned_data \
-                or 'term' not in self.cleaned_data:
-            return self.cleaned_data['end_term']
+        if (
+            "field" not in self.cleaned_data
+            or "operator" not in self.cleaned_data
+            or "term" not in self.cleaned_data
+        ):
+            return self.cleaned_data["end_term"]
 
-        classification = self.configuration.get_field_classification(self.cleaned_data['field'])
-        operator = self.cleaned_data['operator']
-        begin_term = self.cleaned_data['term']
-        term = self.cleaned_data['end_term']
+        classification = self.configuration.get_field_classification(self.cleaned_data["field"])
+        operator = self.cleaned_data["operator"]
+        begin_term = self.cleaned_data["term"]
+        term = self.cleaned_data["end_term"]
 
-        if operator == 'range':
-            if classification == 'date':
+        if operator == "range":
+            if classification == "date":
                 term = dateutil.parser.parse(term)
-            elif classification == 'number':
+            elif classification == "number":
                 term = int(term)
             else:
-                raise ValidationError('Unknown range type %r.' % classification)
-            self.cleaned_data['term'] = [begin_term, term]
+                raise ValidationError("Unknown range type %r." % classification)
+            self.cleaned_data["term"] = [begin_term, term]
 
-        return ''
+        return ""
 
 
 class ConstraintFormset(BaseFormSet):
-    """ Removes the first ``ConstraintForm``'s ``type`` field. """
+    """Removes the first ``ConstraintForm``'s ``type`` field."""
 
     def __init__(self, configuration, *args, **kwargs):
-        """ Stores the configuration until the forms are constructed. """
+        """Stores the configuration until the forms are constructed."""
         self.configuration = configuration
         super(ConstraintFormset, self).__init__(*args, **kwargs)
 
     def _construct_form(self, i, **kwargs):
-        """ Sends the specified model configuration to the form. """
-        return super(ConstraintFormset, self)._construct_form(i, configuration=self.configuration,
-                                                              **kwargs)
+        """Sends the specified model configuration to the form."""
+        return super(ConstraintFormset, self)._construct_form(
+            i, configuration=self.configuration, **kwargs
+        )
