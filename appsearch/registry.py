@@ -350,7 +350,7 @@ class ModelSearch(object):
         else:
             raise ValueError("Unhandled field type %s" % field.__class__.__name__)
 
-    def get_searchable_field_choices(self, include_types=False):
+    def get_searchable_field_choices(self, include_types=False):  # noqa: E731
         """
         Returns an iterable of 2-tuples suitable for use as a form's ``choices`` attribute.
 
