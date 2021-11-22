@@ -6,13 +6,20 @@ https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
 
+__name__ = "appsearch"
+__author__ = "Pivotal Energy Solutions"
+__version_info__ = (2, 1, 5)
+__version__ = "2.1.5"
+__date__ = "2014/07/22 4:47:00 PM"
+
+__credits__ = ["Tim Valenta", "Steven Klass"]
+__license__ = "See the file LICENSE.txt for licensing information."
+
 from codecs import open
 from os import path
 
 # Always prefer setuptools over distutils
 from setuptools import find_packages, setup
-
-from appsearch import __version__, __author__
 
 here = path.abspath(path.dirname(__file__))
 base_url = "https://github.com/pivotal-energy-solutions/django-appsearch/"
@@ -24,7 +31,7 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 setup(
     name="django-appsearch",
     zip_safe=False,  # eggs are the devil.
-    version=__version__,
+    version="2.1.5",
     description="Framework and generic app for cross-model searches on a single page",
     long_description=long_description,
     long_description_content_type="text/markdown",
