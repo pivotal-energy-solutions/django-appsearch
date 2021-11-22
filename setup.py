@@ -60,7 +60,7 @@ setup(
         "Topic :: Utilities",
     ],
     python_requires=">=3.8.*",
-    install_requires=["django~=3", "python-dateutil", "six"],
+    install_requires=["django~=3.2", "python-dateutil", "six"],
     scripts=[],
     project_urls={
         "Bug Reports": "{}/issues".format(base_url),
