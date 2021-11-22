@@ -78,7 +78,7 @@ jobs:
           pip install bandit
 
       - name: Bandit
-        run: bandit -r appsearch -x appsearch/tests -s B308 -f json -o report.json
+        run: bandit -r appsearch -x appsearch/tests -s B308,B703,B303 -f json -o report.json
 
       - name: Show report
         if: ${{ success() || failure() }}
