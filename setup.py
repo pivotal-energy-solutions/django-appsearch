@@ -8,8 +8,8 @@ https://github.com/pypa/sampleproject
 
 __name__ = "appsearch"
 __author__ = "Pivotal Energy Solutions"
-__version_info__ = (2, 1, 5)
-__version__ = "2.1.5"
+__version_info__ = (2, 1, 6)
+__version__ = "2.1.6"
 __date__ = "2014/07/22 4:47:00 PM"
 
 __credits__ = ["Tim Valenta", "Steven Klass"]
@@ -31,7 +31,7 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
 setup(
     name="django-appsearch",
     zip_safe=False,  # eggs are the devil.
-    version="2.1.5",
+    version="2.1.6",
     description="Framework and generic app for cross-model searches on a single page",
     long_description=long_description,
     long_description_content_type="text/markdown",
