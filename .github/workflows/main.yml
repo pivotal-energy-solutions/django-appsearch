@@ -127,10 +127,6 @@ jobs:
           --health-retries=3
 
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-
       - name: Verify MySQL connection from host
         if: matrix.db == 'mysql'
         run: |
@@ -142,7 +138,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner for ${{ matrix.python-version }}."
       - name: Install dependencies
         run: |
           python setup.py install
@@ -158,11 +153,9 @@ jobs:
         run: |
           demo_app/manage.py test --noinput --settings=demo_app.settings_test appsearch
 
-      - name: Django source code check
+      - name: Django Check
         run: |
           python demo_app/manage.py check
-
-      - run: echo "🍏 This job's status is ${{ job.status }}."
 
   coverage:
     name: Coverage
