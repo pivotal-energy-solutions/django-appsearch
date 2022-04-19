@@ -23,8 +23,10 @@ for handler in LOGGING.get("handlers", []):
 for logger in LOGGING.get("loggers", []):
     LOGGING["loggers"][logger]["level"] = "ERROR"
 
-DATABASES = {
-    "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"},
-}
+mysql_db = DATABASES["default"]
+DEFAULT_DB = {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}
+if os.environ.get("DB_TYPE") == "mysql":
+    print("Using MySQL Backend!")
+    DEFAULT_DB = mysql_db
 
 SILENCED_SYSTEM_CHECKS = ["django_mysql.E016"]

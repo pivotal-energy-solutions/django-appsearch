@@ -11,24 +11,37 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
+import logging
 import os
 import sys
 
-from decouple import config
+import environ
+
+env = environ.Env(
+    DEBUG=(bool, False),
+    DEBUG_LEVEL=(int, logging.WARNING),
+    SECRET_KEY=(str, "SECRET_KEY"),
+    MYSQL_DATABASE=(str, "db"),
+    MYSQL_USER=(str, "root"),
+    MYSQL_PASSWORD=(str, "password"),
+    MYSQL_HOST=(str, "127.0.0.1"),
+    MYSQL_PORT=(str, "3306"),
+)
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+env.read_env(env_file=os.path.join(os.path.dirname(BASE_DIR), ".env"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "o-6nf_sadqolmej19nzgd3^%x%x!^@r+wc3gqu67(0bvd)9vps"
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env("DEBUG")
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
@@ -86,17 +99,13 @@ WSGI_APPLICATION = "demo_app.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(os.path.dirname(BASE_DIR), "db.db"),
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": env("MYSQL_DATABASE"),
+        "USER": env("MYSQL_USER"),
+        "PASSWORD": env("MYSQL_PASSWORD"),
+        "HOST": env("MYSQL_HOST"),
+        "PORT": env("DOCKER_MYSQL_PORT", default=env("MYSQL_PORT", default="3306")),
     }
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql',
-    #     'NAME': config('POSTGRES_DB', default=config('POSTGRES_USER', 'postgres')),
-    #     'USER': config('POSTGRES_USER', 'postgres'),
-    #     'PASSWORD': config('POSTGRES_PASSWORD', None),
-    #     'HOST': config('POSTGRESS_HOST', default='127.0.0.1'),
-    #     'PORT': '5432',
-    # }
 }
 
 # Password validation
@@ -104,16 +113,16 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"
     },
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"
     },
     {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"
     },
 ]
 
@@ -129,6 +138,8 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # NOTE:  This MUST be writeable by Apache!!
@@ -181,24 +192,15 @@ LOGGING = {
         "django.server": {"handlers": ["console"], "level": "INFO", "propagate": False},
         "django.db.backends": {"handlers": ["console"], "level": "INFO", "propagate": False},
         "django.template": {"handlers": ["console"], "level": "INFO", "propagate": False},
-        # 'django_celery_beat': {'handlers': ['console'], 'level': 'WARNING', 'propagate': False},
-        # 'celery': {'handlers': ['console'], 'level': 'WARNING', 'propagate': False},
-        # 'amqp': {'handlers': ['console'], 'level': 'WARNING', 'propagate': False},
-        # 'kombu': {'handlers': ['console'], 'level': 'WARNING', 'propagate': False},
         "requests": {"handlers": ["console"], "level": "WARNING"},
         "multiprocessing": {"handlers": ["console"], "level": "WARNING"},
         "py.warnings": {"handlers": ["console"], "level": "WARNING"},
-        "registration": {
-            "handlers": ["console"],
-            "level": config("DEBUG_LEVEL", "WARNING"),
-            "propagate": False,
-        },
         "demo_app": {
             "handlers": ["console"],
-            "level": config("DEBUG_LEVEL", "ERROR"),
+            "level": env("DEBUG_LEVEL", "ERROR"),
             "propagate": False,
         },
-        "": {"handlers": ["console"], "level": config("DEBUG_LEVEL", "ERROR"), "propagate": True},
+        "": {"handlers": ["console"], "level": env("DEBUG_LEVEL", "ERROR"), "propagate": True},
     },
 }
 
@@ -210,5 +212,3 @@ LOGIN_URL = "/accounts/login/"
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 DEFAULT_FROM_EMAIL = "backend@pivotalenergy.net"
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
