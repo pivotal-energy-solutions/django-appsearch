@@ -240,4 +240,9 @@ jobs:
           TASK_ALWAYS_EAGER: 1
           GITHUB_TOKEN: ${{ secrets.ORGANIZATIONAL_REPO_TOKEN }}
         run: |
-          bumper.py --directory . --exclude=.idea,.github,demo_app --version_files appsearch/__init__.py --repo=pivotal-energy-solutions/django-appsearch -v
+          bumper.py --directory . --exclude=.idea,.github,demo_app \
+            --version_files appsearch/__init__.py \
+            --repo=pivotal-energy-solutions/django-appsearch > out.json
+          echo "bumped=$(jq '.bumped' out.json)" >> $GITHUB_OUTPUT
+          echo "bump_version=$(jq '.bump_version' out.json)" >> $GITHUB_OUTPUT
+          echo "bump_sha=$(jq '.bump_sha' out.json)" >> $GITHUB_OUTPUT
