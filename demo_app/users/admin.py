@@ -8,7 +8,6 @@ from .models import User
 
 
 class UserAdmin(AuthUserAdmin):
-
     form = UserAdminChangeForm
     add_form = UserAdminCreationForm
 

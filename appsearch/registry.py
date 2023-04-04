@@ -175,7 +175,6 @@ class ModelSearch(object):
 
         if related_name:
             if isinstance(related_name, str):
-
                 try:
                     # Post 1.8
                     field = model._meta.get_field(related_name)
@@ -193,7 +192,6 @@ class ModelSearch(object):
                         else:
                             related_model = field.remote_field.model
                     else:
-
                         if hasattr(field, "related_model"):
                             # Post 1.8
                             related_model = field.related_model

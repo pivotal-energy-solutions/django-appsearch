@@ -67,7 +67,6 @@ class SearchTests(TestCase):
         self.assertIn(company.name, str(response.content))
 
     def test_object_contains_no_data(self):
-
         self.assertEqual(Company.objects.count(), 0)
         term = "XYS"
         company = Company.objects.create(name="%s Plumbing" % term)
