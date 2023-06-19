@@ -7,7 +7,6 @@ on:
     - cron: '0 1 * * 5'
 
 jobs:
-
   cancel:
     name: Canceling Outstanding Jobs
     runs-on: ubuntu-latest
@@ -28,7 +27,6 @@ jobs:
           cache-dependency-path: |
             setup.py
             requirements*.txt
-
       - name: Install dependencies
         run: |
           python setup.py install
@@ -37,7 +35,7 @@ jobs:
           pip install -r requirements_dev.txt --user
 
       - name: outdated
-        run: pip list --outdated --not-required --exclude=django --user | grep . && echo "There are outdated packages" && exit 1 || echo "All packages up to date"
+        run: pip list --outdated --not-required --user | grep . && echo "There are outdated packages" && exit 1 || echo "All packages up to date"
 
   black:
     name: Black
@@ -51,7 +49,6 @@ jobs:
           cache-dependency-path: |
             setup.py
             requirements*.txt
-
       - name: Install dependencies
         run: |
           python setup.py install
@@ -74,7 +71,6 @@ jobs:
           cache-dependency-path: |
             setup.py
             requirements*.txt
-
       - name: Install dependencies
         run: |
           python setup.py install
@@ -125,29 +121,29 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        db: [ sqlite, mysql ]
+        db: [ sqlite, mariadb ]
         django-version: [ "~=4.2.0" ]
         python-version: [ "3.10" ]
 
     services:
       mariadb:
         image: mariadb:latest
-
         env:
-          MYSQL_ROOT_PASSWORD: password
+          MARIADB_ROOT_PASSWORD: password
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping"
+          --health-cmd="mariadb-admin ping"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=3
 
     steps:
       - name: Verify MySQL connection from host
-        if: matrix.db == 'mysql'
+        if: matrix.db == 'mariadb'
         run: |
           mysql --host 127.0.0.1 --port 3306 -uroot -ppassword -e "SHOW DATABASES" 2>&1 > /dev/null
+          mysql --host 127.0.0.1 --port 3306 -uroot -ppassword -V
 
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -205,6 +201,7 @@ jobs:
       - name: Combine Report Coverage
         run: |
             coverage combine coverage-*/.coverage
+            coverage report --precision=1 --sort=cover --skip-covered --skip-empty
             coverage xml
 
       - name: Upload coverage to Codecov
