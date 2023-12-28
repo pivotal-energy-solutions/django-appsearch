@@ -86,11 +86,6 @@ exclude = '''
   | dist
 )/
 '''
-extend-exclude = '''
-# A regex preceded with ^/ will apply only to files and directories
-# in the root of the project.
-/static/.py  # exclude a file named foo.py in the root of the project (in addition to the defaults)
-'''
 
 [tool.bandit]
 targets = ['appsearch']
@@ -113,3 +108,9 @@ skip_covered = true
 skip_empty = true
 ignore_errors = true
 sort = "cover"
+
+[tool.bumper]
+exclude = [".idea", ".github", "demo_app"]
+version_files = ["appsearch/__init__.py"]
+repo = "pivotal-energy-solutions/django-appsearch"
+report = "out.json"

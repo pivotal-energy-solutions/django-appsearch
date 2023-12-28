@@ -91,7 +91,7 @@ jobs:
           pip install .[test]
 
       - name: Bandit
-        run: bandit -c pyproject.toml -f json -o report.json
+        run: bandit -c pyproject.toml -f json -o report.json .
 
       - name: Show report
         if: ${{ success() || failure() }}
@@ -163,8 +163,7 @@ jobs:
           retention-days: 1
 
       - name: Django Check
-        run: |
-          python demo_app/manage.py check
+        run: python demo_app/manage.py check
 
   coverage:
     name: Upload Coverage to Codecov
@@ -224,9 +223,7 @@ jobs:
           TASK_ALWAYS_EAGER: 1
           GITHUB_TOKEN: ${{ secrets.ORGANIZATIONAL_REPO_TOKEN }}
         run: |
-          bumper.py --directory . --exclude=.github,demo_app \
-            --version_files appsearch/__init__.py \
-            --repo=pivotal-energy-solutions/django-appsearch > out.json
+          bumper -P
           echo "bumped=$(jq '.bumped' out.json)" >> $GITHUB_OUTPUT
           echo "bump_version=$(jq '.bump_version' out.json)" >> $GITHUB_OUTPUT
           echo "bump_sha=$(jq '.bump_sha' out.json)" >> $GITHUB_OUTPUT
