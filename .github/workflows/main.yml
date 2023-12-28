@@ -220,7 +220,6 @@ jobs:
         id: release
         env:
           PYTHONWARNINGS: once::DeprecationWarning
-          TASK_ALWAYS_EAGER: 1
           GITHUB_TOKEN: ${{ secrets.ORGANIZATIONAL_REPO_TOKEN }}
         run: |
           bumper -P
