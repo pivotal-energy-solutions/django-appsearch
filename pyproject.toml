@@ -7,6 +7,7 @@ name = "django-appsearch"
 dynamic = ["version"]
 description = "Framework and generic app for cross-model searches on a single page"
 readme = "README.md"
+license = "LICENSE.txt"
 requires-python = ">=3.9"
 authors = [
     { name = "Pivotal Energy Solutions", email = "steve@pivotal.energy" },
