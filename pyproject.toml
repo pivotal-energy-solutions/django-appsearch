@@ -39,6 +39,8 @@ dependencies = [
 
 [project.optional-dependencies]
 test = [
+    "django-environ",
+    "mysqlclient",
     "flake8",
     "coverage",
     "pre-commit",
