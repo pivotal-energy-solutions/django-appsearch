@@ -1,6 +1,79 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "django-appsearch"
+dynamic = ["version"]
+description = "Framework and generic app for cross-model searches on a single page"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    { name = "Pivotal Energy Solutions", email = "steve@pivotal.energy" },
+]
+keywords = [
+    "django",
+    "search",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 4.2",
+    "Framework :: Django :: 5.0",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "django>=4.2",
+    "python-dateutil",
+]
+
+[project.optional-dependencies]
+test = [
+    "django-environ",
+    "mysqlclient",
+    "flake8",
+    "coverage",
+    "pre-commit",
+    "black",
+    "bandit"
+]
+
+[project.urls]
+Issues = "https://github.com/pivotal-energy-solutions/django-appsearch//issues"
+Download = "https://github.com/pivotal-energy-solutions/django-appsearch//archive/2.1.26.tar.gz"
+Homepage = "https://github.com/pivotal-energy-solutions/django-appsearch/"
+Thanks = "https://saythanks.io/to/rh0dium"
+Source = "https://github.com/pivotal-energy-solutions/django-appsearch/"
+
+[tool.hatch.version]
+path = "appsearch/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/appsearch",
+    "/appsearch/templates/**/*",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ['appsearch']
+include = [
+    "/appsearch/static/**/*",
+    "/appsearch/templates/**/*",
+]
+
 [tool.black]
 line-length = 100
-target-version = ['py310']
+target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -13,8 +86,31 @@ exclude = '''
   | dist
 )/
 '''
-extend-exclude = '''
-# A regex preceded with ^/ will apply only to files and directories
-# in the root of the project.
-/static/.py  # exclude a file named foo.py in the root of the project (in addition to the defaults)
-'''
+
+[tool.bandit]
+targets = ['appsearch']
+exclude_dirs = ["appsearch/tests", "demo_app"]
+skips = ["B308", "B703", "B303", "B324"]
+
+[tool.coverage.run]
+branch = true
+command_line = "demo_app/manage.py test --noinput --settings=demo_app.settings_test appsearch"
+omit = [
+    "*/demo_app/**",
+    "*/migrations/*",
+    "*/tests/**",
+]
+
+[tool.coverage.report]
+fail_under = 77
+precision = 1
+skip_covered = true
+skip_empty = true
+ignore_errors = true
+sort = "cover"
+
+[tool.bumper]
+exclude = [".idea", ".github", "demo_app"]
+version_files = ["appsearch/__init__.py"]
+repo = "pivotal-energy-solutions/django-appsearch"
+report = "out.json"
