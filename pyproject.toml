@@ -89,7 +89,7 @@ exclude = '''
 
 [tool.bandit]
 targets = ['appsearch']
-exclude_dirs = ["appsearch/tests"]
+exclude_dirs = ["appsearch/tests", "demo_app"]
 skips = ["B308", "B703", "B303", "B324"]
 
 [tool.coverage.run]
