@@ -92,8 +92,15 @@ extend-exclude = '''
 /static/.py  # exclude a file named foo.py in the root of the project (in addition to the defaults)
 '''
 
+#  -r appsearch -x appsearch/tests -s B308,B703,B303,B324 -f json -o report.json
+[tool.bandit]
+targets = ['appsearch']
+exclude_dirs = ["appsearch/tests"]
+skips = ["B308", "B703", "B303", "B324"]
+
 [tool.coverage.run]
 branch = true
+command_line = "demo_app/manage.py test --noinput --settings=demo_app.settings_test appsearch"
 omit = [
     "*/demo_app/**",
     "*/migrations/*",

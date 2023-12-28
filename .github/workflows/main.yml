@@ -91,7 +91,7 @@ jobs:
           pip install .[test]
 
       - name: Bandit
-        run: bandit -r appsearch -x appsearch/tests -s B308,B703,B303,B324 -f json -o report.json
+        run: bandit -c pyproject.toml -f json -o report.json
 
       - name: Show report
         if: ${{ success() || failure() }}
@@ -107,7 +107,7 @@ jobs:
   tests:
     name: Python ${{ matrix.python-version }} / ${{ matrix.db }} / Django ${{ matrix.django-version}}
     runs-on: ubuntu-latest
-#    continue-on-error: ${{ matrix.django-version == '~=4.2.0' }}
+#    continue-on-error: ${{ matrix.django-version == '~=5.0' }}
     strategy:
       max-parallel: 4
       matrix:
@@ -154,7 +154,7 @@ jobs:
           PYTHONWARNINGS: once::DeprecationWarning
           TASK_ALWAYS_EAGER: 1
           DB_TYPE: ${{ matrix.db }}
-        run: export PYTHONPATH=`pwd` && coverage run  demo_app/manage.py test --noinput --settings=demo_app.settings_test appsearch
+        run: export PYTHONPATH=`pwd` && coverage run
       - name: "Upload Coverage Results for PY:${{ matrix.python-version }} DB:${{ matrix.db}} DJ:${{ matrix.django-version }}"
         uses: actions/upload-artifact@v3
         with:
