@@ -11,6 +11,7 @@ __credits__ = ["Tim Valenta", "Steven Klass"]
 __license__ = "See the file LICENSE.txt for licensing information."
 
 import logging
+from django.db.utils import ProgrammingError, OperationalError
 
 log = logging.getLogger(__name__)
 
@@ -31,5 +32,10 @@ def autodiscover():
         if module_has_submodule(config.module, "search"):
             try:
                 _ = import_module(config.name + ".search")
+            except ProgrammingError:
+                log.warning("Empty database not continuing")
+                break
+            except OperationalError:
+                raise
             except Exception:
                 raise ImportError("Loading {}.search module failed".format(config.name))
