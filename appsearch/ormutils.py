@@ -5,10 +5,7 @@ from functools import reduce
 from django.core.exceptions import FieldDoesNotExist
 
 
-try:
-    from django.db.models.sql.constants import LOOKUP_SEP
-except ImportError:
-    from django.db.models.constants import LOOKUP_SEP
+from django.db.models.constants import LOOKUP_SEP
 
 
 def resolve_orm_path(model, orm_path):
