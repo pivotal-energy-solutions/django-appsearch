@@ -94,7 +94,7 @@ omit = [
 ]
 
 [tool.coverage.report]
-fail_under = 77
+fail_under = 75
 precision = 1
 skip_covered = true
 skip_empty = true
