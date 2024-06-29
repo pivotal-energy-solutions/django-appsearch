@@ -361,9 +361,9 @@ class ModelSearch(object):
             choices = map(lambda c: c + (self.get_field_classification(c[0]),), choices)
 
         # Perform a sha hash on the ORM path to get something unique and obscured for the frontend
-        encode_value = lambda pair: (sha((",".join(pair[0])).encode("utf-8")).hexdigest(),) + tuple(
-            pair[1:]
-        )  # noqa: E731
+        encode_value = lambda pair: (  # noqa: E731
+            (sha((",".join(pair[0])).encode("utf-8")).hexdigest(),) + tuple(pair[1:])
+        )
         return map(encode_value, choices)
 
     def reverse_field_hash(self, hash):
