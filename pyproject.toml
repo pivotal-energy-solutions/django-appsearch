@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
@@ -7,7 +7,7 @@ name = "django-appsearch"
 dynamic = ["version"]
 description = "Framework and generic app for cross-model searches on a single page"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 authors = [
     { name = "Pivotal Energy Solutions", email = "steve@pivotal.energy" },
 ]
@@ -25,9 +25,6 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Utilities",
@@ -56,7 +53,7 @@ Thanks = "https://saythanks.io/to/rh0dium"
 Source = "https://github.com/pivotal-energy-solutions/django-appsearch/"
 
 [tool.hatch.version]
-path = "appsearch/__init__.py"
+source = "vcs"
 
 [tool.hatch.build.targets.sdist]
 include = [
@@ -75,17 +72,11 @@ include = [
 line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | build
-  | dist
-)/
-'''
+exclude = '(\.git|.venv|_build|build|dist|.*\/__pycache__\/)'
+
+[tool.ruff]
+line-length = 100
+lint.ignore = ["F401"]
 
 [tool.bandit]
 targets = ['appsearch']
