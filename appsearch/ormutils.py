@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """ormutils.py: ORM Utils"""
+
 from functools import reduce
 
 from django.core.exceptions import FieldDoesNotExist

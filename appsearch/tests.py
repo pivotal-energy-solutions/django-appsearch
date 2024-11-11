@@ -5,6 +5,7 @@ when you run "manage.py test".
 
 Replace this with more appropriate tests for your application.
 """
+
 import re
 from urllib.parse import urlencode
 

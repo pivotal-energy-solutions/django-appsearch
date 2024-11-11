@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""views.py.py: """
-
+"""views.py.py:"""
 
 from django.contrib.auth import get_user_model
 
