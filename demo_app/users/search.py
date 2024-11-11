@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""search.py: Django """
-
+"""search.py: Django"""
 
 import logging
 

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """search.py: Django company"""
 
-
 from appsearch.registry import ModelSearch, search
 
 from .models import Company
