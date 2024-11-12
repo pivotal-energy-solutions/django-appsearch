@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """forms.py: appsearch forms"""
 
 import operator

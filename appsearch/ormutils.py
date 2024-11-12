@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ormutils.py: ORM Utils"""
 
 from functools import reduce

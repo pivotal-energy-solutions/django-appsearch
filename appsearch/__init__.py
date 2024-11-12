@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # This code is heavily based on contrib.admin's autodiscover mechanism.
 
 __name__ = "appsearch"

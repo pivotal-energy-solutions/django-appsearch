@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """views.py: ORM Utils"""
 
 from django.views.generic import TemplateView

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """utils.py: Searcher"""
 
 import json
