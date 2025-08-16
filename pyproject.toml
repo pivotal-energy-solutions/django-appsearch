@@ -102,6 +102,5 @@ sort = "cover"
 
 [tool.bumper]
 exclude = [".idea", ".github", "demo_app"]
-version_files = ["appsearch/__init__.py"]
 repo = "pivotal-energy-solutions/django-appsearch"
 report = "out.json"
