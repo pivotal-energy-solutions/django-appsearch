@@ -201,7 +201,7 @@ jobs:
       - name: Combine Report Coverage
         run: |
             coverage combine coverage-*/.coverage
-            coverage report
+            coverage report --precision=1 --sort=cover --skip-covered --skip-empty
             coverage xml
 
       - name: Upload coverage to Codecov
@@ -213,18 +213,19 @@ jobs:
 
   release:
     name: Release
-    if: ${{ github.event_name != 'schedule' }}
     runs-on: ubuntu-latest
     needs: ['outdated', 'black', 'pre-commit', 'security', 'tests', 'coverage']
+    if: github.ref == 'refs/heads/master'  # Only run on master
     permissions: write-all
     outputs:
       bumped: ${{ steps.release.outputs.bumped }}
       bump_version: ${{ steps.release.outputs.bump_version }}
-      bump_sha:  ${{ steps.release.outputs.bump_sha }}
+      bump_sha: ${{ steps.release.outputs.bump_sha }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          ref: master
+          fetch-depth: 0  # Need full history for git tags and version calculation
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
