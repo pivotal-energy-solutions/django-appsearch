@@ -86,7 +86,6 @@ jobs:
   tests:
     if: ${{ !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') }}
     name: Python ${{ matrix.python-version }} / ${{ matrix.db }} / Django ${{ matrix.django-version }}${{ matrix.experimental && ' (experimental)' || '' }}
-    if: ${{ !startsWith(github.ref, 'refs/heads/gh-readonly-queue/') }}
     runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.experimental || false }}
     strategy:
