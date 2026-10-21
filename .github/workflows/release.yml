@@ -80,10 +80,21 @@ jobs:
         with:
           python-version: "3.13"
 
+      # An auth header, as actions/checkout does, not the token as the URL's username: on runner
+      # image ubuntu24/20261018 (curl 8.5.0-2ubuntu10.16, git 2.55) the token-only URL fails with
+      # "could not read Username". The header is removed afterwards so bumper's push keeps using
+      # actions/checkout's credentials (git prefers the more specific org-scoped header).
       - name: Install dependencies
         if: steps.verify.outputs.should_release == 'true'
+        env:
+          TOKEN: ${{ secrets.ORGANIZATIONAL_REPO_TOKEN }}
         run: |
-          pip install git+https://${{ secrets.ORGANIZATIONAL_REPO_TOKEN }}@github.com/pivotal-energy-solutions/tensor-infrastructure@master#egg=infrastructure
+          key=http.https://github.com/pivotal-energy-solutions/.extraheader
+          trap 'git config --global --unset-all "$key" || true' EXIT
+          basic=$(printf 'x-access-token:%s' "$TOKEN" | base64 -w0)
+          echo "::add-mask::$basic"
+          git config --global "$key" "AUTHORIZATION: basic $basic"
+          pip install git+https://github.com/pivotal-energy-solutions/tensor-infrastructure@master#egg=infrastructure
 
       - name: Release
         id: release
